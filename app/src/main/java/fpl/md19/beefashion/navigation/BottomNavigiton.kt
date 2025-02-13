@@ -35,6 +35,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.R
+import fpl.md19.beefashion.screens.auth.LoginScreen
+import fpl.md19.beefashion.screens.auth.SignUpScreen
+import fpl.md19.beefashion.screens.auth.WelcomeScreen
+import fpl.md19.beefashion.screens.auth.WelcomeScreen1
 import fpl.md19.beefashion.screens.product.ProductScreen
 import fpl.md19.beefashion.screens.tab.AccountScreen
 import fpl.md19.beefashion.screens.tab.CartScreen
@@ -106,9 +110,23 @@ fun NestedBottomTab(
     val context = LocalContext.current
 
     NavHost(
-        navController, "HomeScreen"
+        navController, "WelcomeScreen"
     ) {
         //dinh nghia man hinh
+        composable("WelcomeScreen") {
+            WelcomeScreen(navController)
+        }
+        composable("WelcomeScreen1") {
+            WelcomeScreen1(navController)
+        }
+        composable("LoginScreen") {
+            LoginScreen(navController)
+        }
+        composable("SignUpScreen") {
+            SignUpScreen(navController)
+        }
+
+
         composable("HomeScreen") {
             HomeScreen(navController)
         }
