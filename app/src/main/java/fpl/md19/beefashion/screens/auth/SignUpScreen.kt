@@ -33,10 +33,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.R
 
 @Composable
-fun SignUpScreen() {
+fun SignUpScreen(navController: NavController) {
     // State to hold input values
     val fullName = remember { mutableStateOf("") }
     val email = remember { mutableStateOf("") }
@@ -206,7 +208,7 @@ fun SignUpScreen() {
 
         // Create Account Button
         Button (
-            onClick = { },
+            onClick = { navController.navigate("LoginScreen")},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 24.dp)
@@ -239,7 +241,7 @@ fun SignUpScreen() {
                 text = "Đăng nhập",
                 fontSize = 16.sp,
                 color = Color.Black,
-                modifier = Modifier.clickable { }
+                modifier = Modifier.clickable { navController.navigate("LoginScreen")}
             )
         }
     }
@@ -248,5 +250,6 @@ fun SignUpScreen() {
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun SignUpScreenPreview() {
-    SignUpScreen()
+    val navController = rememberNavController()
+    SignUpScreen(navController)
 }

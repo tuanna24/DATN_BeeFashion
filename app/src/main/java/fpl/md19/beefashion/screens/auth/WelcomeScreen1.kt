@@ -15,10 +15,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.R
 
 @Composable
-fun WelcomeScreen1() {
+fun WelcomeScreen1(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -48,7 +50,7 @@ fun WelcomeScreen1() {
             )
 
             Button(
-                onClick = { },
+                onClick = {   navController.navigate("LoginScreen")},
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp)
@@ -77,5 +79,6 @@ fun WelcomeScreen1() {
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun WelcomeScreen1Preview() {
-   WelcomeScreen1()
+    val navController = rememberNavController()
+   WelcomeScreen1(navController)
 }
