@@ -89,46 +89,46 @@ fun NotificationsScreen(
                 checked = sound,
                 onCheckedChange = { sound = it }
             )
-            NotificationSettingItem(
-                title = "Rung",
-                checked = vibrate,
-                onCheckedChange = { vibrate = it }
-            )
-            NotificationSettingItem(
-                title = "Ưu Đãi Đặc Biệt",
-                checked = specialOffers,
-                onCheckedChange = { specialOffers = it }
-            )
-            NotificationSettingItem(
-                title = "Khuyến Mãi & Giảm Giá",
-                checked = promoDiscounts,
-                onCheckedChange = { promoDiscounts = it }
-            )
+//            NotificationSettingItem(
+//                title = "Rung",
+//                checked = vibrate,
+//                onCheckedChange = { vibrate = it }
+//            )
+//            NotificationSettingItem(
+//                title = "Ưu Đãi Đặc Biệt",
+//                checked = specialOffers,
+//                onCheckedChange = { specialOffers = it }
+//            )
+//            NotificationSettingItem(
+//                title = "Khuyến Mãi & Giảm Giá",
+//                checked = promoDiscounts,
+//                onCheckedChange = { promoDiscounts = it }
+//            )
             NotificationSettingItem(
                 title = "Thanh Toán",
                 checked = payments,
                 onCheckedChange = { payments = it }
             )
             NotificationSettingItem(
-                title = "Hoàn Tiền",
+                title = "Mua hàng",
                 checked = cashback,
                 onCheckedChange = { cashback = it }
             )
-            NotificationSettingItem(
-                title = "Cập Nhật Ứng Dụng",
-                checked = appUpdates,
-                onCheckedChange = { appUpdates = it }
-            )
-            NotificationSettingItem(
-                title = "Dịch Vụ Mới Có Sẵn",
-                checked = newService,
-                onCheckedChange = { newService = it }
-            )
-            NotificationSettingItem(
-                title = "Mẹo Mới Có Sẵn",
-                checked = newTips,
-                onCheckedChange = { newTips = it }
-            )
+//            NotificationSettingItem(
+//                title = "Cập Nhật Ứng Dụng",
+//                checked = appUpdates,
+//                onCheckedChange = { appUpdates = it }
+//            )
+//            NotificationSettingItem(
+//                title = "Dịch Vụ Mới Có Sẵn",
+//                checked = newService,
+//                onCheckedChange = { newService = it }
+//            )
+//            NotificationSettingItem(
+//                title = "Mẹo Mới Có Sẵn",
+//                checked = newTips,
+//                onCheckedChange = { newTips = it }
+//            )
         }
     }
 }

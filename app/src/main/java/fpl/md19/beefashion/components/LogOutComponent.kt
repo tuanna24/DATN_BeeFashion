@@ -1,5 +1,4 @@
 package fpl.md19.beefashion.components
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -14,7 +13,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import fpl.md19.beefashion.screens.accounts.MyDetailsScreen
-
 @Composable
 fun LogOutComponent(
     onConfirm: () -> Unit,
@@ -48,14 +46,12 @@ fun LogOutComponent(
                         tint = Color.Red,
                         modifier = Modifier.size(48.dp)
                     )
-
                     // Title
                     Text(
                         text = "Đăng xuất ?",
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center
                     )
-
                     // Subtitle
                     Text(
                         text = "Bạn có chắc chắn muốn đăng xuất không ?",
@@ -63,7 +59,6 @@ fun LogOutComponent(
                         textAlign = TextAlign.Center,
                         color = Color.Gray
                     )
-
                     // Buttons Column
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -84,7 +79,6 @@ fun LogOutComponent(
                                 modifier = Modifier.padding(vertical = 8.dp)
                             )
                         }
-
                         // Cancel Button
                         OutlinedButton(
                             onClick = onDismiss,
@@ -105,7 +99,6 @@ fun LogOutComponent(
         }
     }
 }
-
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun LogOutComponentPreview() {
