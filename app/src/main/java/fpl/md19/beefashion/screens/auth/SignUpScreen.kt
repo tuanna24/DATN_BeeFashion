@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,10 +41,12 @@ fun SignUpScreen() {
     val fullName = remember { mutableStateOf("") }
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
+    val password2 = remember { mutableStateOf("") }
     val passwordVisible = remember { mutableStateOf(false) }
+    val passwordVisible2 = remember { mutableStateOf(false) }
 
     // Check if all fields are filled
-    val isFormValid = fullName.value.isNotEmpty() && email.value.isNotEmpty() && password.value.isNotEmpty()
+    val isFormValid = fullName.value.isNotEmpty() && email.value.isNotEmpty() && password.value.isNotEmpty() && password2.value.isNotEmpty()
 
     Column (
         modifier = Modifier
@@ -156,6 +159,49 @@ fun SignUpScreen() {
                     }
                 )
             }
+
+            // Password mới TextField
+            Column {
+                Text(
+                    text = "Nhập lại mật khẩu mới",
+                    fontSize = 16.sp,
+                    color = Color.Black,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                OutlinedTextField(
+                    value = password2.value,
+                    onValueChange = { password2.value = it },
+                    placeholder = { Text("Nhập mật khẩu của bạn") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color.Black
+                    ),
+                    visualTransformation = if (passwordVisible2.value) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(
+                            onClick = { passwordVisible2.value = !passwordVisible2.value }
+                        ) {
+                            Icon(
+                                painter = painterResource(
+                                    id = if (passwordVisible2.value) {
+                                        R.drawable.visibility // Icon khi đang hiện mật khẩu
+                                    } else {
+                                        R.drawable.invisible // Icon khi đang ẩn mật khẩu
+                                    }
+                                ),
+                                contentDescription = if (passwordVisible2.value) {
+                                    "Ẩn mật khẩu"
+                                } else {
+                                    "Hiển thị mật khẩu"
+                                },
+                                modifier = Modifier.size(24.dp) // Tùy chỉnh kích thước icon
+                            )
+                        }
+                    }
+                )
+            }
         }
 
         // Create Account Button
@@ -176,7 +222,7 @@ fun SignUpScreen() {
                 fontSize = 16.sp
             )
         }
-
+        Spacer(modifier = Modifier.weight(1f))
         // Already have an account
         Row(
             modifier = Modifier
