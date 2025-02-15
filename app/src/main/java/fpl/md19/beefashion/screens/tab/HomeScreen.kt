@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,9 +29,11 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.R
 import fpl.md19.beefashion.models.HomeProduct
+import fpl.md19.beefashion.viewModels.AuthState
+import fpl.md19.beefashion.viewModels.AuthViewModel
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController, authViewModel: AuthViewModel) {
     val categories = listOf("Toàn bộ", "Áo ngắn", "Áo sơ mi", "Áo phông")
     var selectedCategory by remember { mutableStateOf(categories[0]) }
 
@@ -43,6 +46,15 @@ fun HomeScreen(navController: NavController) {
         HomeProduct("Áo thể thao", 189000, R.drawable.ao_phong, "L", "-52%"),
         HomeProduct("Áo thể thao", 189000, R.drawable.ao_phong, "L", "-52%"),
     )
+
+    val authState = authViewModel.authState.observeAsState()
+
+    LaunchedEffect(authState.value) {
+        when(authState.value){
+            is AuthState.Unauthenticated -> navController.navigate("LoginScreen")
+            else -> Unit
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -216,5 +228,6 @@ fun ProductCard(product: HomeProduct, modifier: Modifier = Modifier, navControll
 @Composable
 fun HomeScreenPreview() {
     val navController = rememberNavController()
-    HomeScreen(navController)
+    val mockAuthViewModel = AuthViewModel()
+    HomeScreen(navController, mockAuthViewModel)
 }
