@@ -39,7 +39,7 @@ import androidx.compose.ui.draw.clip
 
 
 @Composable
-fun MyOderScreen (navController : NavController, ) {
+fun MyOderScreen (navController : NavController) {
 
     val myOderList: List<MyOder> = listOf(
         MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong),
@@ -86,14 +86,14 @@ fun MyOderScreen (navController : NavController, ) {
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(myOderList) { myOder ->
-                MyOderCart(myOder)
+                MyOderCart(myOder, navController)
             }
         }
     }
 }
 
 @Composable
-fun MyOderCart(myOder: MyOder) {
+fun MyOderCart(myOder: MyOder, navController : NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -153,7 +153,7 @@ fun MyOderCart(myOder: MyOder) {
                 }
 
                 Button(
-                    onClick = { /* Xử lý theo dõi đơn hàng */ },
+                    onClick = { navController.navigate("TrackOrderScreen")},
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                     modifier = Modifier

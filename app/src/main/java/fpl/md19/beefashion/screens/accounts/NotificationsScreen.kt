@@ -16,10 +16,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationsScreen(
+    navController: NavController,
     onBackClick: () -> Unit = {}
 ) {
     var generalNotifications by remember { mutableStateOf(true) }
@@ -168,5 +171,6 @@ private fun NotificationSettingItem(
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun NotificationsScreenPreview() {
-    NotificationsScreen()
+    val navController = rememberNavController()
+    NotificationsScreen(navController)
 }

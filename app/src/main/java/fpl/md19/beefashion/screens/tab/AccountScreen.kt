@@ -88,15 +88,13 @@ fun AccountScreen (navController: NavController,  authViewModel: AuthViewModel) 
                 .padding(top = 12.dp)
         ) {
             item { Divider() }
-            item { AccountItem(R.drawable.ic_orders, "Đơn hàng ") }
+            item { AccountItem(R.drawable.ic_orders, "Đơn hàng", navController, "MyOderScreen") }
             item { Divider(thickness = 8.dp, color = Color.LightGray) }
-            item { AccountItem(R.drawable.ic_details, "Chi tiết") }
-            item { AccountItem(R.drawable.ic_address, "Địa chỉ") }
-            //  item { AccountItem(R.drawable.ic_payment, "Phương thức thanh toán") }
-            item { AccountItem(R.drawable.ic_notifications, "Thông báo") }
+            item { AccountItem(R.drawable.ic_details, "Thông tin", navController, "MyDetailsScreen") }
+            item { AccountItem(R.drawable.ic_address, "Địa chỉ", navController, "AddressScreen") }
+            item { AccountItem(R.drawable.ic_notifications, "Thông báo", navController, "NotificationsScreen") }
             item { Divider(thickness = 8.dp, color = Color.LightGray) }
-            // item { AccountItem(R.drawable.ic_faqs, "Liên lạc") }
-            item { AccountItem(R.drawable.ic_help, "Trợ giúp") }
+            item { AccountItem(R.drawable.ic_help, "Trợ giúp", navController, "HelpScreen") }
             item { Divider(thickness = 8.dp, color = Color.LightGray) }
             item { Spacer(modifier = Modifier.height(16.dp)) }
             item { LogoutItem(onClick = { showLogoutDialog.value = true }) }
@@ -120,11 +118,11 @@ fun AccountScreen (navController: NavController,  authViewModel: AuthViewModel) 
 }
 
 @Composable
-fun AccountItem(imageRes: Int, title: String) {
+fun AccountItem(imageRes: Int, title: String, navController: NavController, route: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {  }
+            .clickable { navController.navigate(route) }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

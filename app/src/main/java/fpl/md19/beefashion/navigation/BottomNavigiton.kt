@@ -34,11 +34,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import fpl.md19.beefashion.AddressScreen
+import fpl.md19.beefashion.NewAddressScreen
 import fpl.md19.beefashion.R
+import fpl.md19.beefashion.TrackOrderScreen
+import fpl.md19.beefashion.screens.accounts.MyDetailsScreen
+import fpl.md19.beefashion.screens.accounts.NotificationsScreen
 import fpl.md19.beefashion.screens.auth.LoginScreen
 import fpl.md19.beefashion.screens.auth.SignUpScreen
 import fpl.md19.beefashion.screens.auth.WelcomeScreen
 import fpl.md19.beefashion.screens.auth.WelcomeScreen1
+import fpl.md19.beefashion.screens.cart.MyOderScreen
 import fpl.md19.beefashion.screens.product.ProductScreen
 import fpl.md19.beefashion.screens.tab.AccountScreen
 import fpl.md19.beefashion.screens.tab.CartScreen
@@ -131,6 +137,30 @@ fun NestedBottomTab(
         composable("SignUpScreen") {
             SignUpScreen(navController, authViewModel)
         }
+        composable("AddressScreen") {
+            AddressScreen(navController)
+        }
+        composable("NewAddressScreen") {
+            NewAddressScreen(navController)
+        }
+        composable("MyOderScreen") {
+            MyOderScreen(navController)
+        }
+        composable("MyDetailsScreen") {
+            MyDetailsScreen(
+                navController,
+                onBackClick = { /* Do nothing or mock back click action */ },
+                onNotificationClick = { /* Do nothing or mock notification click action */ },
+                onSubmit = { /* Do nothing or mock submit action */ }
+            )
+        }
+        composable("NotificationsScreen") {
+            NotificationsScreen(navController)
+        }
+        composable("TrackOrderScreen") {
+            TrackOrderScreen(navController)
+        }
+
 
 
         composable("HomeScreen") {

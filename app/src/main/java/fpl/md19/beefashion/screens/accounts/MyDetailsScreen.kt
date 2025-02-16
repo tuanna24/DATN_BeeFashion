@@ -19,12 +19,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.R
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyDetailsScreen(
+    navController : NavController,
     onBackClick: () -> Unit,
     onNotificationClick: () -> Unit,
     onSubmit: () -> Unit
@@ -226,7 +229,9 @@ fun MyDetailsScreen(
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun MyDetailsScreenPreview() {
+    val navController = rememberNavController()
     MyDetailsScreen(
+        navController,
         onBackClick = { /* Do nothing or mock back click action */ },
         onNotificationClick = { /* Do nothing or mock notification click action */ },
         onSubmit = { /* Do nothing or mock submit action */ }
