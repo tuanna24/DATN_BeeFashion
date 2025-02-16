@@ -96,6 +96,29 @@ class AuthViewModel : ViewModel() {
 
     }
 
+    fun sendPasswordResetEmail(email: String) {
+        if (email.isEmpty()) {
+            _authState.value = AuthState.Error("Email không được để trống")
+            return
+        }
+
+        if (!isValidEmail(email)) {
+            _authState.value = AuthState.Error("Email không đúng định dạng")
+            return
+        }
+
+        _authState.value = AuthState.Loading
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    _authState.value = AuthState.Success("Email để reset mật khẩu đã được gửi!")
+                } else {
+                    _authState.value = AuthState.Error(task.exception?.message ?: "Đã có lỗi xảy ra")
+                }
+            }
+    }
+
+
 }
 
 sealed class AuthState{
@@ -103,4 +126,5 @@ sealed class AuthState{
     object Unauthenticated : AuthState()
     object Loading : AuthState()
     data class Error(val message : String) : AuthState()
+    data class Success(val message: String) : AuthState()
 }

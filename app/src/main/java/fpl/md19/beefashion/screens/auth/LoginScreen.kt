@@ -183,7 +183,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
                 text = "Đặt lại mật khẩu",
                 fontSize = 14.sp,
                 color = Color.Black,
-                modifier = Modifier.clickable { }
+                modifier = Modifier.clickable {navController.navigate("ForgotPasswordScreen")}
             )
         }
 

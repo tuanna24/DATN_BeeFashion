@@ -40,6 +40,7 @@ import fpl.md19.beefashion.R
 import fpl.md19.beefashion.TrackOrderScreen
 import fpl.md19.beefashion.screens.accounts.MyDetailsScreen
 import fpl.md19.beefashion.screens.accounts.NotificationsScreen
+import fpl.md19.beefashion.screens.auth.ForgotPasswordScreen
 import fpl.md19.beefashion.screens.auth.LoginScreen
 import fpl.md19.beefashion.screens.auth.SignUpScreen
 import fpl.md19.beefashion.screens.auth.WelcomeScreen
@@ -163,6 +164,9 @@ fun NestedBottomTab(
         }
         composable("HelpScreen") {
             HelpScreen(navController)
+        }
+        composable("ForgotPasswordScreen") {
+            ForgotPasswordScreen(navController, authViewModel)
         }
 
 
