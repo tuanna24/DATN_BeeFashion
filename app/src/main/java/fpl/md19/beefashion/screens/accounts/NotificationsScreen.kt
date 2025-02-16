@@ -1,6 +1,7 @@
 package fpl.md19.beefashion.screens.accounts
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -12,12 +13,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import fpl.md19.beefashion.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,39 +42,33 @@ fun NotificationsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .padding(16.dp)
     ) {
         // Top Bar
-        CenterAlignedTopAppBar(
-            title = {
-                Text(
-                    text = "Thông Báo",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            },
-            navigationIcon = {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Quay lại"
-                    )
-                }
-            },
-            actions = {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Chuông thông báo",
-                    modifier = Modifier.padding(end = 16.dp)
-                )
-            },
-            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                containerColor = Color.White,
-                titleContentColor = Color.Black,
-                navigationIconContentColor = Color.Black,
-                actionIconContentColor = Color.Black
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_arrow_back),
+                contentDescription = "Back",
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable { navController.popBackStack() }
             )
-        )
+            Text(
+                text = "Đơn hàng",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.bell),
+                contentDescription = "Notifications",
+                modifier = Modifier.size(24.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(25.dp))
 
         Divider(color = Color.LightGray, thickness = 1.dp)
 

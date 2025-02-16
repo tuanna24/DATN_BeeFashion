@@ -46,6 +46,7 @@ import fpl.md19.beefashion.screens.auth.WelcomeScreen
 import fpl.md19.beefashion.screens.auth.WelcomeScreen1
 import fpl.md19.beefashion.screens.cart.MyOderScreen
 import fpl.md19.beefashion.screens.product.ProductScreen
+import fpl.md19.beefashion.screens.support.HelpScreen
 import fpl.md19.beefashion.screens.tab.AccountScreen
 import fpl.md19.beefashion.screens.tab.CartScreen
 import fpl.md19.beefashion.screens.tab.HomeScreen
@@ -160,6 +161,10 @@ fun NestedBottomTab(
         composable("TrackOrderScreen") {
             TrackOrderScreen(navController)
         }
+        composable("HelpScreen") {
+            HelpScreen(navController)
+        }
+
 
 
 
