@@ -1,5 +1,6 @@
 package fpl.md19.beefashion.screens.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,11 +23,14 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -34,12 +38,15 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.R
+import fpl.md19.beefashion.viewModels.AuthState
+import fpl.md19.beefashion.viewModels.AuthViewModel
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
     // State to hold input values
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
@@ -47,6 +54,26 @@ fun LoginScreen(navController: NavController) {
 
     // Check if all fields are filled
     val isFormValid = email.value.isNotEmpty() && password.value.isNotEmpty()
+
+    val context = LocalContext.current
+    val authState = authViewModel.authState.observeAsState()
+
+    LaunchedEffect(authState.value) {
+        when(authState.value){
+            is AuthState.Authenticated -> {
+                Toast.makeText(context, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show()
+                navController.navigate("HomeScreen")
+            }
+            is AuthState.Error -> {
+                Toast.makeText(context, (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
+            }
+            is AuthState.Loading -> {
+                Toast.makeText(context, "Đang xử lý...", Toast.LENGTH_SHORT).show()
+            }
+            else -> Unit
+        }
+    }
+
 
     Column(
         modifier = Modifier
@@ -156,13 +183,14 @@ fun LoginScreen(navController: NavController) {
                 text = "Đặt lại mật khẩu",
                 fontSize = 14.sp,
                 color = Color.Black,
-                modifier = Modifier.clickable { }
+                modifier = Modifier.clickable {navController.navigate("ForgotPasswordScreen")}
             )
         }
 
         // Login Button
         Button(
-            onClick = { navController.navigate("HomeScreen")},
+            onClick = {authViewModel.login(email.value, password.value)},
+            enabled = authState.value != AuthState.Loading,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 24.dp)
@@ -207,5 +235,6 @@ fun LoginScreen(navController: NavController) {
 @Composable
 fun LoginScreenPreview() {
     val navController = rememberNavController()
-    LoginScreen(navController)
+    val mockAuthViewModel = AuthViewModel()
+    LoginScreen(navController, mockAuthViewModel)
 }

@@ -2,6 +2,7 @@ package fpl.md19.beefashion.screens.accounts
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -11,6 +12,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -19,12 +21,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.R
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyDetailsScreen(
+    navController : NavController,
     onBackClick: () -> Unit,
     onNotificationClick: () -> Unit,
     onSubmit: () -> Unit
@@ -43,39 +48,31 @@ fun MyDetailsScreen(
             .padding(16.dp)
             .background(Color.White)
     ) {
-        // Top App Bar
-        CenterAlignedTopAppBar(
-            title = {
-                Text(
-                    text = "Thông tin cá nhân",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            },
-            navigationIcon = {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Quay lại"
-                    )
-                }
-            },
-            actions = {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Chuông thông báo",
-                    modifier = Modifier.padding(end = 16.dp)
-                )
-            },
-            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                containerColor = Color.White,
-                titleContentColor = Color.Black,
-                navigationIconContentColor = Color.Black,
-                actionIconContentColor = Color.Black
+        // Top Bar
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_arrow_back),
+                contentDescription = "Back",
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable { navController.popBackStack() }
             )
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "Đơn hàng",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.bell),
+                contentDescription = "Notifications",
+                modifier = Modifier.size(24.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(25.dp))
 
         // Full Name
         Text(
@@ -226,7 +223,9 @@ fun MyDetailsScreen(
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun MyDetailsScreenPreview() {
+    val navController = rememberNavController()
     MyDetailsScreen(
+        navController,
         onBackClick = { /* Do nothing or mock back click action */ },
         onNotificationClick = { /* Do nothing or mock notification click action */ },
         onSubmit = { /* Do nothing or mock submit action */ }

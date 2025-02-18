@@ -1,5 +1,6 @@
 package fpl.md19.beefashion.screens.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,10 +23,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -33,12 +37,15 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.R
+import fpl.md19.beefashion.viewModels.AuthState
+import fpl.md19.beefashion.viewModels.AuthViewModel
 
 @Composable
-fun SignUpScreen(navController: NavController) {
+fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
     // State to hold input values
     val fullName = remember { mutableStateOf("") }
     val email = remember { mutableStateOf("") }
@@ -47,10 +54,54 @@ fun SignUpScreen(navController: NavController) {
     val passwordVisible = remember { mutableStateOf(false) }
     val passwordVisible2 = remember { mutableStateOf(false) }
 
+    // Error states
+    val emailError = remember { mutableStateOf("") }
+    val passwordError = remember { mutableStateOf("") }
+    val passwordLengthError = remember { mutableStateOf("") }
+
     // Check if all fields are filled
     val isFormValid = fullName.value.isNotEmpty() && email.value.isNotEmpty() && password.value.isNotEmpty() && password2.value.isNotEmpty()
 
-    Column (
+    // Email validation using regex
+    fun validateEmail(): Boolean {
+        val emailRegex = Regex("^[A-Za-z0-9+_.-]+@(.+)$")
+        return email.value.matches(emailRegex)
+    }
+
+    // Password length validation
+    fun validatePasswordLength(): Boolean {
+        return password.value.length >= 8
+    }
+
+    // Password matching validation
+    fun validatePasswords() {
+        passwordError.value = if (password2.value.isNotEmpty() && password.value != password2.value) {
+            "Mật khẩu không khớp"
+        } else {
+            ""
+        }
+    }
+
+    val context = LocalContext.current
+    val authState = authViewModel.authState.observeAsState()
+
+    LaunchedEffect(authState.value) {
+        when (authState.value) {
+            is AuthState.Authenticated -> {
+                Toast.makeText(context, "Đăng ký thành công!", Toast.LENGTH_SHORT).show()
+                navController.navigate("HomeScreen")
+            }
+            is AuthState.Error -> {
+                Toast.makeText(context, (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
+            }
+            is AuthState.Loading -> {
+                Toast.makeText(context, "Đang xử lý...", Toast.LENGTH_SHORT).show()
+            }
+            else -> Unit
+        }
+    }
+
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
@@ -108,7 +159,10 @@ fun SignUpScreen(navController: NavController) {
                 )
                 OutlinedTextField(
                     value = email.value,
-                    onValueChange = { email.value = it },
+                    onValueChange = {
+                        email.value = it
+                        emailError.value = if (!validateEmail()) "Email không hợp lệ" else ""
+                    },
                     placeholder = { Text("Nhập địa chỉ email của bạn") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -117,6 +171,14 @@ fun SignUpScreen(navController: NavController) {
                         focusedBorderColor = Color.Black
                     )
                 )
+                if (emailError.value.isNotEmpty()) {
+                    Text(
+                        text = emailError.value,
+                        color = Color.Red,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
             }
 
             // Password TextField
@@ -129,7 +191,10 @@ fun SignUpScreen(navController: NavController) {
                 )
                 OutlinedTextField(
                     value = password.value,
-                    onValueChange = { password.value = it },
+                    onValueChange = {
+                        password.value = it
+                        passwordLengthError.value = if (!validatePasswordLength()) "Mật khẩu phải ít nhất 8 ký tự" else ""
+                    },
                     placeholder = { Text("Nhập mật khẩu của bạn") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -155,14 +220,22 @@ fun SignUpScreen(navController: NavController) {
                                 } else {
                                     "Hiển thị mật khẩu"
                                 },
-                                modifier = Modifier.size(24.dp) // Tùy chỉnh kích thước icon
+                                modifier = Modifier.size(24.dp)
                             )
                         }
                     }
                 )
+                if (passwordLengthError.value.isNotEmpty()) {
+                    Text(
+                        text = passwordLengthError.value,
+                        color = Color.Red,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
             }
 
-            // Password mới TextField
+            // Password Confirm TextField
             Column {
                 Text(
                     text = "Nhập lại mật khẩu mới",
@@ -172,13 +245,17 @@ fun SignUpScreen(navController: NavController) {
                 )
                 OutlinedTextField(
                     value = password2.value,
-                    onValueChange = { password2.value = it },
+                    onValueChange = {
+                        password2.value = it
+                        validatePasswords()
+                    },
                     placeholder = { Text("Nhập mật khẩu của bạn") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
+                    isError = passwordError.value.isNotEmpty(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color.LightGray,
-                        focusedBorderColor = Color.Black
+                        unfocusedBorderColor = if (passwordError.value.isNotEmpty()) Color.Red else Color.LightGray,
+                        focusedBorderColor = if (passwordError.value.isNotEmpty()) Color.Red else Color.Black
                     ),
                     visualTransformation = if (passwordVisible2.value) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
@@ -198,17 +275,30 @@ fun SignUpScreen(navController: NavController) {
                                 } else {
                                     "Hiển thị mật khẩu"
                                 },
-                                modifier = Modifier.size(24.dp) // Tùy chỉnh kích thước icon
+                                modifier = Modifier.size(24.dp)
                             )
                         }
                     }
                 )
+                if (passwordError.value.isNotEmpty()) {
+                    Text(
+                        text = passwordError.value,
+                        color = Color.Red,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
             }
         }
 
         // Create Account Button
-        Button (
-            onClick = { navController.navigate("LoginScreen")},
+        Button(
+            onClick = {
+                if (isFormValid && validateEmail() && validatePasswordLength() && password.value == password2.value) {
+                    authViewModel.signup(email.value, password.value)
+                }
+            },
+            enabled = authState.value != AuthState.Loading,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 24.dp)
@@ -224,7 +314,9 @@ fun SignUpScreen(navController: NavController) {
                 fontSize = 16.sp
             )
         }
+
         Spacer(modifier = Modifier.weight(1f))
+
         // Already have an account
         Row(
             modifier = Modifier
@@ -241,7 +333,7 @@ fun SignUpScreen(navController: NavController) {
                 text = "Đăng nhập",
                 fontSize = 16.sp,
                 color = Color.Black,
-                modifier = Modifier.clickable { navController.navigate("LoginScreen")}
+                modifier = Modifier.clickable { navController.navigate("LoginScreen") }
             )
         }
     }
@@ -251,5 +343,6 @@ fun SignUpScreen(navController: NavController) {
 @Composable
 fun SignUpScreenPreview() {
     val navController = rememberNavController()
-    SignUpScreen(navController)
+    val mockAuthViewModel = AuthViewModel()
+    SignUpScreen(navController, mockAuthViewModel)
 }

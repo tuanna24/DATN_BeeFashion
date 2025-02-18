@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "105398848149",
+    "project_id": "beefashion-93864",
+    "storage_bucket": "beefashion-93864.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:105398848149:android:2096bbcc8fe014aa61e99c",
+        "android_client_info": {
+          "package_name": "fpl.md19.beefashion"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXRgRyJVeXMqx3ZVPRAYBiPbfL8IfSDow"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

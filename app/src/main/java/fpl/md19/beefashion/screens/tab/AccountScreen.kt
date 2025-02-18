@@ -19,6 +19,8 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,10 +33,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.R
+import fpl.md19.beefashion.components.LogOutComponent
+import fpl.md19.beefashion.viewModels.AuthViewModel
 
 
 @Composable
-fun AccountScreen (navController: NavController) {
+fun AccountScreen (navController: NavController,  authViewModel: AuthViewModel) {
+    var showLogoutDialog = remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -82,27 +88,41 @@ fun AccountScreen (navController: NavController) {
                 .padding(top = 12.dp)
         ) {
             item { Divider() }
-            item { AccountItem(R.drawable.ic_orders, "Đơn hàng ") }
+            item { AccountItem(R.drawable.ic_orders, "Đơn hàng", navController, "MyOderScreen") }
             item { Divider(thickness = 8.dp, color = Color.LightGray) }
-            item { AccountItem(R.drawable.ic_details, "Chi tiết") }
-            item { AccountItem(R.drawable.ic_address, "Địa chỉ") }
-            //  item { AccountItem(R.drawable.ic_payment, "Phương thức thanh toán") }
-            item { AccountItem(R.drawable.ic_notifications, "Thông báo") }
+            item { AccountItem(R.drawable.ic_details, "Thông tin", navController, "MyDetailsScreen") }
+            item { AccountItem(R.drawable.ic_address, "Địa chỉ", navController, "AddressScreen") }
+            item { AccountItem(R.drawable.ic_notifications, "Thông báo", navController, "NotificationsScreen") }
             item { Divider(thickness = 8.dp, color = Color.LightGray) }
-            // item { AccountItem(R.drawable.ic_faqs, "Liên lạc") }
-            item { AccountItem(R.drawable.ic_help, "Trợ giúp") }
+            item { AccountItem(R.drawable.ic_help, "Trợ giúp", navController, "HelpScreen") }
             item { Divider(thickness = 8.dp, color = Color.LightGray) }
             item { Spacer(modifier = Modifier.height(16.dp)) }
-            item { LogoutItem() }
+            item { LogoutItem(onClick = { showLogoutDialog.value = true }) }
         }
     }
+    // Hiển thị LogOutComponent khi showLogoutDialog là true
+    LogOutComponent(
+        onConfirm = {
+            // Handle logout logic here
+            authViewModel.signout()
+            showLogoutDialog.value = false
+            navController.navigate("LoginScreen") {
+                popUpTo("HomeScreen") { inclusive = true }
+            }
+        },
+        onDismiss = {
+            showLogoutDialog.value = false
+        },
+        isVisible = showLogoutDialog.value
+    )
 }
+
 @Composable
-fun AccountItem(imageRes: Int, title: String) {
+fun AccountItem(imageRes: Int, title: String, navController: NavController, route: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {  }
+            .clickable { navController.navigate(route) }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -124,11 +144,11 @@ fun AccountItem(imageRes: Int, title: String) {
 }
 
 @Composable
-fun LogoutItem() {
+fun LogoutItem(onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {  }
+            .clickable {  onClick()  }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -145,5 +165,6 @@ fun LogoutItem() {
 @Composable
 fun PreviewAccountScreen () {
     val navController = rememberNavController()
-    AccountScreen(navController)
+    val mockAuthViewModel = AuthViewModel()
+    AccountScreen(navController, mockAuthViewModel)
 }

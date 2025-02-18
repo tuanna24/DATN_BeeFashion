@@ -34,17 +34,26 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import fpl.md19.beefashion.AddressScreen
+import fpl.md19.beefashion.NewAddressScreen
 import fpl.md19.beefashion.R
+import fpl.md19.beefashion.TrackOrderScreen
+import fpl.md19.beefashion.screens.accounts.MyDetailsScreen
+import fpl.md19.beefashion.screens.accounts.NotificationsScreen
+import fpl.md19.beefashion.screens.auth.ForgotPasswordScreen
 import fpl.md19.beefashion.screens.auth.LoginScreen
 import fpl.md19.beefashion.screens.auth.SignUpScreen
 import fpl.md19.beefashion.screens.auth.WelcomeScreen
 import fpl.md19.beefashion.screens.auth.WelcomeScreen1
+import fpl.md19.beefashion.screens.cart.MyOderScreen
 import fpl.md19.beefashion.screens.product.ProductScreen
+import fpl.md19.beefashion.screens.support.HelpScreen
 import fpl.md19.beefashion.screens.tab.AccountScreen
 import fpl.md19.beefashion.screens.tab.CartScreen
 import fpl.md19.beefashion.screens.tab.HomeScreen
 import fpl.md19.beefashion.screens.tab.SavedScreen
 import fpl.md19.beefashion.screens.tab.SearchScreen
+import fpl.md19.beefashion.viewModels.AuthViewModel
 
 
 data class TabItem(
@@ -58,7 +67,7 @@ val tabItems = listOf(
     TabItem(
         unselectedIcon = R.drawable.home_icon,
         selectedIcon = R.drawable.home_icon_dark,
-        content = { navController -> HomeScreen(navController) },
+        content = { navController -> HomeScreen(navController, authViewModel = AuthViewModel()) },
         screenName = "HomeScreen"
     ),
     TabItem(
@@ -82,20 +91,25 @@ val tabItems = listOf(
     TabItem(
         unselectedIcon = R.drawable.account_icon,
         selectedIcon = R.drawable.account_icon_dack,
-        content = { navController -> AccountScreen(navController) },
+        content = { navController -> AccountScreen(navController, authViewModel = AuthViewModel()) },
         screenName = "accountScreen"
     )
 )
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun BottomNavBar(navController: NavController) {
+fun BottomNavBar(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    authViewModel: AuthViewModel
+) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Scaffold(modifier = Modifier.fillMaxSize(),
             bottomBar = { TabView(tabItems, navController = navController) }) {
             Box(modifier = Modifier.padding(it)) {
                 NestedBottomTab(
                     navController = navController as NavHostController,
+                    authViewModel = authViewModel
                 )
             }
         }
@@ -105,7 +119,7 @@ fun BottomNavBar(navController: NavController) {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NestedBottomTab(
-    navController: NavHostController,
+    navController: NavHostController, authViewModel: AuthViewModel
 ) {
     val context = LocalContext.current
 
@@ -120,15 +134,46 @@ fun NestedBottomTab(
             WelcomeScreen1(navController)
         }
         composable("LoginScreen") {
-            LoginScreen(navController)
+            LoginScreen(navController, authViewModel)
         }
         composable("SignUpScreen") {
-            SignUpScreen(navController)
+            SignUpScreen(navController, authViewModel)
         }
+        composable("AddressScreen") {
+            AddressScreen(navController)
+        }
+        composable("NewAddressScreen") {
+            NewAddressScreen(navController)
+        }
+        composable("MyOderScreen") {
+            MyOderScreen(navController)
+        }
+        composable("MyDetailsScreen") {
+            MyDetailsScreen(
+                navController,
+                onBackClick = { /* Do nothing or mock back click action */ },
+                onNotificationClick = { /* Do nothing or mock notification click action */ },
+                onSubmit = { /* Do nothing or mock submit action */ }
+            )
+        }
+        composable("NotificationsScreen") {
+            NotificationsScreen(navController)
+        }
+        composable("TrackOrderScreen") {
+            TrackOrderScreen(navController)
+        }
+        composable("HelpScreen") {
+            HelpScreen(navController)
+        }
+        composable("ForgotPasswordScreen") {
+            ForgotPasswordScreen(navController, authViewModel)
+        }
+
+
 
 
         composable("HomeScreen") {
-            HomeScreen(navController)
+            HomeScreen(navController, authViewModel)
         }
         composable("searchScreen") {
             SearchScreen(navController)
@@ -140,7 +185,7 @@ fun NestedBottomTab(
             SavedScreen(navController)
         }
         composable("accountScreen") {
-            AccountScreen(navController)
+            AccountScreen(navController, authViewModel)
         }
         composable("productScreen") {
             ProductScreen(navController)
@@ -216,7 +261,6 @@ fun TabBarIconView(
         )
     }
 }
-
 
 
 // This component helps to clean up the API call from our TabBarIconView above,

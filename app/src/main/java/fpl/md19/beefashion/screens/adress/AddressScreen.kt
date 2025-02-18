@@ -39,9 +39,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun AddressScreen() {
+fun AddressScreen(navController: NavController) {
     var selectedAddress by remember { mutableStateOf("Nhà") }
     val addresses = listOf(
         "Nhà" to "925 S Chugach St #APT 10, Alaska",
@@ -102,7 +104,7 @@ fun AddressScreen() {
 
         // Add New Address Button
         Button(
-            onClick = {  },
+            onClick = {  navController.navigate("NewAddressScreen")},
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -180,5 +182,6 @@ fun AddressItem(title: String, address: String, selected: Boolean, onSelect: () 
 @Preview(showBackground = true)
 @Composable
 fun AddressPreview() {
-    AddressScreen()
+    val navController = rememberNavController()
+    AddressScreen(navController)
 }
