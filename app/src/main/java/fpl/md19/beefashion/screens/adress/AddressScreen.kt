@@ -68,7 +68,7 @@ fun AddressScreen(navController: NavController) {
                 contentDescription = "Back",
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable { }
+                    .clickable { navController.popBackStack() }
             )
             Text(
                 text = "Địa chỉ",

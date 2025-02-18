@@ -44,7 +44,7 @@ fun TrackOrderScreen(navController: NavController) {
                     contentDescription = "Back Icon",
                     modifier = Modifier
                         .size(24.dp)
-                        .clickable { }
+                        .clickable { navController.popBackStack() }
                 )
                 Text(
                     text = "Tình trạng đơn hàng",

@@ -1,5 +1,6 @@
 package fpl.md19.beefashion
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,7 +39,7 @@ fun NewAddressScreen(navController: NavController) {
                 contentDescription = "Back",
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable { }
+                    .clickable {navController.popBackStack() }
             )
             Text(
                 text = "Địa chỉ mới",
@@ -68,13 +70,13 @@ fun NewAddressScreen(navController: NavController) {
                     .align(Alignment.Center)
             )
         }
-        AddressForm(modifier = Modifier.fillMaxWidth())
+        AddressForm(modifier = Modifier.fillMaxWidth(), navController)
     }
 }
 
 
 @Composable
-fun AddressForm(modifier: Modifier = Modifier) {
+fun AddressForm(modifier: Modifier = Modifier, navController: NavController) {
     var showDialog by remember { mutableStateOf(false) } // Biến trạng thái để hiển thị dialog
     var expanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf("Choose one") }
@@ -169,17 +171,23 @@ fun AddressForm(modifier: Modifier = Modifier) {
     }
 
     if (showDialog) {
-        SuccessDialog(onDismiss = { showDialog = false })
+        SuccessDialog(onDismiss = { showDialog = false }, navController)
     }
 }
 
 @Composable
-fun SuccessDialog(onDismiss: () -> Unit) {
+fun SuccessDialog(onDismiss: () -> Unit, navController: NavController) {
+    val context = LocalContext.current
+
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             Button(
-                onClick = onDismiss,
+                onClick = {
+                    onDismiss()
+                    navController.navigate("AddressScreen")
+                    Toast.makeText(context, "Bạn đã thêm một địa chỉ mới", Toast.LENGTH_SHORT).show()
+                },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
             ) {

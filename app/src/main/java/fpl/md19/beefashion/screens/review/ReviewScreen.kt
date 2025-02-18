@@ -22,9 +22,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun ReviewsScreen() {
+fun ReviewsScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -43,7 +45,7 @@ fun ReviewsScreen() {
                 contentDescription = "Back Icon",
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable { }
+                    .clickable { navController.popBackStack()}
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -211,7 +213,8 @@ fun RatingBar(rating: Float, starSize: Dp = 20.dp) {
 @Preview(showBackground = true)
 @Composable
 fun ReviewPreview() {
-    ReviewsScreen()
+    val navController = rememberNavController()
+    ReviewsScreen(navController)
 }
 
 data class Review(val author: String, val date: String, val rating: Int, val content: String)

@@ -44,41 +44,30 @@ fun AccountScreen (navController: NavController,  authViewModel: AuthViewModel) 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
-            .padding(16.dp)
+            .padding(25.dp, top = 30.dp, end = 25.dp)
     ) {
         // Header
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_back),
-                contentDescription = "Back Icon",
+            Icon(
+                painter = painterResource(id = R.drawable.ic_arrow_back),
+                contentDescription = "Back",
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable { }
+                    .clickable { navController.popBackStack() }
             )
-
-            Spacer(modifier = Modifier.weight(1f))
-
             Text(
-                text = "Tài khoản",
+                text = "Giỏ hàng",
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                fontWeight = FontWeight.Bold
             )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Image(
-                painter = painterResource(id = R.drawable.ic_notifications),
-                contentDescription = "Notification Icon",
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable { }
+            Icon(
+                painter = painterResource(id = R.drawable.bell),
+                contentDescription = "Notifications",
+                modifier = Modifier.size(24.dp)
             )
         }
 

@@ -36,10 +36,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.R
 
 @Composable
-fun SearchScreen() {
+fun SearchScreen(navController: NavController) {
     var searchText by remember { mutableStateOf("") }
     val recentSearches = listOf(
         "Jeans", "Casual clothes", "Hoodie", "Nike shoes black", "V-neck tshirt", "Winter clothes"
@@ -63,7 +65,7 @@ fun SearchScreen() {
                 contentDescription = "Back Icon",
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable { }
+                    .clickable { navController.popBackStack()}
             )
             Text(
                 text = "Tìm kiếm",
@@ -181,5 +183,6 @@ fun SearchScreen() {
 @Preview(showBackground = true)
 @Composable
 fun SearchPreview() {
-    SearchScreen()
+    val navController = rememberNavController()
+    SearchScreen(navController)
 }

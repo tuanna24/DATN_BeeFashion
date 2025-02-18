@@ -168,10 +168,6 @@ fun NestedBottomTab(
         composable("ForgotPasswordScreen") {
             ForgotPasswordScreen(navController, authViewModel)
         }
-
-
-
-
         composable("HomeScreen") {
             HomeScreen(navController, authViewModel)
         }
