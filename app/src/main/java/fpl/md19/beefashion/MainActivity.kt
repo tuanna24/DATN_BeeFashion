@@ -25,16 +25,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Khởi tạo ViewModel
-        val authViewModel: AuthViewModel by viewModels()
-
         // Thiết lập giao diện composable
         setContent {
             BeefashionTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
                     // Truyền navController và authViewModel vào MainScreen
                     val navController = rememberNavController()
-                    MainScreen(navController = navController, authViewModel = authViewModel)
+                    MainScreen(navController = navController)
                 }
             }
         }
@@ -43,9 +40,9 @@ class MainActivity : ComponentActivity() {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
+fun MainScreen(navController: NavHostController) {
     Column(modifier = Modifier.fillMaxSize()) {
         // Truyền navController và authViewModel vào BottomNavBar
-        BottomNavBar(navController = navController, authViewModel = authViewModel)
+        BottomNavBar(navController = navController)
     }
 }

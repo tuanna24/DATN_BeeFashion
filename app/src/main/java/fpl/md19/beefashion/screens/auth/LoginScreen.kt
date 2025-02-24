@@ -13,10 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -24,9 +24,11 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,38 +44,34 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.R
-import fpl.md19.beefashion.viewModels.AuthState
-import fpl.md19.beefashion.viewModels.AuthViewModel
+import fpl.md19.beefashion.viewModels.LoginViewModel
 
 @Composable
-fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
-    // State to hold input values
-    val email = remember { mutableStateOf("") }
-    val password = remember { mutableStateOf("") }
-    val passwordVisible = remember { mutableStateOf(false) }
-
-    // Check if all fields are filled
-    val isFormValid = email.value.isNotEmpty() && password.value.isNotEmpty()
+fun LoginScreen(
+    navController: NavController,
+    viewModel: LoginViewModel = viewModel()
+) {
+    // State để lưu giá trị đầu vào
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var isRememberMeChecked by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
-    val authState = authViewModel.authState.observeAsState()
 
-    LaunchedEffect(authState.value) {
-        when(authState.value){
-            is AuthState.Authenticated -> {
-                Toast.makeText(context, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show()
-                navController.navigate("HomeScreen")
-            }
-            is AuthState.Error -> {
-                Toast.makeText(context, (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
-            }
-            is AuthState.Loading -> {
-                Toast.makeText(context, "Đang xử lý...", Toast.LENGTH_SHORT).show()
-            }
-            else -> Unit
-        }
+    // Lấy trạng thái thông báo từ ViewModel
+    val loginMessage by viewModel.loginMessage.collectAsState()
+
+    // Kiểm tra xem tất cả các trường đã được điền chưa
+    val isFormValid = email.isNotEmpty() && password.isNotEmpty()
+
+    // Tải thông tin đăng nhập đã lưu (nếu có)
+    LaunchedEffect(Unit) {
+        viewModel.loadRememberedCredentials(context)
+        email = viewModel.rememberedEmail
+        password = viewModel.rememberedPassword
+        isRememberMeChecked = viewModel.isRemembered
     }
-
 
     Column(
         modifier = Modifier
@@ -111,8 +109,8 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 OutlinedTextField(
-                    value = email.value,
-                    onValueChange = { email.value = it },
+                    value = email,
+                    onValueChange = { email = it },
                     placeholder = { Text("Nhập địa chỉ email của bạn") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -126,14 +124,14 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
             // Password TextField
             Column {
                 Text(
-                    text = "Mật khẩu mới",
+                    text = "Mật khẩu",
                     fontSize = 16.sp,
                     color = Color.Black,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 OutlinedTextField(
-                    value = password.value,
-                    onValueChange = { password.value = it },
+                    value = password,
+                    onValueChange = { password = it },
                     placeholder = { Text("Nhập mật khẩu của bạn") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -141,25 +139,25 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
                         unfocusedBorderColor = Color.LightGray,
                         focusedBorderColor = Color.Black
                     ),
-                    visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(
-                            onClick = { passwordVisible.value = !passwordVisible.value }
+                            onClick = { passwordVisible = !passwordVisible }
                         ) {
                             Icon(
                                 painter = painterResource(
-                                    id = if (passwordVisible.value) {
+                                    id = if (passwordVisible) {
                                         R.drawable.visibility // Icon khi đang hiện mật khẩu
                                     } else {
                                         R.drawable.invisible // Icon khi đang ẩn mật khẩu
                                     }
                                 ),
-                                contentDescription = if (passwordVisible.value) {
+                                contentDescription = if (passwordVisible) {
                                     "Ẩn mật khẩu"
                                 } else {
                                     "Hiển thị mật khẩu"
                                 },
-                                modifier = Modifier.size(24.dp) // Tùy chỉnh kích thước icon
+                                modifier = Modifier.size(24.dp)
                             )
                         }
                     }
@@ -167,33 +165,56 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
             }
         }
 
-        // Forgot Password
+        // Row chứa Nhớ mật khẩu và Quên mật khẩu
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp),
-            horizontalArrangement = Arrangement.Start
+                .padding(top = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            // Remember Password
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { isRememberMeChecked = !isRememberMeChecked }
+            ) {
+                Checkbox(
+                    checked = isRememberMeChecked,
+                    onCheckedChange = { isRememberMeChecked = it },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = Color.Black,
+                        uncheckedColor = Color.Gray
+                    )
+                )
+                Text(
+                    text = "Nhớ mật khẩu",
+                    fontSize = 14.sp,
+                    color = if (isRememberMeChecked) Color.Black else Color.Gray
+                )
+            }
+
+            // Forgot Password
             Text(
-                text = "Quên mật khẩu? ",
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-            Text(
-                text = "Đặt lại mật khẩu",
+                text = "Quên mật khẩu?",
                 fontSize = 14.sp,
                 color = Color.Black,
-                modifier = Modifier.clickable {navController.navigate("ForgotPasswordScreen")}
+                modifier = Modifier.clickable { navController.navigate("ForgotPasswordScreen") }
             )
         }
 
         // Login Button
         Button(
-            onClick = {authViewModel.login(email.value, password.value)},
-            enabled = authState.value != AuthState.Loading,
+            onClick = {
+                if (email.isNotBlank() && password.isNotBlank()) {
+                    viewModel.login(context, email, password, isRememberMeChecked)
+                } else {
+                    Toast.makeText(context, "Vui lòng nhập đầy đủ thông tin!", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 24.dp)
+                .padding(top = 32.dp)
                 .height(50.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (isFormValid) Color.Black else Color.LightGray
@@ -207,13 +228,24 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
             )
         }
 
+        // Hiển thị thông báo nếu có
+        LaunchedEffect(loginMessage) {
+            loginMessage?.let { message ->
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                if (message == "Đăng nhập thành công!") {
+                    navController.navigate("HomeScreen") {
+                        popUpTo("LoginScreen") { inclusive = true }
+                    }
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.weight(1f))
         // Don't have account
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 24.dp),
+                .padding(vertical = 24.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
@@ -225,7 +257,10 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
                 text = "Đăng ký",
                 fontSize = 16.sp,
                 color = Color.Black,
-                modifier = Modifier.clickable {navController.navigate("SignUpScreen") }
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.clickable {
+                    navController.navigate("SignUpScreen")
+                }
             )
         }
     }
@@ -234,7 +269,5 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    val navController = rememberNavController()
-    val mockAuthViewModel = AuthViewModel()
-    LoginScreen(navController, mockAuthViewModel)
+    LoginScreen(rememberNavController())
 }

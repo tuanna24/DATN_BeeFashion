@@ -33,7 +33,7 @@ import fpl.md19.beefashion.viewModels.AuthState
 import fpl.md19.beefashion.viewModels.AuthViewModel
 
 @Composable
-fun HomeScreen(navController: NavController, authViewModel: AuthViewModel) {
+fun HomeScreen(navController: NavController) {
     val categories = listOf("Toàn bộ", "Áo ngắn", "Áo sơ mi", "Áo phông")
     var selectedCategory by remember { mutableStateOf(categories[0]) }
 
@@ -47,14 +47,6 @@ fun HomeScreen(navController: NavController, authViewModel: AuthViewModel) {
         HomeProduct("Áo thể thao", 189000, R.drawable.ao_phong, "L", "-52%"),
     )
 
-    val authState = authViewModel.authState.observeAsState()
-
-    LaunchedEffect(authState.value) {
-        when(authState.value){
-            is AuthState.Unauthenticated -> navController.navigate("LoginScreen")
-            else -> Unit
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -228,6 +220,5 @@ fun ProductCard(product: HomeProduct, modifier: Modifier = Modifier, navControll
 @Composable
 fun HomeScreenPreview() {
     val navController = rememberNavController()
-    val mockAuthViewModel = AuthViewModel()
-    HomeScreen(navController, mockAuthViewModel)
+    HomeScreen(navController)
 }

@@ -53,7 +53,7 @@ import fpl.md19.beefashion.screens.tab.CartScreen
 import fpl.md19.beefashion.screens.tab.HomeScreen
 import fpl.md19.beefashion.screens.tab.SavedScreen
 import fpl.md19.beefashion.screens.tab.SearchScreen
-import fpl.md19.beefashion.viewModels.AuthViewModel
+
 
 
 data class TabItem(
@@ -67,7 +67,7 @@ val tabItems = listOf(
     TabItem(
         unselectedIcon = R.drawable.home_icon,
         selectedIcon = R.drawable.home_icon_dark,
-        content = { navController -> HomeScreen(navController, authViewModel = AuthViewModel()) },
+        content = { navController -> HomeScreen(navController) },
         screenName = "HomeScreen"
     ),
     TabItem(
@@ -91,7 +91,7 @@ val tabItems = listOf(
     TabItem(
         unselectedIcon = R.drawable.account_icon,
         selectedIcon = R.drawable.account_icon_dack,
-        content = { navController -> AccountScreen(navController, authViewModel = AuthViewModel()) },
+        content = { navController -> AccountScreen(navController) },
         screenName = "accountScreen"
     )
 )
@@ -101,7 +101,6 @@ val tabItems = listOf(
 fun BottomNavBar(
     modifier: Modifier = Modifier,
     navController: NavController,
-    authViewModel: AuthViewModel
 ) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Scaffold(modifier = Modifier.fillMaxSize(),
@@ -109,7 +108,6 @@ fun BottomNavBar(
             Box(modifier = Modifier.padding(it)) {
                 NestedBottomTab(
                     navController = navController as NavHostController,
-                    authViewModel = authViewModel
                 )
             }
         }
@@ -119,7 +117,7 @@ fun BottomNavBar(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NestedBottomTab(
-    navController: NavHostController, authViewModel: AuthViewModel
+    navController: NavHostController
 ) {
     val context = LocalContext.current
 
@@ -134,10 +132,10 @@ fun NestedBottomTab(
             WelcomeScreen1(navController)
         }
         composable("LoginScreen") {
-            LoginScreen(navController, authViewModel)
+            LoginScreen(navController)
         }
         composable("SignUpScreen") {
-            SignUpScreen(navController, authViewModel)
+            SignUpScreen(navController)
         }
         composable("AddressScreen") {
             AddressScreen(navController)
@@ -166,10 +164,10 @@ fun NestedBottomTab(
             HelpScreen(navController)
         }
         composable("ForgotPasswordScreen") {
-            ForgotPasswordScreen(navController, authViewModel)
+            ForgotPasswordScreen(navController)
         }
         composable("HomeScreen") {
-            HomeScreen(navController, authViewModel)
+            HomeScreen(navController)
         }
         composable("searchScreen") {
             SearchScreen(navController)
@@ -181,7 +179,7 @@ fun NestedBottomTab(
             SavedScreen(navController)
         }
         composable("accountScreen") {
-            AccountScreen(navController, authViewModel)
+            AccountScreen(navController)
         }
         composable("productScreen") {
             ProductScreen(navController)
