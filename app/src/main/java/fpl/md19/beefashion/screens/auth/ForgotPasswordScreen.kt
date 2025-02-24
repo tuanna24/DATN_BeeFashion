@@ -1,6 +1,5 @@
 package fpl.md19.beefashion.screens.auth
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,26 +18,20 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import fpl.md19.beefashion.viewModels.AuthState
-import fpl.md19.beefashion.viewModels.AuthViewModel
 
 @Composable
 fun ForgotPasswordScreen(
     navController: NavController,
-    authViewModel: AuthViewModel,
     onBackClick: () -> Unit = {}
 ) {
     // State to hold input values
@@ -46,27 +39,6 @@ fun ForgotPasswordScreen(
 
     // Check if all fields are filled
     val isFormValid = email.value.isNotEmpty()
-
-    val context = LocalContext.current
-    val authState = authViewModel.authState.observeAsState()
-    LaunchedEffect (authState.value) {
-        when (authState.value) {
-            is AuthState.Success -> {
-                // Hiển thị thông báo thành công
-                Toast.makeText(context, (authState.value as AuthState.Success).message, Toast.LENGTH_SHORT).show()
-            }
-            is AuthState.Error -> {
-                // Hiển thị thông báo lỗi
-                Toast.makeText(context, (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
-            }
-            is AuthState.Loading -> {
-                // Thông báo đang xử lý
-                Toast.makeText(context, "Đang xử lý...", Toast.LENGTH_SHORT).show()
-            }
-            else -> Unit
-        }
-    }
-
 
     Column(
         modifier = Modifier
@@ -130,7 +102,7 @@ fun ForgotPasswordScreen(
 
             // Send Code Button
             Button(
-                onClick = { authViewModel.sendPasswordResetEmail(email.value)  },
+                onClick = { },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp)
@@ -138,7 +110,6 @@ fun ForgotPasswordScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (isFormValid) Color.Black else Color.LightGray
                 ),
-                enabled = authState.value != AuthState.Loading,
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
@@ -155,6 +126,5 @@ fun ForgotPasswordScreen(
 @Composable
 fun ForgotPasswordScreenPreview() {
     val navController = rememberNavController()
-    val mockAuthViewModel = AuthViewModel()
-    ForgotPasswordScreen(navController, mockAuthViewModel)
+    ForgotPasswordScreen(navController  )
 }

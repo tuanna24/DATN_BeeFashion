@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -24,9 +22,11 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -41,65 +41,29 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.R
-import fpl.md19.beefashion.viewModels.AuthState
-import fpl.md19.beefashion.viewModels.AuthViewModel
+import fpl.md19.beefashion.viewModels.LoginViewModel
 
 @Composable
-fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
-    // State to hold input values
-    val fullName = remember { mutableStateOf("") }
-    val email = remember { mutableStateOf("") }
-    val password = remember { mutableStateOf("") }
-    val password2 = remember { mutableStateOf("") }
-    val passwordVisible = remember { mutableStateOf(false) }
-    val passwordVisible2 = remember { mutableStateOf(false) }
+fun SignUpScreen(
+    navController: NavController,
+    viewModel: LoginViewModel = viewModel()
+) {
+    // State để lưu giá trị đầu vào
+    var name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
 
-    // Error states
-    val emailError = remember { mutableStateOf("") }
-    val passwordError = remember { mutableStateOf("") }
-    val passwordLengthError = remember { mutableStateOf("") }
-
-    // Check if all fields are filled
-    val isFormValid = fullName.value.isNotEmpty() && email.value.isNotEmpty() && password.value.isNotEmpty() && password2.value.isNotEmpty()
-
-    // Email validation using regex
-    fun validateEmail(): Boolean {
-        val emailRegex = Regex("^[A-Za-z0-9+_.-]+@(.+)$")
-        return email.value.matches(emailRegex)
-    }
-
-    // Password length validation
-    fun validatePasswordLength(): Boolean {
-        return password.value.length >= 8
-    }
-
-    // Password matching validation
-    fun validatePasswords() {
-        passwordError.value = if (password2.value.isNotEmpty() && password.value != password2.value) {
-            "Mật khẩu không khớp"
-        } else {
-            ""
-        }
-    }
+    // Kiểm tra xem tất cả các trường đã được điền chưa
+    val isFormValid = name.isNotEmpty() && email.isNotEmpty() &&
+            password.isNotEmpty() && confirmPassword.isNotEmpty()
 
     val context = LocalContext.current
-    val authState = authViewModel.authState.observeAsState()
 
-    LaunchedEffect(authState.value) {
-        when (authState.value) {
-            is AuthState.Authenticated -> {
-                Toast.makeText(context, "Đăng ký thành công!", Toast.LENGTH_SHORT).show()
-                navController.navigate("HomeScreen")
-            }
-            is AuthState.Error -> {
-                Toast.makeText(context, (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
-            }
-            is AuthState.Loading -> {
-                Toast.makeText(context, "Đang xử lý...", Toast.LENGTH_SHORT).show()
-            }
-            else -> Unit
-        }
-    }
+    // Lấy trạng thái thông báo từ ViewModel
+    val registerMessage by viewModel.registerMessage.collectAsState()
 
     Column(
         modifier = Modifier
@@ -128,7 +92,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
                 .padding(top = 32.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // Full Name TextField
+            // Trường nhập Họ tên
             Column {
                 Text(
                     text = "Họ và tên",
@@ -137,8 +101,8 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 OutlinedTextField(
-                    value = fullName.value,
-                    onValueChange = { fullName.value = it },
+                    value = name,
+                    onValueChange = { name = it },
                     placeholder = { Text("Nhập họ và tên của bạn") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -149,7 +113,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
                 )
             }
 
-            // Email TextField
+            // Trường nhập Email
             Column {
                 Text(
                     text = "Email",
@@ -158,11 +122,8 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 OutlinedTextField(
-                    value = email.value,
-                    onValueChange = {
-                        email.value = it
-                        emailError.value = if (!validateEmail()) "Email không hợp lệ" else ""
-                    },
+                    value = email,
+                    onValueChange = { email = it },
                     placeholder = { Text("Nhập địa chỉ email của bạn") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -171,17 +132,9 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
                         focusedBorderColor = Color.Black
                     )
                 )
-                if (emailError.value.isNotEmpty()) {
-                    Text(
-                        text = emailError.value,
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
             }
 
-            // Password TextField
+            // Trường nhập Mật khẩu
             Column {
                 Text(
                     text = "Mật khẩu mới",
@@ -190,11 +143,8 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 OutlinedTextField(
-                    value = password.value,
-                    onValueChange = {
-                        password.value = it
-                        passwordLengthError.value = if (!validatePasswordLength()) "Mật khẩu phải ít nhất 8 ký tự" else ""
-                    },
+                    value = password,
+                    onValueChange = { password = it },
                     placeholder = { Text("Nhập mật khẩu của bạn") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -202,20 +152,20 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
                         unfocusedBorderColor = Color.LightGray,
                         focusedBorderColor = Color.Black
                     ),
-                    visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(
-                            onClick = { passwordVisible.value = !passwordVisible.value }
+                            onClick = { passwordVisible = !passwordVisible }
                         ) {
                             Icon(
                                 painter = painterResource(
-                                    id = if (passwordVisible.value) {
+                                    id = if (passwordVisible) {
                                         R.drawable.visibility // Icon khi đang hiện mật khẩu
                                     } else {
                                         R.drawable.invisible // Icon khi đang ẩn mật khẩu
                                     }
                                 ),
-                                contentDescription = if (passwordVisible.value) {
+                                contentDescription = if (passwordVisible) {
                                     "Ẩn mật khẩu"
                                 } else {
                                     "Hiển thị mật khẩu"
@@ -225,17 +175,9 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
                         }
                     }
                 )
-                if (passwordLengthError.value.isNotEmpty()) {
-                    Text(
-                        text = passwordLengthError.value,
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
             }
 
-            // Password Confirm TextField
+            // Trường nhập lại Mật khẩu
             Column {
                 Text(
                     text = "Nhập lại mật khẩu mới",
@@ -244,33 +186,29 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 OutlinedTextField(
-                    value = password2.value,
-                    onValueChange = {
-                        password2.value = it
-                        validatePasswords()
-                    },
-                    placeholder = { Text("Nhập mật khẩu của bạn") },
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
+                    placeholder = { Text("Nhập lại mật khẩu của bạn") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    isError = passwordError.value.isNotEmpty(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = if (passwordError.value.isNotEmpty()) Color.Red else Color.LightGray,
-                        focusedBorderColor = if (passwordError.value.isNotEmpty()) Color.Red else Color.Black
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color.Black
                     ),
-                    visualTransformation = if (passwordVisible2.value) VisualTransformation.None else PasswordVisualTransformation(),
+                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(
-                            onClick = { passwordVisible2.value = !passwordVisible2.value }
+                            onClick = { confirmPasswordVisible = !confirmPasswordVisible }
                         ) {
                             Icon(
                                 painter = painterResource(
-                                    id = if (passwordVisible2.value) {
+                                    id = if (confirmPasswordVisible) {
                                         R.drawable.visibility // Icon khi đang hiện mật khẩu
                                     } else {
                                         R.drawable.invisible // Icon khi đang ẩn mật khẩu
                                     }
                                 ),
-                                contentDescription = if (passwordVisible2.value) {
+                                contentDescription = if (confirmPasswordVisible) {
                                     "Ẩn mật khẩu"
                                 } else {
                                     "Hiển thị mật khẩu"
@@ -280,25 +218,24 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
                         }
                     }
                 )
-                if (passwordError.value.isNotEmpty()) {
-                    Text(
-                        text = passwordError.value,
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
             }
         }
 
-        // Create Account Button
+        // Nút Đăng ký tài khoản
         Button(
             onClick = {
-                if (isFormValid && validateEmail() && validatePasswordLength() && password.value == password2.value) {
-                    authViewModel.signup(email.value, password.value)
+                when {
+                    name.isBlank() || email.isBlank() || password.isBlank() || confirmPassword.isBlank() -> {
+                        Toast.makeText(context, "Vui lòng nhập đầy đủ dữ liệu!", Toast.LENGTH_SHORT).show()
+                    }
+                    password != confirmPassword -> {
+                        Toast.makeText(context, "Mật khẩu không khớp!", Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {
+                        viewModel.register(email, password, name)
+                    }
                 }
             },
-            enabled = authState.value != AuthState.Loading,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 24.dp)
@@ -315,13 +252,25 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
             )
         }
 
+        // Lắng nghe thông báo từ ViewModel
+        LaunchedEffect(registerMessage) {
+            registerMessage?.let { message ->
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                if (message == "Đăng ký thành công!") {
+                    navController.navigate("LoginScreen") {
+                        popUpTo("SignUpScreen") { inclusive = true }
+                    }
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.weight(1f))
 
-        // Already have an account
+        // Đã có tài khoản
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 24.dp),
+                .padding(top = 24.dp, bottom = 24.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
@@ -333,7 +282,11 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
                 text = "Đăng nhập",
                 fontSize = 16.sp,
                 color = Color.Black,
-                modifier = Modifier.clickable { navController.navigate("LoginScreen") }
+                modifier = Modifier.clickable {
+                    navController.navigate("LoginScreen") {
+                        popUpTo("SignUpScreen") { inclusive = true }
+                    }
+                }
             )
         }
     }
@@ -343,6 +296,5 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel) {
 @Composable
 fun SignUpScreenPreview() {
     val navController = rememberNavController()
-    val mockAuthViewModel = AuthViewModel()
-    SignUpScreen(navController, mockAuthViewModel)
+    SignUpScreen(navController)
 }

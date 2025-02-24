@@ -30,15 +30,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import fpl.md19.beefashion.GlobalVarible.UserSesion
 import fpl.md19.beefashion.R
 import fpl.md19.beefashion.components.LogOutComponent
-import fpl.md19.beefashion.viewModels.AuthViewModel
+import fpl.md19.beefashion.viewModels.LoginViewModel
 
 
 @Composable
-fun AccountScreen (navController: NavController,  authViewModel: AuthViewModel) {
+fun AccountScreen (navController: NavController,  loginViewModel: LoginViewModel = viewModel()) {
     var showLogoutDialog = remember { mutableStateOf(false) }
 
     Column(
@@ -92,8 +94,8 @@ fun AccountScreen (navController: NavController,  authViewModel: AuthViewModel) 
     // Hiển thị LogOutComponent khi showLogoutDialog là true
     LogOutComponent(
         onConfirm = {
-            // Handle logout logic here
-            authViewModel.signout()
+            loginViewModel.logout(context = navController.context)
+            UserSesion.currentUser = null
             showLogoutDialog.value = false
             navController.navigate("LoginScreen") {
                 popUpTo("HomeScreen") { inclusive = true }
@@ -154,6 +156,5 @@ fun LogoutItem(onClick: () -> Unit) {
 @Composable
 fun PreviewAccountScreen () {
     val navController = rememberNavController()
-    val mockAuthViewModel = AuthViewModel()
-    AccountScreen(navController, mockAuthViewModel)
+    AccountScreen(navController)
 }
