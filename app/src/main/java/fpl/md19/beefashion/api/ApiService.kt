@@ -8,10 +8,15 @@ import fpl.md19.beefashion.models.Sizes
 import fpl.md19.beefashion.models.UserModel
 import fpl.md19.beefashion.requests.LoginRequest
 import fpl.md19.beefashion.requests.RegisterRequest
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.Multipart
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface ApiService {
@@ -35,4 +40,16 @@ interface ApiService {
 
     @GET("/sizes")
     suspend fun getSizes() : Response<List<Sizes>>
+
+    @Multipart
+    @PUT("/customers/{id}")
+    suspend fun EditProfile(
+        @Path("id") id: String,
+        @Part("email") email: RequestBody,
+        @Part("fullName") fullName: RequestBody,
+        @Part("phone") phone: RequestBody?,
+        @Part("gender") gender: RequestBody?,
+        @Part("dateOfBirth") dateOfBirth: RequestBody?,
+        @Part file: MultipartBody.Part?
+    ): Response<UserModel>
 }
