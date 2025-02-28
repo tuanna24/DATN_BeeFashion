@@ -72,6 +72,14 @@ dependencies {
     // Image loading
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("io.coil-kt:coil-gif:2.7.0")
+    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
+
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
+
+
 
     //Image
     implementation ("com.google.accompanist:accompanist-pager:0.31.1-alpha")

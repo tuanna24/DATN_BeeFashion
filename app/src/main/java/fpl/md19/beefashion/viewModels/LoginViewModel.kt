@@ -52,6 +52,7 @@ class LoginViewModel : ViewModel() {
                     _loginResponse.value = response
                     _loginMessage.value = "Đăng nhập thành công!"
                     UserSesion.currentUser = response.body()
+                    Log.d("LoginViewModel", "Login successful, User ID: ${UserSesion.currentUser?.id}")
 
                     if (rememberMe) {
                         saveCredentials(
@@ -81,12 +82,12 @@ class LoginViewModel : ViewModel() {
                 val response =
                     HttpRequest.getInstance().Register(RegisterRequest(fullName, email, password))
                 if (response.isSuccessful) {
+                    _registerResponse.value = response
                     _registerMessage.value = "Đăng ký thành công!"
-                    UserSesion.currentUser = UserModel(
-                        email = email,
-                        fullName = fullName,
-                        password = password
-                    )
+                    // Sử dụng thông tin user từ response
+                    UserSesion.currentUser = response.body()
+                    // Log để kiểm tra ID
+                    Log.d("RegisterViewModel", "User ID: ${UserSesion.currentUser?.id}")
                 } else {
                     if (response.code() == 409) {
                         _registerMessage.value = "Email này đã tồn tại!"
@@ -108,12 +109,18 @@ class LoginViewModel : ViewModel() {
             val gson = Gson()
             val userModel = gson.fromJson(userJson, UserModel::class.java)
 
+            // Cập nhật thông tin user vào session
+            UserSesion.currentUser = userModel
+            Log.d("LoginViewModel", "Loaded User ID: ${userModel.id}")
+
             rememberedEmail = sharedPreferences.getString(PREF_EMAIL, "") ?: ""
             rememberedPassword = sharedPreferences.getString(PREF_PASSWORD, "") ?: ""
             isRemembered = sharedPreferences.getBoolean(PREF_REMEMBER, false)
         } else {
+            rememberedEmail = ""
             rememberedPassword = ""
             isRemembered = false
+            UserSesion.currentUser = null
         }
 
 
