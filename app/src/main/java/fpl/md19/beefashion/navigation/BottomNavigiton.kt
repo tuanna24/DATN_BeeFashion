@@ -33,7 +33,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.AddressScreen
 import fpl.md19.beefashion.NewAddressScreen
 import fpl.md19.beefashion.R
@@ -46,6 +45,7 @@ import fpl.md19.beefashion.screens.auth.SignUpScreen
 import fpl.md19.beefashion.screens.auth.WelcomeScreen
 import fpl.md19.beefashion.screens.auth.WelcomeScreen1
 import fpl.md19.beefashion.screens.cart.MyOderScreen
+import fpl.md19.beefashion.screens.payment.PaymentScreen
 import fpl.md19.beefashion.screens.product.ProductScreen
 import fpl.md19.beefashion.screens.support.HelpScreen
 import fpl.md19.beefashion.screens.tab.AccountScreen
@@ -53,7 +53,7 @@ import fpl.md19.beefashion.screens.tab.CartScreen
 import fpl.md19.beefashion.screens.tab.HomeScreen
 import fpl.md19.beefashion.screens.tab.SavedScreen
 import fpl.md19.beefashion.screens.tab.SearchScreen
-
+import fpl.md19.beefashion.viewModels.AuthViewModel
 
 
 data class TabItem(
@@ -67,7 +67,7 @@ val tabItems = listOf(
     TabItem(
         unselectedIcon = R.drawable.home_icon,
         selectedIcon = R.drawable.home_icon_dark,
-        content = { navController -> HomeScreen(navController) },
+        content = { navController -> HomeScreen(navController)},
         screenName = "HomeScreen"
     ),
     TabItem(
@@ -143,7 +143,7 @@ fun NestedBottomTab(
         composable("NewAddressScreen") {
             NewAddressScreen(navController)
         }
-        composable("MyOderScreen") {
+        composable("myOderScreen") {
             MyOderScreen(navController)
         }
         composable("MyDetailsScreen") {
@@ -181,8 +181,18 @@ fun NestedBottomTab(
         composable("accountScreen") {
             AccountScreen(navController)
         }
-        composable("productScreen") {
-            ProductScreen(navController)
+        composable("productScreen/{productId}") { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId")
+
+            if (productId.isNullOrEmpty()) {
+                // Xử lý khi productId không hợp lệ, có thể chuyển hướng hoặc hiển thị thông báo lỗi
+                navController.popBackStack()
+            } else {
+                ProductScreen(navController = navController, productId = productId)
+            }
+        }
+        composable("paymentScreen") {
+            PaymentScreen(navController)
         }
     }
 }

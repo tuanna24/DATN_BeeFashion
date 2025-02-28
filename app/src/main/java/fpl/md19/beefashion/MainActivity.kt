@@ -25,6 +25,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // Khởi tạo ViewModel
+        val authViewModel: AuthViewModel by viewModels()
+
         // Thiết lập giao diện composable
         setContent {
             BeefashionTheme {

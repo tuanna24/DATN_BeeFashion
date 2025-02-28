@@ -7,11 +7,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -20,37 +22,34 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import fpl.md19.beefashion.R
-import fpl.md19.beefashion.models.HomeProduct
+import fpl.md19.beefashion.models.Products
+import fpl.md19.beefashion.viewModels.ProductsViewModels
 import java.text.Normalizer
+import java.text.NumberFormat
+import java.util.Locale
 import java.util.regex.Pattern
 
 @Composable
-fun SearchScreen(navController: NavController) {
+fun SearchScreen(
+    navController: NavController,
+    productsViewModels: ProductsViewModels = viewModel(),
+) {
     var searchText by remember { mutableStateOf("") }
+    val products by productsViewModels.products
+    val loading by productsViewModels.loading
+    val errorMessage by productsViewModels.errMessage
 
-    // Danh sách sản phẩm
-    val productList = listOf(
-        HomeProduct("quan thể thao", 189000, R.drawable.ao_phong, "M", "-52%"),
-        HomeProduct("Áo phao thao", 189000, R.drawable.ao_phong, "L"),
-        HomeProduct("Áo phong thao", 189000, R.drawable.ao_phong, "M", "-2%"),
-        HomeProduct("Áo phong cách", 189000, R.drawable.ao_phong, "L", "-52%"),
-        HomeProduct("Áo phông thao", 189000, R.drawable.ao_phong, "M", "-52%"),
-        HomeProduct("Áo thể thao", 189000, R.drawable.ao_phong, "L", "-52%"),
-        HomeProduct("Áo thể thao", 189000, R.drawable.ao_phong, "L", "-52%"),
-    )
-
-    // Lọc danh sách sản phẩm theo từ khóa tìm kiếm
     val normalizedSearchWords = removeDiacritics(searchText.trim())
         .lowercase()
-        .split("\\s+".toRegex()) // Tách thành danh sách từ
+        .split("\\s+".toRegex())
 
-    val filteredList = productList.filter { product ->
-        val normalizedTitle = removeDiacritics(product.title).lowercase()
-
-        // Kiểm tra xem tất cả từ trong searchWords có xuất hiện trong tiêu đề không
+    val filteredList = products.filter { product ->
+        val normalizedTitle = removeDiacritics(product.name).lowercase()
         normalizedSearchWords.all { word -> normalizedTitle.contains(word) }
     }
 
@@ -60,7 +59,6 @@ fun SearchScreen(navController: NavController) {
             .padding(25.dp, top = 30.dp, end = 25.dp),
         verticalArrangement = Arrangement.Top
     ) {
-        // Thanh tiêu đề với nút back và tiêu đề "Search"
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -87,11 +85,10 @@ fun SearchScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Thanh tìm kiếm
         TextField(
             value = searchText,
             onValueChange = { searchText = it },
-            placeholder = { Text("Search", color = Color.Gray) },
+            placeholder = { Text("Nhập tên sản phẩm...") },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
@@ -114,9 +111,39 @@ fun SearchScreen(navController: NavController) {
             }
         )
 
+        Spacer(modifier = Modifier.width(8.dp))
+
+        val normalizedSearchText = removeDiacritics(searchText.trim()).lowercase()
+        val suggestions = products.filter { product ->
+            val normalizedName = removeDiacritics(product.name).lowercase()
+            product.name.contains(searchText, ignoreCase = true) || normalizedName.contains(
+                normalizedSearchText
+            )
+        }.take(3)
+
+        Spacer(modifier = Modifier.height(8.dp))
+        if (searchText.isNotEmpty() && suggestions.isNotEmpty()) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
+                    .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+            ) {
+                items(suggestions) { suggestion ->
+                    Text(
+                        text = suggestion.name,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { searchText = suggestion.name }
+                            .padding(8.dp),
+                        fontSize = 16.sp
+                    )
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Nếu danh sách lọc rỗng, hiển thị thông báo "Không có sản phẩm cần tìm"
         if (filteredList.isEmpty()) {
             Box(
                 modifier = Modifier
@@ -147,31 +174,31 @@ fun SearchScreen(navController: NavController) {
                         color = Color.Gray,
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth().padding(start = 30.dp, end = 30.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 30.dp, end = 30.dp)
                     )
                 }
             }
         } else {
-            // Hiển thị danh sách sản phẩm từ HomeProduct
             LazyColumn {
                 items(filteredList) { product ->
-                    ProductItem(product, navController)
+                    ProductItem(product = product, navController = navController)
                 }
             }
         }
     }
 }
 
-// Hàm loại bỏ dấu tiếng Việt
 fun removeDiacritics(input: String): String {
     val normalized = Normalizer.normalize(input, Normalizer.Form.NFD)
     val pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
     return pattern.matcher(normalized).replaceAll("")
 }
 
-// Composable hiển thị từng sản phẩm
 @Composable
-fun ProductItem(item: HomeProduct, navController: NavController) {
+fun ProductItem(product: Products, navController: NavController) {
+    val totalQuantity = (product.quantities ?: emptyList()).sum()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -179,16 +206,18 @@ fun ProductItem(item: HomeProduct, navController: NavController) {
             .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
             .background(Color.White, RoundedCornerShape(8.dp))
             .padding(12.dp)
-            .clickable { /* Xử lý click vào sản phẩm */ },
+            .clickable {
+                navController.navigate("productScreen/${product.id}")
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(id = item.imageRes),
-            contentDescription = item.title,
+        AsyncImage(
+            model = product.image,
+            contentDescription = product.name,
             modifier = Modifier
-                .size(50.dp) // Kích thước ảnh
-                .border(0.2.dp, Color.Black, RoundedCornerShape(8.dp)) // Viền đen 2dp, bo tròn góc 8dp
-                .padding(2.dp), // Tạo khoảng cách giữa viền và ảnh,
+                .size(50.dp)
+                .border(0.2.dp, Color.Black, RoundedCornerShape(8.dp))
+                .padding(2.dp),
             contentScale = ContentScale.Crop
         )
 
@@ -196,19 +225,20 @@ fun ProductItem(item: HomeProduct, navController: NavController) {
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = item.title,
+                text = product.name,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
             )
             Text(
-                text = "Size: ${item.size}",
+                text = "SL: $totalQuantity",
                 fontSize = 14.sp,
                 color = Color.Gray
             )
             Text(
-                text = "${item.price}",
+                text = "Giá: ${formatCurrency1(product.price)}",
+                color = Color.Gray,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
+                modifier = Modifier.padding(horizontal = 8.dp)
             )
         }
 
@@ -216,9 +246,20 @@ fun ProductItem(item: HomeProduct, navController: NavController) {
             painter = painterResource(id = R.drawable.search),
             contentDescription = "Go",
             Modifier
-                .clickable{navController.navigate("productScreen") }
+                .clickable {
+                    navController.navigate("productScreen/${product.id}")
+                }
                 .size(30.dp)
         )
+    }
+}
+
+fun formatCurrency1(price: Any?): String {
+    val formatter = NumberFormat.getInstance(Locale("vi", "VN"))
+    return when (price) {
+        is Number -> formatter.format(price.toLong()) + " ₫"
+        is String -> price.toLongOrNull()?.let { formatter.format(it) + " ₫" } ?: "0 ₫"
+        else -> "0 đ"
     }
 }
 

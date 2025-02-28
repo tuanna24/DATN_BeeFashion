@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -75,9 +76,7 @@ fun SavedScreen(navController: NavController) {
         if (savedList.isEmpty()) {
             EmptySavedScreen()
         } else {
-            SaveList(savedList) { item ->
-                itemToDelete = item // Hiển thị Dialog xác nhận
-            }
+            SaveList(savedList, { item -> itemToDelete = item }, navController)
         }
     }
 
@@ -100,20 +99,20 @@ fun SavedScreen(navController: NavController) {
 }
 
 @Composable
-fun SaveList(saver: List<Saved>, onRemoveRequest: (Saved) -> Unit) {
+fun SaveList(saver: List<Saved>, onRemoveRequest: (Saved) -> Unit, navController: NavController) {
     val state = rememberLazyStaggeredGridState()
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
         state = state,
     ) {
         items(saver) { savedItem ->
-            MySaveCard(savedItem, onRemoveRequest)
+            MySaveCard(savedItem, onRemoveRequest, navController) // Truyền navController vào
         }
     }
 }
 
 @Composable
-fun MySaveCard(saved: Saved, onRemoveRequest: (Saved) -> Unit) {
+fun MySaveCard(saved: Saved, onRemoveRequest: (Saved) -> Unit, navController: NavController) {
     Column(
         modifier = Modifier
             .padding(8.dp, top = 20.dp)
@@ -124,7 +123,7 @@ fun MySaveCard(saved: Saved, onRemoveRequest: (Saved) -> Unit) {
                 painter = painterResource(id = saved.imageRes),
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
-                modifier = Modifier.clip(RoundedCornerShape(10.dp))
+                modifier = Modifier.clip(RoundedCornerShape(10.dp)).clickable{navController.navigate("productScreen")}
             )
             Icon(
                 painter = painterResource(R.drawable.hear_red),

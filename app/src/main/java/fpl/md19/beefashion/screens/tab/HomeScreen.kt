@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,28 +26,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import fpl.md19.beefashion.R
-import fpl.md19.beefashion.models.HomeProduct
+import fpl.md19.beefashion.models.Products
 import fpl.md19.beefashion.viewModels.AuthState
 import fpl.md19.beefashion.viewModels.AuthViewModel
+import fpl.md19.beefashion.viewModels.CategoriesViewModels
+import fpl.md19.beefashion.viewModels.ProductsViewModels
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
-fun HomeScreen(navController: NavController) {
-    val categories = listOf("Toàn bộ", "Áo ngắn", "Áo sơ mi", "Áo phông")
+fun HomeScreen(
+    navController: NavController,
+    productsViewModels: ProductsViewModels = viewModel(),
+    categoriesViewModels: CategoriesViewModels = viewModel()
+) {
+    val categories = listOf("Toàn bộ", "Áo Thun", "Áo sơ mi", "Áo Khoác", "Áo Vest")
     var selectedCategory by remember { mutableStateOf(categories[0]) }
 
-    val homeProduct = listOf(
-        HomeProduct("Áo thể thao", 189000, R.drawable.ao_phong, "M", "-52%"),
-        HomeProduct("Áo thể thao", 189000, R.drawable.ao_phong, "L"),
-        HomeProduct("Áo thể thao", 189000, R.drawable.ao_phong, "M", "-2%"),
-        HomeProduct("Áo thể thao", 189000, R.drawable.ao_phong, "L", "-52%"),
-        HomeProduct("Áo thể thao", 189000, R.drawable.ao_phong, "M", "-52%"),
-        HomeProduct("Áo thể thao", 189000, R.drawable.ao_phong, "L", "-52%"),
-        HomeProduct("Áo thể thao", 189000, R.drawable.ao_phong, "L", "-52%"),
-    )
-
+    val products by productsViewModels.products
+    val loading by productsViewModels.loading
+    val errorMessage by productsViewModels.errMessage
 
     Column(
         modifier = Modifier
@@ -135,84 +139,109 @@ fun HomeScreen(navController: NavController) {
                 }
             }
         }
-
-        ProductList(homeProduct, navController)
-    }
-}
-
-@Composable
-fun ProductList(products: List<HomeProduct>, navController: NavController) {
-    val state = rememberLazyStaggeredGridState()
-    LazyVerticalStaggeredGrid(
-        columns = StaggeredGridCells.Fixed(2),
-        state = state,
-    ) {
-        items(products) {
-            ProductCard(product = it, navController = navController)
+        when {
+            loading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
+            errorMessage != null -> Text(
+                text = "Lỗi: $errorMessage",
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+            else -> ProductList(products, navController)
         }
     }
 }
 
 @Composable
-fun ProductCard(product: HomeProduct, modifier: Modifier = Modifier, navController: NavController) {
+fun ProductList(products: List<Products>, navController: NavController) {
+    LazyVerticalStaggeredGrid(
+        columns = StaggeredGridCells.Fixed(2),
+        modifier = Modifier.padding(8.dp)
+    ) {
+        items(products) { product ->
+            ProductCard(product = product, navController = navController)
+        }
+    }
+}
+
+@Composable
+fun ProductCard(
+    product: Products,
+    modifier: Modifier = Modifier,
+    navController: NavController
+) {
+    val totalQuantity = (product.quantities ?: emptyList()).sum()
+
     Column(
         modifier = modifier
-            .padding(8.dp, top = 20.dp)
+            .padding(8.dp)
             .background(Color.White, shape = RoundedCornerShape(8.dp))
-            .clickable {navController.navigate("productScreen")}
+            .clickable {
+                navController.navigate("productScreen/${product.id}")
+            }
     ) {
-        Box(
-
-        ) {
-            Image(
-                painter = painterResource(id = product.imageRes),
-                contentDescription = null,
+        Box {
+            AsyncImage(
+                model = product.image,
+                contentDescription = "Product",
                 contentScale = ContentScale.Fit,
-                modifier = Modifier.clip(RoundedCornerShape(10.dp))
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
             )
-            Icon(painter = painterResource(id = R.drawable.heart),
+            Icon(
+                painter = painterResource(id = R.drawable.heart),
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(8.dp)
                     .size(24.dp)
-                    .background(
-                        color = Color(0xFFE0E0E0), shape = RoundedCornerShape(4.dp)
-                    )
+                    .background(Color(0xFFE0E0E0), shape = RoundedCornerShape(4.dp))
                     .clickable { }
-                    .padding(4.dp))
+                    .padding(4.dp)
+            )
         }
         Spacer(modifier = Modifier.height(8.dp))
+
         Text(
-            text = product.title,
+            text = product.name,
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .fillMaxWidth()
+            modifier = Modifier.padding(horizontal = 8.dp)
         )
+
         Spacer(modifier = Modifier.height(4.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween // Cách đều 2 text
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = product.price.toString(),
+                text = formatCurrency(product.price),
                 color = Color.Gray,
                 fontSize = 14.sp,
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
-            product.discount?.let {
-                Text(
-                    text = it, // Chỉ hiển thị khi không null
-                    color = Color.Red,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-            }
+            Text(
+                text = "SL: $totalQuantity",
+                color = Color.Red,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
         }
+    }
+}
+
+fun formatCurrency(price: Any?): String {
+    val formatter = NumberFormat.getInstance(Locale("vi", "VN"))
+    return when (price) {
+        is Number -> formatter.format(price.toLong()) + " ₫"
+        is String -> price.toLongOrNull()?.let { formatter.format(it) + " ₫" } ?: "0 ₫"
+        else -> "0 đ"
     }
 }
 
