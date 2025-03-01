@@ -50,7 +50,7 @@ fun WelcomeScreen1(navController: NavController) {
             )
 
             Button(
-                onClick = {   navController.navigate("LoginScreen")},
+                onClick = {   navController.navigate("HomeScreen")},
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp)
