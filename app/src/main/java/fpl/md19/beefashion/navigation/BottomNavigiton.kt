@@ -1,6 +1,7 @@
 package fpl.md19.beefashion.navigation
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,15 +29,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
 import fpl.md19.beefashion.AddressScreen
 import fpl.md19.beefashion.NewAddressScreen
 import fpl.md19.beefashion.R
 import fpl.md19.beefashion.TrackOrderScreen
+import fpl.md19.beefashion.api.ApiService
+import fpl.md19.beefashion.api.HttpRequest
 import fpl.md19.beefashion.screens.accounts.MyDetailsScreen
 import fpl.md19.beefashion.screens.accounts.NotificationsScreen
 import fpl.md19.beefashion.screens.auth.ForgotPasswordScreen
@@ -53,6 +61,11 @@ import fpl.md19.beefashion.screens.tab.CartScreen
 import fpl.md19.beefashion.screens.tab.HomeScreen
 import fpl.md19.beefashion.screens.tab.SavedScreen
 import fpl.md19.beefashion.screens.tab.SearchScreen
+import fpl.md19.beefashion.viewModels.AddressViewModel
+import fpl.md19.beefashion.viewModels.NewAddressViewModel
+import fpl.md19.beefashion.viewModels.NewAddressViewModelFactory
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import fpl.md19.beefashion.viewModels.AuthViewModel
 
 
@@ -137,11 +150,45 @@ fun NestedBottomTab(
         composable("SignUpScreen") {
             SignUpScreen(navController)
         }
-        composable("AddressScreen") {
-            AddressScreen(navController)
+        composable(
+            route = "AddressScreen/{customerId}",
+            arguments = listOf(navArgument("customerId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val customerId = backStackEntry.arguments?.getString("customerId") ?: ""
+            val viewModel: AddressViewModel = viewModel {
+                val apiService = HttpRequest.getInstance()
+                AddressViewModel(apiService)
+            }
+            AddressScreen(navController, viewModel, customerId)
         }
-        composable("NewAddressScreen") {
-            NewAddressScreen(navController)
+
+        composable(
+            route = "NewAddressScreen/{customerId}",
+            arguments = listOf(navArgument("customerId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val customerId = backStackEntry.arguments?.getString("customerId") ?: ""
+
+            // Get the same ViewModel instance from the parent
+            val addressViewModel: AddressViewModel = viewModel()
+            // Khởi tạo apiService
+            val retrofit = Retrofit.Builder()
+                .baseUrl("https://provinces.open-api.vn/api/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+
+            val apiService = retrofit.create(ApiService::class.java)
+
+            // Tạo ViewModel với Factory
+            val newAddressViewModel: NewAddressViewModel = viewModel(
+                factory = NewAddressViewModelFactory(apiService)
+            )
+
+            NewAddressScreen(
+                navController = navController,
+                addressViewModel = addressViewModel,
+                newAddressViewModel = newAddressViewModel,
+                customerId = customerId
+            )
         }
         composable("myOderScreen") {
             MyOderScreen(navController)

@@ -74,7 +74,7 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    fun register(email: String, password: String, fullName: String) {
+    fun register(email: String, password: String, fullName: String, id: String) {
         viewModelScope.launch {
             try {
                 _registerResponse.value = null

@@ -55,7 +55,7 @@ fun SignUpScreen(
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
-
+    var id by remember { mutableStateOf("") }
     // Kiểm tra xem tất cả các trường đã được điền chưa
     val isFormValid = name.isNotEmpty() && email.isNotEmpty() &&
             password.isNotEmpty() && confirmPassword.isNotEmpty()
@@ -232,7 +232,7 @@ fun SignUpScreen(
                         Toast.makeText(context, "Mật khẩu không khớp!", Toast.LENGTH_SHORT).show()
                     }
                     else -> {
-                        viewModel.register(email, password, name)
+                        viewModel.register(email, password, name,id)
                     }
                 }
             },

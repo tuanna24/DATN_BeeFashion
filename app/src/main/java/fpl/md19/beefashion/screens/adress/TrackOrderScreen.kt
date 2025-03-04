@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import fpl.md19.beefashion.screens.adress.MapScreen
 
 @Composable
 fun TrackOrderScreen(navController: NavController) {
@@ -63,12 +64,7 @@ fun TrackOrderScreen(navController: NavController) {
             }
 
             Box() {
-                Image(
-                    painter = painterResource(id = R.drawable.map_placeholder),
-                    contentDescription = "Map",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
+                MapScreen()
             }
         }
 
@@ -120,23 +116,23 @@ fun BottomSheetOrderStatus(modifier: Modifier = Modifier) {
 
             // Status Steps
             OrderStatusStep(
-                status = "Packing",
-                address = "2336 Jack Warren Rd, Delta Junction, Alaska",
+                status = "Đã xác nhận đơn hàng",
+                address = "2336 Van Thang, Ba bi, Ha noi",
                 completed = true
             )
             OrderStatusStep(
-                status = "Picked",
-                address = "2417 Tongass Ave #111, Ketchikan, Alaska",
+                status = "Đã lấy hàng",
+                address = "2417 Hoan Kiem, Ba Dinh, Ha noi",
                 completed = true
             )
             OrderStatusStep(
-                status = "In Transit",
-                address = "16 Rr 2, Ketchikan, Alaska",
+                status = "Đang vận chuyển",
+                address = "16 Nhon, Xuan Phuong, Ha noi",
                 completed = true
             )
             OrderStatusStep(
-                status = "Delivered",
-                address = "925 S Chugach St #APT 10, Alaska",
+                status = "Đã giao hàng",
+                address = "925 Nhon, Ha Noi",
                 completed = false
             )
 
@@ -146,10 +142,17 @@ fun BottomSheetOrderStatus(modifier: Modifier = Modifier) {
                 color = Color(0xFFEEEEEE)
             )
 
-            DeliveryPersonInfo(
-                name = "Nguyen Minh Nghia",
-                role = "Delivery Guy"
-            )
+            Button(
+                onClick = {  },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                shape = RoundedCornerShape(12.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            ) {
+                Text(text = "Đã nhận hàng", color = Color.White, fontWeight = FontWeight.Bold)
+            }
         }
     }
 }
@@ -197,56 +200,6 @@ fun OrderStatusStep(
                 fontSize = 14.sp,
                 color = Color.Gray,
                 modifier = Modifier.padding(top = 2.dp)
-            )
-        }
-    }
-}
-
-@Composable
-fun DeliveryPersonInfo(name: String, role: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_details),
-            contentDescription = "Delivery Person",
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(Color(0xFFF5F5F5))
-                .padding(8.dp)
-        )
-
-        Column(
-            modifier = Modifier
-                .padding(start = 12.dp)
-                .weight(1f)
-        ) {
-            Text(
-                text = name,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp
-            )
-            Text(
-                text = role,
-                fontSize = 14.sp,
-                color = Color.Gray,
-                modifier = Modifier.padding(top = 2.dp)
-            )
-        }
-
-        IconButton(
-            onClick = {},
-            modifier = Modifier
-                .size(40.dp)
-                .background(Color(0xFF4CAF50), CircleShape)
-        ) {
-            Icon(
-                Icons.Default.Phone,
-                contentDescription = "Call",
-                tint = Color.White,
-                modifier = Modifier.size(20.dp)
             )
         }
     }
