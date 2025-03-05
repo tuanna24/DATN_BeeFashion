@@ -1,6 +1,6 @@
 package fpl.md19.beefashion.models
 
-import kotlinx.coroutines.internal.OpDescriptor
+//import kotlinx.coroutines.internal.OpDescriptor
 
 data class ProductDetails(
     val id : String,

@@ -82,7 +82,7 @@ fun AccountScreen (navController: NavController,  loginViewModel: LoginViewModel
             item { AccountItem(R.drawable.ic_orders, "Đơn hàng", navController, "MyOderScreen") }
             item { Divider(thickness = 8.dp, color = Color.LightGray) }
             item { AccountItem(R.drawable.ic_details, "Thông tin", navController, "MyDetailsScreen") }
-            item { AccountItem(R.drawable.ic_address, "Địa chỉ", navController, "AddressScreen") }
+            item { AccountItem(R.drawable.ic_address, "Địa chỉ", navController, "AddressScreen/{customerId}") }
             item { AccountItem(R.drawable.ic_notifications, "Thông báo", navController, "NotificationsScreen") }
             item { Divider(thickness = 8.dp, color = Color.LightGray) }
             item { AccountItem(R.drawable.ic_help, "Trợ giúp", navController, "HelpScreen") }
@@ -139,7 +139,7 @@ fun LogoutItem(onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {  onClick()  }
+            .clickable { onClick() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

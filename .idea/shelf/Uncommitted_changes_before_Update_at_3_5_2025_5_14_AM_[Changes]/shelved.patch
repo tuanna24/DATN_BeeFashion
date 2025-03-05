@@ -1,0 +1,1461 @@
+Index: app/src/main/java/fpl/md19/beefashion/MainActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package fpl.md19.beefashion\r\n\r\nimport android.os.Build\r\nimport android.os.Bundle\r\nimport androidx.activity.ComponentActivity\r\nimport androidx.activity.compose.setContent\r\nimport androidx.activity.enableEdgeToEdge\r\nimport androidx.activity.viewModels\r\nimport androidx.annotation.RequiresApi\r\nimport androidx.compose.foundation.layout.Column\r\nimport androidx.compose.foundation.layout.fillMaxSize\r\nimport androidx.compose.material3.MaterialTheme\r\nimport androidx.compose.material3.Surface\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.navigation.NavHostController\r\nimport androidx.navigation.compose.rememberNavController\r\nimport fpl.md19.beefashion.navigation.BottomNavBar\r\nimport fpl.md19.beefashion.ui.theme.BeefashionTheme\r\nimport fpl.md19.beefashion.viewModels.AuthViewModel\r\n\r\nclass MainActivity : ComponentActivity() {\r\n    @RequiresApi(Build.VERSION_CODES.O)\r\n    override fun onCreate(savedInstanceState: Bundle?) {\r\n        super.onCreate(savedInstanceState)\r\n        enableEdgeToEdge()\r\n\r\n        // Thiết lập giao diện composable\r\n        setContent {\r\n            BeefashionTheme {\r\n                Surface(color = MaterialTheme.colorScheme.background) {\r\n                    // Truyền navController và authViewModel vào MainScreen\r\n                    val navController = rememberNavController()\r\n                    MainScreen(navController = navController)\r\n                }\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\n@RequiresApi(Build.VERSION_CODES.O)\r\n@Composable\r\nfun MainScreen(navController: NavHostController) {\r\n    Column(modifier = Modifier.fillMaxSize()) {\r\n        // Truyền navController và authViewModel vào BottomNavBar\r\n        BottomNavBar(navController = navController)\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/fpl/md19/beefashion/MainActivity.kt b/app/src/main/java/fpl/md19/beefashion/MainActivity.kt
+--- a/app/src/main/java/fpl/md19/beefashion/MainActivity.kt	(revision 8624c537ecc3788d97ef757e0400419a2358d374)
++++ b/app/src/main/java/fpl/md19/beefashion/MainActivity.kt	(date 1741125886017)
+@@ -13,10 +13,14 @@
+ import androidx.compose.material3.Surface
+ import androidx.compose.runtime.Composable
+ import androidx.compose.ui.Modifier
++import androidx.lifecycle.ViewModelProvider
+ import androidx.navigation.NavHostController
+ import androidx.navigation.compose.rememberNavController
++import fpl.md19.beefashion.api.HttpRequest
+ import fpl.md19.beefashion.navigation.BottomNavBar
+ import fpl.md19.beefashion.ui.theme.BeefashionTheme
++import fpl.md19.beefashion.viewModels.AddressViewModel
++import fpl.md19.beefashion.viewModels.AddressViewModelFactory
+ import fpl.md19.beefashion.viewModels.AuthViewModel
+ 
+ class MainActivity : ComponentActivity() {
+@@ -25,7 +29,6 @@
+         super.onCreate(savedInstanceState)
+         enableEdgeToEdge()
+ 
+-        // Thiết lập giao diện composable
+         setContent {
+             BeefashionTheme {
+                 Surface(color = MaterialTheme.colorScheme.background) {
+@@ -35,6 +38,7 @@
+                 }
+             }
+         }
++
+     }
+ }
+ 
+Index: app/src/main/java/fpl/md19/beefashion/screens/adress/NewAddressScreen.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package fpl.md19.beefashion\r\n\r\nimport android.widget.Toast\r\nimport androidx.compose.foundation.Image\r\nimport androidx.compose.foundation.background\r\nimport androidx.compose.foundation.clickable\r\nimport androidx.compose.foundation.layout.*\r\nimport androidx.compose.foundation.shape.RoundedCornerShape\r\nimport androidx.compose.material.icons.Icons\r\nimport androidx.compose.material.icons.filled.*\r\nimport androidx.compose.material3.*\r\nimport androidx.compose.runtime.*\r\nimport androidx.compose.ui.Alignment\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.graphics.Color\r\nimport androidx.compose.ui.layout.ContentScale\r\nimport androidx.compose.ui.platform.LocalContext\r\nimport androidx.compose.ui.res.painterResource\r\nimport androidx.compose.ui.text.font.FontWeight\r\nimport androidx.compose.ui.tooling.preview.Preview\r\nimport androidx.compose.ui.unit.dp\r\nimport androidx.compose.ui.unit.sp\r\nimport androidx.navigation.NavController\r\nimport androidx.navigation.compose.rememberNavController\r\n\r\n@Composable\r\nfun NewAddressScreen(navController: NavController) {\r\n    Column(modifier = Modifier\r\n        .fillMaxSize()\r\n        .padding(16.dp)) {\r\n        Row(\r\n            modifier = Modifier\r\n                .fillMaxWidth()\r\n                .padding(vertical = 12.dp),\r\n            horizontalArrangement = Arrangement.SpaceBetween\r\n        ) {\r\n            Image(\r\n                painter = painterResource(id = R.drawable.ic_back),\r\n                contentDescription = \"Back\",\r\n                modifier = Modifier\r\n                    .size(24.dp)\r\n                    .clickable {navController.popBackStack() }\r\n            )\r\n            Text(\r\n                text = \"Địa chỉ mới\",\r\n                fontSize = 24.sp,\r\n                fontWeight = FontWeight.Bold\r\n            )\r\n            Image(\r\n                painter = painterResource(id = R.drawable.ic_notifications),\r\n                contentDescription = \"Notifications\",\r\n                modifier = Modifier\r\n                    .size(24.dp)\r\n                    .clickable { }\r\n            )\r\n        }\r\n        Box(modifier = Modifier.weight(1f)) {\r\n            Image(\r\n                painter = painterResource(id = R.drawable.map_placeholder),\r\n                contentDescription = \"Map\",\r\n                modifier = Modifier.fillMaxSize(),\r\n                contentScale = ContentScale.Crop\r\n            )\r\n            Icon(\r\n                imageVector = Icons.Default.LocationOn,\r\n                contentDescription = \"Pin\",\r\n                tint = Color.Black,\r\n                modifier = Modifier\r\n                    .size(48.dp)\r\n                    .align(Alignment.Center)\r\n            )\r\n        }\r\n        AddressForm(modifier = Modifier.fillMaxWidth(), navController)\r\n    }\r\n}\r\n\r\n\r\n@Composable\r\nfun AddressForm(modifier: Modifier = Modifier, navController: NavController) {\r\n    var showDialog by remember { mutableStateOf(false) } // Biến trạng thái để hiển thị dialog\r\n    var expanded by remember { mutableStateOf(false) }\r\n    var selectedText by remember { mutableStateOf(\"Choose one\") }\r\n    val items = listOf(\"Home\", \"Office\", \"Apartment\", \"Other\")\r\n\r\n    var address by remember { mutableStateOf(\"\") }\r\n    var isChecked by remember { mutableStateOf(false) }\r\n\r\n    Column(\r\n        modifier = modifier\r\n            .background(Color.White, shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))\r\n            .padding(16.dp)\r\n    ) {\r\n        Row(\r\n            modifier = Modifier.fillMaxWidth(),\r\n            horizontalArrangement = Arrangement.SpaceBetween,\r\n            verticalAlignment = Alignment.CenterVertically\r\n        ) {\r\n            Text(text = \"Địa chỉ\", fontSize = 18.sp, fontWeight = FontWeight.Bold)\r\n            IconButton(onClick = { /* Đóng form */ }) {\r\n                Icon(Icons.Default.Close, contentDescription = \"Close\")\r\n            }\r\n        }\r\n        Spacer(modifier = Modifier.height(8.dp))\r\n\r\n        Box {\r\n            OutlinedTextField(\r\n                value = selectedText,\r\n                onValueChange = {},\r\n                readOnly = true,\r\n                label = { Text(\"Tên địa chỉ\") },\r\n                trailingIcon = {\r\n                    Icon(\r\n                        Icons.Default.ArrowDropDown,\r\n                        contentDescription = \"Dropdown\",\r\n                        modifier = Modifier.clickable { expanded = true }\r\n                    )\r\n                },\r\n                modifier = Modifier.fillMaxWidth()\r\n            )\r\n            DropdownMenu(\r\n                expanded = expanded,\r\n                onDismissRequest = { expanded = false }\r\n            ) {\r\n                items.forEach { label ->\r\n                    DropdownMenuItem(\r\n                        text = { Text(label) },\r\n                        onClick = {\r\n                            selectedText = label\r\n                            expanded = false\r\n                        }\r\n                    )\r\n                }\r\n            }\r\n        }\r\n\r\n        Spacer(modifier = Modifier.height(12.dp))\r\n\r\n        OutlinedTextField(\r\n            value = address,\r\n            onValueChange = { address = it },\r\n            label = { Text(\"Địa chỉ đầy đủ\") },\r\n            placeholder = { Text(\"Enter your full address...\") },\r\n            modifier = Modifier.fillMaxWidth()\r\n        )\r\n\r\n        Spacer(modifier = Modifier.height(8.dp))\r\n\r\n        Row(verticalAlignment = Alignment.CenterVertically) {\r\n            Checkbox(\r\n                checked = isChecked,\r\n                onCheckedChange = { isChecked = it },\r\n                colors = CheckboxDefaults.colors(\r\n                    checkedColor = Color.Black,\r\n                    checkmarkColor = Color.White\r\n                )\r\n            )\r\n            Text(\"Đặt làm địa chỉ mặc định\")\r\n        }\r\n\r\n        Spacer(modifier = Modifier.height(16.dp))\r\n\r\n        Button(\r\n            onClick = { showDialog = true },\r\n            modifier = Modifier.fillMaxWidth().height(50.dp),\r\n            colors = ButtonDefaults.buttonColors(containerColor = if (address.isNotEmpty()) Color.Black else Color.Gray),\r\n            shape = RoundedCornerShape(12.dp),\r\n            enabled = address.isNotEmpty()\r\n        ) {\r\n            Text(text = \"Thêm\", color = Color.White)\r\n        }\r\n    }\r\n\r\n    if (showDialog) {\r\n        SuccessDialog(onDismiss = { showDialog = false }, navController)\r\n    }\r\n}\r\n\r\n@Composable\r\nfun SuccessDialog(onDismiss: () -> Unit, navController: NavController) {\r\n    val context = LocalContext.current\r\n\r\n    AlertDialog(\r\n        onDismissRequest = onDismiss,\r\n        confirmButton = {\r\n            Button(\r\n                onClick = {\r\n                    onDismiss()\r\n                    navController.navigate(\"AddressScreen\")\r\n                    Toast.makeText(context, \"Bạn đã thêm một địa chỉ mới\", Toast.LENGTH_SHORT).show()\r\n                },\r\n                modifier = Modifier.fillMaxWidth(),\r\n                colors = ButtonDefaults.buttonColors(containerColor = Color.Black)\r\n            ) {\r\n                Text(\"Thanks\", color = Color.White)\r\n            }\r\n        },\r\n        title = {\r\n            Column(\r\n                horizontalAlignment = Alignment.CenterHorizontally,\r\n                modifier = Modifier.fillMaxWidth()\r\n            ) {\r\n                Icon(\r\n                    imageVector = Icons.Default.CheckCircle,\r\n                    contentDescription = \"Success\",\r\n                    tint = Color(0xFF008000),\r\n                    modifier = Modifier.size(48.dp)\r\n                )\r\n                Spacer(modifier = Modifier.height(8.dp))\r\n                Text(text = \"Chúc mừng!\", fontSize = 20.sp, fontWeight = FontWeight.Bold)\r\n                Text(text = \"Địa chỉ mới của bạn đã được thêm.\", fontSize = 14.sp, color = Color.Gray)\r\n            }\r\n        },\r\n        shape = RoundedCornerShape(12.dp),\r\n        modifier = Modifier.padding(16.dp),\r\n        containerColor = Color.White\r\n    )\r\n}\r\n\r\n\r\n@Preview(showBackground = true)\r\n@Composable\r\nfun NewAddressPreview() {\r\n    val navController = rememberNavController()\r\n    NewAddressScreen(navController)\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/fpl/md19/beefashion/screens/adress/NewAddressScreen.kt b/app/src/main/java/fpl/md19/beefashion/screens/adress/NewAddressScreen.kt
+--- a/app/src/main/java/fpl/md19/beefashion/screens/adress/NewAddressScreen.kt	(revision 8624c537ecc3788d97ef757e0400419a2358d374)
++++ b/app/src/main/java/fpl/md19/beefashion/screens/adress/NewAddressScreen.kt	(date 1741126029770)
+@@ -2,176 +2,249 @@
+ 
+ import android.widget.Toast
+ import androidx.compose.foundation.Image
+-import androidx.compose.foundation.background
+ import androidx.compose.foundation.clickable
+ import androidx.compose.foundation.layout.*
+ import androidx.compose.foundation.shape.RoundedCornerShape
+ import androidx.compose.material.icons.Icons
+-import androidx.compose.material.icons.filled.*
++import androidx.compose.material.icons.filled.CheckCircle
+ import androidx.compose.material3.*
+ import androidx.compose.runtime.*
++import androidx.compose.runtime.saveable.rememberSaveable
+ import androidx.compose.ui.Alignment
+ import androidx.compose.ui.Modifier
+ import androidx.compose.ui.graphics.Color
+-import androidx.compose.ui.layout.ContentScale
+ import androidx.compose.ui.platform.LocalContext
+ import androidx.compose.ui.res.painterResource
+ import androidx.compose.ui.text.font.FontWeight
+ import androidx.compose.ui.tooling.preview.Preview
+ import androidx.compose.ui.unit.dp
+ import androidx.compose.ui.unit.sp
++import androidx.lifecycle.viewmodel.compose.viewModel
+ import androidx.navigation.NavController
+ import androidx.navigation.compose.rememberNavController
++import fpl.md19.beefashion.requests.AddressRequest
++import fpl.md19.beefashion.screens.adress.MapScreen
++import fpl.md19.beefashion.viewModels.AddressViewModel
++import fpl.md19.beefashion.viewModels.NewAddressViewModel
+ 
+ @Composable
+-fun NewAddressScreen(navController: NavController) {
+-    Column(modifier = Modifier
+-        .fillMaxSize()
+-        .padding(16.dp)) {
++fun NewAddressScreen(
++    navController: NavController,
++    addressViewModel: AddressViewModel,
++    newAddressViewModel: NewAddressViewModel,
++    customerId: String
++) {
++    val isLoading by newAddressViewModel.isLoading.collectAsState()
++    val error by newAddressViewModel.error.collectAsState()
++
++    // Nếu có lỗi, hiển thị Snackbar
++    LaunchedEffect(error) {
++        error?.let { errorMessage ->
++            // Hiển thị thông báo lỗi (có thể dùng Snackbar)
++            // Sau đó clear lỗi để không hiển thị lại
++            newAddressViewModel.clearError()
++        }
++    }
++
++    Column(
++        modifier = Modifier.fillMaxSize().padding(16.dp)
++    ) {
+         Row(
+-            modifier = Modifier
+-                .fillMaxWidth()
+-                .padding(vertical = 12.dp),
++            modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+             horizontalArrangement = Arrangement.SpaceBetween
+         ) {
+             Image(
+                 painter = painterResource(id = R.drawable.ic_back),
+                 contentDescription = "Back",
+-                modifier = Modifier
+-                    .size(24.dp)
+-                    .clickable {navController.popBackStack() }
++                modifier = Modifier.size(24.dp).clickable { navController.popBackStack() }
+             )
+-            Text(
+-                text = "Địa chỉ mới",
+-                fontSize = 24.sp,
+-                fontWeight = FontWeight.Bold
+-            )
++            Text(text = "Địa chỉ mới", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+             Image(
+                 painter = painterResource(id = R.drawable.ic_notifications),
+                 contentDescription = "Notifications",
+-                modifier = Modifier
+-                    .size(24.dp)
+-                    .clickable { }
++                modifier = Modifier.size(24.dp).clickable { }
+             )
+         }
+-        Box(modifier = Modifier.weight(1f)) {
+-            Image(
+-                painter = painterResource(id = R.drawable.map_placeholder),
+-                contentDescription = "Map",
+-                modifier = Modifier.fillMaxSize(),
+-                contentScale = ContentScale.Crop
+-            )
+-            Icon(
+-                imageVector = Icons.Default.LocationOn,
+-                contentDescription = "Pin",
+-                tint = Color.Black,
+-                modifier = Modifier
+-                    .size(48.dp)
+-                    .align(Alignment.Center)
++
++        Box(modifier = Modifier.fillMaxHeight(0.4f)) {
++            MapScreen()
++        }
++
++        // Hiển thị loading nếu cần
++        if (isLoading) {
++            Box(
++                modifier = Modifier.fillMaxWidth().height(200.dp),
++                contentAlignment = Alignment.Center
++            ) {
++                CircularProgressIndicator(color = Color.Black)
++            }
++        } else {
++            AddressForm(
++                navController = navController,
++                addressViewModel = addressViewModel,
++                newAddressViewModel = newAddressViewModel,
++                customerId = customerId
+             )
+         }
+-        AddressForm(modifier = Modifier.fillMaxWidth(), navController)
+     }
+ }
+ 
+-
++@OptIn(ExperimentalMaterial3Api::class)
+ @Composable
+-fun AddressForm(modifier: Modifier = Modifier, navController: NavController) {
+-    var showDialog by remember { mutableStateOf(false) } // Biến trạng thái để hiển thị dialog
+-    var expanded by remember { mutableStateOf(false) }
+-    var selectedText by remember { mutableStateOf("Choose one") }
+-    val items = listOf("Home", "Office", "Apartment", "Other")
++fun AddressForm(
++    navController: NavController,
++    addressViewModel: AddressViewModel,
++    newAddressViewModel: NewAddressViewModel,
++    customerId: String
++) {
++    val context = LocalContext.current
++
++    val selectedProvince by newAddressViewModel.selectedProvince.collectAsState()
++    val selectedDistrict by newAddressViewModel.selectedDistrict.collectAsState()
++    val selectedWard by newAddressViewModel.selectedWard.collectAsState()
++    val provinces by newAddressViewModel.provinces.collectAsState()
++    val districts by newAddressViewModel.districts.collectAsState()
++    val wards by newAddressViewModel.wards.collectAsState()
++    val createStatus by addressViewModel.createStatus.collectAsState()
+ 
+-    var address by remember { mutableStateOf("") }
+-    var isChecked by remember { mutableStateOf(false) }
++    var expandedProvince by remember { mutableStateOf(false) }
++    var expandedDistrict by remember { mutableStateOf(false) }
++    var expandedWard by remember { mutableStateOf(false) }
++    var detail by rememberSaveable { mutableStateOf("") }
+ 
+-    Column(
+-        modifier = modifier
+-            .background(Color.White, shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+-            .padding(16.dp)
+-    ) {
+-        Row(
+-            modifier = Modifier.fillMaxWidth(),
+-            horizontalArrangement = Arrangement.SpaceBetween,
+-            verticalAlignment = Alignment.CenterVertically
+-        ) {
+-            Text(text = "Địa chỉ", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+-            IconButton(onClick = { /* Đóng form */ }) {
+-                Icon(Icons.Default.Close, contentDescription = "Close")
++    // Xử lý trạng thái tạo địa chỉ
++    LaunchedEffect(createStatus) {
++        when (createStatus) {
++            is AddressViewModel.CreateStatus.Success -> navController.popBackStack()
++            is AddressViewModel.CreateStatus.Error -> Toast.makeText(context, "Lỗi khi tạo địa chỉ", Toast.LENGTH_SHORT).show()
++            else -> {}
++        }
++    }
++
++    Column(modifier = Modifier.padding(16.dp)) {
++        DropdownField(
++            label = "Tỉnh/Thành phố",
++            value = selectedProvince?.first.orEmpty(),
++            expanded = expandedProvince,
++            onExpandedChange = { expandedProvince = it },
++            items = provinces.map { it.name to it.code.toString() },
++            onItemSelected = { name, code ->
++                newAddressViewModel.setProvince(name, code)
++                expandedProvince = false
++            }
++        )
++
++        Spacer(modifier = Modifier.height(8.dp))
++
++        DropdownField(
++            label = "Quận/Huyện",
++            value = selectedDistrict?.first.orEmpty(),
++            expanded = expandedDistrict,
++            onExpandedChange = { expandedDistrict = it },
++            items = districts.map { it.name to it.code.toString() },
++            enabled = selectedProvince != null,
++            onItemSelected = { name, code ->
++                newAddressViewModel.setDistrict(name, code)
++                expandedDistrict = false
+             }
+-        }
++        )
++
++        Spacer(modifier = Modifier.height(8.dp))
++
++        DropdownField(
++            label = "Phường/Xã",
++            value = selectedWard.orEmpty(),
++            expanded = expandedWard,
++            onExpandedChange = { expandedWard = it },
++            items = wards.map { it.name to it.code.toString() },
++            enabled = selectedDistrict != null,
++            onItemSelected = { name, _ ->
++                newAddressViewModel.setWard(name)
++                expandedWard = false
++            }
++        )
++
+         Spacer(modifier = Modifier.height(8.dp))
+ 
+-        Box {
+-            OutlinedTextField(
+-                value = selectedText,
+-                onValueChange = {},
+-                readOnly = true,
+-                label = { Text("Tên địa chỉ") },
+-                trailingIcon = {
+-                    Icon(
+-                        Icons.Default.ArrowDropDown,
+-                        contentDescription = "Dropdown",
+-                        modifier = Modifier.clickable { expanded = true }
+-                    )
+-                },
+-                modifier = Modifier.fillMaxWidth()
+-            )
+-            DropdownMenu(
+-                expanded = expanded,
+-                onDismissRequest = { expanded = false }
+-            ) {
+-                items.forEach { label ->
+-                    DropdownMenuItem(
+-                        text = { Text(label) },
+-                        onClick = {
+-                            selectedText = label
+-                            expanded = false
+-                        }
+-                    )
+-                }
+-            }
+-        }
+-
+-        Spacer(modifier = Modifier.height(12.dp))
+-
+-        OutlinedTextField(
+-            value = address,
+-            onValueChange = { address = it },
+-            label = { Text("Địa chỉ đầy đủ") },
+-            placeholder = { Text("Enter your full address...") },
++        OutlinedTextField(
++            value = detail,
++            onValueChange = { detail = it },
++            label = { Text("Địa chỉ chi tiết") },
+             modifier = Modifier.fillMaxWidth()
+         )
+-
+-        Spacer(modifier = Modifier.height(8.dp))
+-
+-        Row(verticalAlignment = Alignment.CenterVertically) {
+-            Checkbox(
+-                checked = isChecked,
+-                onCheckedChange = { isChecked = it },
+-                colors = CheckboxDefaults.colors(
+-                    checkedColor = Color.Black,
+-                    checkmarkColor = Color.White
+-                )
+-            )
+-            Text("Đặt làm địa chỉ mặc định")
+-        }
+ 
+         Spacer(modifier = Modifier.height(16.dp))
+ 
++        val isFormValid = selectedProvince != null && selectedDistrict != null && selectedWard != null && detail.isNotEmpty()
++
+         Button(
+-            onClick = { showDialog = true },
++            onClick = {
++                if (isFormValid) {
++                    val addressRequest = AddressRequest(
++                        province = selectedProvince?.first.orEmpty(),
++                        district = selectedDistrict?.first.orEmpty(),
++                        ward = selectedWard.orEmpty(),
++                        detail = detail
++                    )
++                    addressViewModel.createAddress(addressRequest) // Không cần truyền customerId nữa
++                }
++            },
+             modifier = Modifier.fillMaxWidth().height(50.dp),
+-            colors = ButtonDefaults.buttonColors(containerColor = if (address.isNotEmpty()) Color.Black else Color.Gray),
+             shape = RoundedCornerShape(12.dp),
+-            enabled = address.isNotEmpty()
++            enabled = isFormValid
++
+         ) {
+-            Text(text = "Thêm", color = Color.White)
++            Text("Thêm địa chỉ")
+         }
++
++        if (!isFormValid) {
++            Text(
++                text = "Vui lòng điền đầy đủ thông tin",
++                color = Color.Red,
++                modifier = Modifier.padding(top = 8.dp)
++            )
++        }
+     }
++}
+ 
+-    if (showDialog) {
+-        SuccessDialog(onDismiss = { showDialog = false }, navController)
++@OptIn(ExperimentalMaterial3Api::class)
++@Composable
++fun DropdownField(
++    label: String,
++    value: String,
++    expanded: Boolean,
++    onExpandedChange: (Boolean) -> Unit,
++    items: List<Pair<String, String>>,
++    enabled: Boolean = true,
++    onItemSelected: (String, String) -> Unit
++) {
++    ExposedDropdownMenuBox(
++        expanded = expanded,
++        onExpandedChange = { if (enabled) onExpandedChange(it) }
++    ) {
++        OutlinedTextField(
++            value = value,
++            onValueChange = {},
++            readOnly = true,
++            enabled = enabled,
++            label = { Text(label) },
++            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
++            modifier = Modifier.fillMaxWidth().menuAnchor()
++        )
++
++        if (expanded && items.isNotEmpty()) {
++            ExposedDropdownMenu(
++                expanded = expanded,
++                onDismissRequest = { onExpandedChange(false) }
++            ) {
++                items.forEach { (name, code) ->
++                    DropdownMenuItem(
++                        text = { Text(name) },
++                        onClick = { onItemSelected(name, code) }
++                    )
++                }
++            }
++        }
+     }
+ }
+ 
+@@ -185,8 +258,9 @@
+             Button(
+                 onClick = {
+                     onDismiss()
+-                    navController.navigate("AddressScreen")
+-                    Toast.makeText(context, "Bạn đã thêm một địa chỉ mới", Toast.LENGTH_SHORT).show()
++                    // navController.navigate("AddressScreen")
++                    Toast.makeText(context, "Bạn đã thêm một địa chỉ mới", Toast.LENGTH_SHORT)
++                        .show()
+                 },
+                 modifier = Modifier.fillMaxWidth(),
+                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+@@ -207,7 +281,11 @@
+                 )
+                 Spacer(modifier = Modifier.height(8.dp))
+                 Text(text = "Chúc mừng!", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+-                Text(text = "Địa chỉ mới của bạn đã được thêm.", fontSize = 14.sp, color = Color.Gray)
++                Text(
++                    text = "Địa chỉ mới của bạn đã được thêm.",
++                    fontSize = 14.sp,
++                    color = Color.Gray
++                )
+             }
+         },
+         shape = RoundedCornerShape(12.dp),
+@@ -216,10 +294,12 @@
+     )
+ }
+ 
+-
+ @Preview(showBackground = true)
+ @Composable
+ fun NewAddressPreview() {
+     val navController = rememberNavController()
+-    NewAddressScreen(navController)
++    val addressViewModel = viewModel<AddressViewModel>()
++    val newAddressViewModel = viewModel<NewAddressViewModel>() // Thêm ViewModel này
++
++    NewAddressScreen(navController, addressViewModel, newAddressViewModel, customerId = "preview-customer-id")
+ }
+Index: app/src/main/java/fpl/md19/beefashion/screens/adress/TrackOrderScreen.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package fpl.md19.beefashion\r\n\r\nimport androidx.compose.foundation.*\r\nimport androidx.compose.foundation.layout.*\r\nimport androidx.compose.foundation.shape.CircleShape\r\nimport androidx.compose.foundation.shape.RoundedCornerShape\r\nimport androidx.compose.material.icons.Icons\r\nimport androidx.compose.material.icons.filled.*\r\nimport androidx.compose.material3.*\r\nimport androidx.compose.runtime.*\r\nimport androidx.compose.ui.Alignment\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.draw.clip\r\nimport androidx.compose.ui.graphics.Color\r\nimport androidx.compose.ui.layout.ContentScale\r\nimport androidx.compose.ui.res.painterResource\r\nimport androidx.compose.ui.text.font.FontWeight\r\nimport androidx.compose.ui.text.style.TextAlign\r\nimport androidx.compose.ui.tooling.preview.Preview\r\nimport androidx.compose.ui.unit.dp\r\nimport androidx.compose.ui.unit.sp\r\nimport androidx.navigation.NavController\r\nimport androidx.navigation.compose.rememberNavController\r\n\r\n@Composable\r\nfun TrackOrderScreen(navController: NavController) {\r\n    Box(modifier = Modifier.fillMaxSize()) {\r\n        Column(\r\n            modifier = Modifier\r\n                .fillMaxSize()\r\n                .background(Color.White)\r\n                .padding(16.dp)\r\n        ) {\r\n            // Header\r\n            Row(\r\n                modifier = Modifier\r\n                    .fillMaxWidth()\r\n                    .padding(vertical = 8.dp),\r\n                horizontalArrangement = Arrangement.SpaceBetween,\r\n                verticalAlignment = Alignment.CenterVertically\r\n            ) {\r\n                Image(\r\n                    painter = painterResource(id = R.drawable.ic_back),\r\n                    contentDescription = \"Back Icon\",\r\n                    modifier = Modifier\r\n                        .size(24.dp)\r\n                        .clickable { navController.popBackStack() }\r\n                )\r\n                Text(\r\n                    text = \"Tình trạng đơn hàng\",\r\n                    fontSize = 24.sp,\r\n                    fontWeight = FontWeight.Bold,\r\n                    textAlign = TextAlign.Center,\r\n                    modifier = Modifier.weight(1f)\r\n                )\r\n                Image(\r\n                    painter = painterResource(id = R.drawable.ic_notifications),\r\n                    contentDescription = \"Notification Icon\",\r\n                    modifier = Modifier\r\n                        .size(24.dp)\r\n                        .clickable { }\r\n                )\r\n            }\r\n\r\n            Box() {\r\n                Image(\r\n                    painter = painterResource(id = R.drawable.map_placeholder),\r\n                    contentDescription = \"Map\",\r\n                    modifier = Modifier.fillMaxSize(),\r\n                    contentScale = ContentScale.Crop\r\n                )\r\n            }\r\n        }\r\n\r\n        BottomSheetOrderStatus(\r\n            modifier = Modifier.align(Alignment.BottomCenter)\r\n        )\r\n    }\r\n}\r\n\r\n\r\n@Composable\r\nfun BottomSheetOrderStatus(modifier: Modifier = Modifier) {\r\n    Surface(\r\n        modifier = modifier\r\n            .fillMaxWidth()\r\n            .defaultMinSize(minHeight = 200.dp),\r\n        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),\r\n        shadowElevation = 8.dp\r\n    ) {\r\n        Column(\r\n            modifier = Modifier\r\n                .fillMaxWidth()\r\n                .padding(20.dp)\r\n        ) {\r\n            // Header\r\n            Row(\r\n                modifier = Modifier\r\n                    .fillMaxWidth()\r\n                    .padding(bottom = 16.dp),\r\n                horizontalArrangement = Arrangement.SpaceBetween,\r\n                verticalAlignment = Alignment.CenterVertically\r\n            ) {\r\n                Text(\r\n                    \"Trạng thái\",\r\n                    fontSize = 20.sp,\r\n                    fontWeight = FontWeight.Bold\r\n                )\r\n                IconButton(\r\n                    onClick = {},\r\n                    modifier = Modifier.size(32.dp)\r\n                ) {\r\n                    Icon(\r\n                        Icons.Default.Close,\r\n                        contentDescription = \"Close\",\r\n                        tint = Color.Gray\r\n                    )\r\n                }\r\n            }\r\n\r\n            // Status Steps\r\n            OrderStatusStep(\r\n                status = \"Packing\",\r\n                address = \"2336 Jack Warren Rd, Delta Junction, Alaska\",\r\n                completed = true\r\n            )\r\n            OrderStatusStep(\r\n                status = \"Picked\",\r\n                address = \"2417 Tongass Ave #111, Ketchikan, Alaska\",\r\n                completed = true\r\n            )\r\n            OrderStatusStep(\r\n                status = \"In Transit\",\r\n                address = \"16 Rr 2, Ketchikan, Alaska\",\r\n                completed = true\r\n            )\r\n            OrderStatusStep(\r\n                status = \"Delivered\",\r\n                address = \"925 S Chugach St #APT 10, Alaska\",\r\n                completed = false\r\n            )\r\n\r\n            Divider(\r\n                modifier = Modifier.padding(vertical = 16.dp),\r\n                thickness = 1.dp,\r\n                color = Color(0xFFEEEEEE)\r\n            )\r\n\r\n            DeliveryPersonInfo(\r\n                name = \"Nguyen Minh Nghia\",\r\n                role = \"Delivery Guy\"\r\n            )\r\n        }\r\n    }\r\n}\r\n\r\n@Composable\r\nfun OrderStatusStep(\r\n    status: String,\r\n    address: String,\r\n    completed: Boolean,\r\n    modifier: Modifier = Modifier\r\n) {\r\n    Row(\r\n        verticalAlignment = Alignment.CenterVertically,\r\n        modifier = modifier.padding(vertical = 8.dp)\r\n    ) {\r\n        Box(\r\n            modifier = Modifier\r\n                .size(32.dp)\r\n                .background(\r\n                    if (completed) Color(0xFFE8F5E9) else Color(0xFFF5F5F5),\r\n                    CircleShape\r\n                ),\r\n            contentAlignment = Alignment.Center\r\n        ) {\r\n            Icon(\r\n                imageVector = Icons.Filled.CheckCircle,\r\n                contentDescription = \"Status\",\r\n                tint = if (completed) Color(0xFF4CAF50) else Color(0xFFBDBDBD),\r\n                modifier = Modifier.size(20.dp)\r\n            )\r\n        }\r\n\r\n        Column(\r\n            modifier = Modifier\r\n                .padding(start = 12.dp)\r\n                .weight(1f)\r\n        ) {\r\n            Text(\r\n                text = status,\r\n                fontWeight = FontWeight.SemiBold,\r\n                fontSize = 16.sp\r\n            )\r\n            Text(\r\n                text = address,\r\n                fontSize = 14.sp,\r\n                color = Color.Gray,\r\n                modifier = Modifier.padding(top = 2.dp)\r\n            )\r\n        }\r\n    }\r\n}\r\n\r\n@Composable\r\nfun DeliveryPersonInfo(name: String, role: String) {\r\n    Row(\r\n        modifier = Modifier.fillMaxWidth(),\r\n        verticalAlignment = Alignment.CenterVertically\r\n    ) {\r\n        Image(\r\n            painter = painterResource(id = R.drawable.ic_details),\r\n            contentDescription = \"Delivery Person\",\r\n            modifier = Modifier\r\n                .size(48.dp)\r\n                .clip(CircleShape)\r\n                .background(Color(0xFFF5F5F5))\r\n                .padding(8.dp)\r\n        )\r\n\r\n        Column(\r\n            modifier = Modifier\r\n                .padding(start = 12.dp)\r\n                .weight(1f)\r\n        ) {\r\n            Text(\r\n                text = name,\r\n                fontWeight = FontWeight.SemiBold,\r\n                fontSize = 16.sp\r\n            )\r\n            Text(\r\n                text = role,\r\n                fontSize = 14.sp,\r\n                color = Color.Gray,\r\n                modifier = Modifier.padding(top = 2.dp)\r\n            )\r\n        }\r\n\r\n        IconButton(\r\n            onClick = {},\r\n            modifier = Modifier\r\n                .size(40.dp)\r\n                .background(Color(0xFF4CAF50), CircleShape)\r\n        ) {\r\n            Icon(\r\n                Icons.Default.Phone,\r\n                contentDescription = \"Call\",\r\n                tint = Color.White,\r\n                modifier = Modifier.size(20.dp)\r\n            )\r\n        }\r\n    }\r\n}\r\n\r\n@Preview(showBackground = true)\r\n@Composable\r\nfun TrackOrderPreview() {\r\n    val navController = rememberNavController()\r\n    TrackOrderScreen(navController)\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/fpl/md19/beefashion/screens/adress/TrackOrderScreen.kt b/app/src/main/java/fpl/md19/beefashion/screens/adress/TrackOrderScreen.kt
+--- a/app/src/main/java/fpl/md19/beefashion/screens/adress/TrackOrderScreen.kt	(revision 8624c537ecc3788d97ef757e0400419a2358d374)
++++ b/app/src/main/java/fpl/md19/beefashion/screens/adress/TrackOrderScreen.kt	(date 1740826515888)
+@@ -21,6 +21,7 @@
+ import androidx.compose.ui.unit.sp
+ import androidx.navigation.NavController
+ import androidx.navigation.compose.rememberNavController
++import fpl.md19.beefashion.screens.adress.MapScreen
+ 
+ @Composable
+ fun TrackOrderScreen(navController: NavController) {
+@@ -63,12 +64,7 @@
+             }
+ 
+             Box() {
+-                Image(
+-                    painter = painterResource(id = R.drawable.map_placeholder),
+-                    contentDescription = "Map",
+-                    modifier = Modifier.fillMaxSize(),
+-                    contentScale = ContentScale.Crop
+-                )
++                MapScreen()
+             }
+         }
+ 
+@@ -120,23 +116,23 @@
+ 
+             // Status Steps
+             OrderStatusStep(
+-                status = "Packing",
+-                address = "2336 Jack Warren Rd, Delta Junction, Alaska",
++                status = "Đã xác nhận đơn hàng",
++                address = "2336 Van Thang, Ba bi, Ha noi",
+                 completed = true
+             )
+             OrderStatusStep(
+-                status = "Picked",
+-                address = "2417 Tongass Ave #111, Ketchikan, Alaska",
++                status = "Đã lấy hàng",
++                address = "2417 Hoan Kiem, Ba Dinh, Ha noi",
+                 completed = true
+             )
+             OrderStatusStep(
+-                status = "In Transit",
+-                address = "16 Rr 2, Ketchikan, Alaska",
++                status = "Đang vận chuyển",
++                address = "16 Nhon, Xuan Phuong, Ha noi",
+                 completed = true
+             )
+             OrderStatusStep(
+-                status = "Delivered",
+-                address = "925 S Chugach St #APT 10, Alaska",
++                status = "Đã giao hàng",
++                address = "925 Nhon, Ha Noi",
+                 completed = false
+             )
+ 
+@@ -146,10 +142,17 @@
+                 color = Color(0xFFEEEEEE)
+             )
+ 
+-            DeliveryPersonInfo(
+-                name = "Nguyen Minh Nghia",
+-                role = "Delivery Guy"
+-            )
++            Button(
++                onClick = {  },
++                modifier = Modifier
++                    .fillMaxWidth()
++                    .height(50.dp),
++                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
++                shape = RoundedCornerShape(12.dp),
++                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
++            ) {
++                Text(text = "Đã nhận hàng", color = Color.White, fontWeight = FontWeight.Bold)
++            }
+         }
+     }
+ }
+@@ -202,56 +205,6 @@
+     }
+ }
+ 
+-@Composable
+-fun DeliveryPersonInfo(name: String, role: String) {
+-    Row(
+-        modifier = Modifier.fillMaxWidth(),
+-        verticalAlignment = Alignment.CenterVertically
+-    ) {
+-        Image(
+-            painter = painterResource(id = R.drawable.ic_details),
+-            contentDescription = "Delivery Person",
+-            modifier = Modifier
+-                .size(48.dp)
+-                .clip(CircleShape)
+-                .background(Color(0xFFF5F5F5))
+-                .padding(8.dp)
+-        )
+-
+-        Column(
+-            modifier = Modifier
+-                .padding(start = 12.dp)
+-                .weight(1f)
+-        ) {
+-            Text(
+-                text = name,
+-                fontWeight = FontWeight.SemiBold,
+-                fontSize = 16.sp
+-            )
+-            Text(
+-                text = role,
+-                fontSize = 14.sp,
+-                color = Color.Gray,
+-                modifier = Modifier.padding(top = 2.dp)
+-            )
+-        }
+-
+-        IconButton(
+-            onClick = {},
+-            modifier = Modifier
+-                .size(40.dp)
+-                .background(Color(0xFF4CAF50), CircleShape)
+-        ) {
+-            Icon(
+-                Icons.Default.Phone,
+-                contentDescription = "Call",
+-                tint = Color.White,
+-                modifier = Modifier.size(20.dp)
+-            )
+-        }
+-    }
+-}
+-
+ @Preview(showBackground = true)
+ @Composable
+ fun TrackOrderPreview() {
+Index: app/src/main/java/fpl/md19/beefashion/screens/adress/AddressScreen.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package fpl.md19.beefashion\r\n\r\nimport androidx.compose.foundation.BorderStroke\r\nimport androidx.compose.foundation.Image\r\nimport androidx.compose.foundation.background\r\nimport androidx.compose.foundation.clickable\r\nimport androidx.compose.foundation.layout.Arrangement\r\nimport androidx.compose.foundation.layout.Column\r\nimport androidx.compose.foundation.layout.Row\r\nimport androidx.compose.foundation.layout.Spacer\r\nimport androidx.compose.foundation.layout.fillMaxSize\r\nimport androidx.compose.foundation.layout.fillMaxWidth\r\nimport androidx.compose.foundation.layout.height\r\nimport androidx.compose.foundation.layout.padding\r\nimport androidx.compose.foundation.layout.size\r\nimport androidx.compose.foundation.layout.width\r\nimport androidx.compose.foundation.shape.RoundedCornerShape\r\nimport androidx.compose.material.icons.Icons\r\nimport androidx.compose.material.icons.filled.Add\r\nimport androidx.compose.material.icons.filled.LocationOn\r\nimport androidx.compose.material3.Button\r\nimport androidx.compose.material3.ButtonDefaults\r\nimport androidx.compose.material3.Card\r\nimport androidx.compose.material3.CardDefaults\r\nimport androidx.compose.material3.Icon\r\nimport androidx.compose.material3.RadioButton\r\nimport androidx.compose.material3.RadioButtonDefaults\r\nimport androidx.compose.material3.Text\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.compose.runtime.getValue\r\nimport androidx.compose.runtime.mutableStateOf\r\nimport androidx.compose.runtime.remember\r\nimport androidx.compose.runtime.setValue\r\nimport androidx.compose.ui.Alignment\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.graphics.Color\r\nimport androidx.compose.ui.res.painterResource\r\nimport androidx.compose.ui.text.font.FontWeight\r\nimport androidx.compose.ui.tooling.preview.Preview\r\nimport androidx.compose.ui.unit.dp\r\nimport androidx.compose.ui.unit.sp\r\nimport androidx.navigation.NavController\r\nimport androidx.navigation.compose.rememberNavController\r\n\r\n@Composable\r\nfun AddressScreen(navController: NavController) {\r\n    var selectedAddress by remember { mutableStateOf(\"Nhà\") }\r\n    val addresses = listOf(\r\n        \"Nhà\" to \"925 S Chugach St #APT 10, Alaska\",\r\n        \"Văn phòng\" to \"2438 6th Ave, Ketchikan, Alaska\",\r\n        \"Chung cư\" to \"251 Vista Dr #B301, Juneau, Alaska\",\r\n        \"Nhà ông bà\" to \"4821 Ridge Top Cir, Anchorage, Alaska\"\r\n    )\r\n\r\n    Column(\r\n        modifier = Modifier\r\n            .fillMaxSize()\r\n            .padding(16.dp)\r\n    ) {\r\n        Row(\r\n            modifier = Modifier\r\n                .fillMaxWidth()\r\n                .padding(vertical = 12.dp),\r\n            horizontalArrangement = Arrangement.SpaceBetween\r\n        ) {\r\n            Image(\r\n                painter = painterResource(id = R.drawable.ic_back),\r\n                contentDescription = \"Back\",\r\n                modifier = Modifier\r\n                    .size(24.dp)\r\n                    .clickable { navController.popBackStack() }\r\n            )\r\n            Text(\r\n                text = \"Địa chỉ\",\r\n                fontSize = 24.sp,\r\n                fontWeight = FontWeight.Bold\r\n            )\r\n            Image(\r\n                painter = painterResource(id = R.drawable.ic_notifications),\r\n                contentDescription = \"Notifications\",\r\n                modifier = Modifier\r\n                    .size(24.dp)\r\n                    .clickable { }\r\n            )\r\n        }\r\n\r\n        Spacer(modifier = Modifier.height(16.dp))\r\n\r\n        Text(text = \"Địa chỉ đã lưu\", fontWeight = FontWeight.Bold)\r\n\r\n        Spacer(modifier = Modifier.height(8.dp))\r\n\r\n        // Address List\r\n        addresses.forEach { (title, address) ->\r\n            AddressItem(\r\n                title = title,\r\n                address = address,\r\n                selected = selectedAddress == title,\r\n                onSelect = { selectedAddress = title }\r\n            )\r\n        }\r\n\r\n        Spacer(modifier = Modifier.height(16.dp))\r\n\r\n        // Add New Address Button\r\n        Button(\r\n            onClick = {  navController.navigate(\"NewAddressScreen\")},\r\n            modifier = Modifier\r\n                .fillMaxWidth()\r\n                .height(50.dp),\r\n            colors = ButtonDefaults.buttonColors(containerColor = Color.White),\r\n            shape = RoundedCornerShape(12.dp),\r\n            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)\r\n        ) {\r\n            Icon(Icons.Default.Add, contentDescription = \"Add\", tint = Color.Black)\r\n            Spacer(modifier = Modifier.width(8.dp))\r\n            Text(text = \"Thêm địa chỉ mới\", color = Color.Black)\r\n        }\r\n\r\n        Spacer(modifier = Modifier.weight(1f))\r\n\r\n        Button(\r\n            onClick = {  },\r\n            modifier = Modifier\r\n                .fillMaxWidth()\r\n                .height(50.dp),\r\n            colors = ButtonDefaults.buttonColors(containerColor = Color.Black),\r\n            shape = RoundedCornerShape(12.dp),\r\n            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)\r\n        ) {\r\n            Text(text = \"Chọn\", color = Color.White, fontWeight = FontWeight.Bold)\r\n        }\r\n    }\r\n}\r\n\r\n@Composable\r\nfun AddressItem(title: String, address: String, selected: Boolean, onSelect: () -> Unit) {\r\n    Card(\r\n        modifier = Modifier\r\n            .fillMaxWidth()\r\n            .padding(vertical = 4.dp),\r\n        shape = RoundedCornerShape(10.dp),\r\n        border = BorderStroke(1.dp, Color.LightGray),\r\n        colors = CardDefaults.cardColors(containerColor = Color.White)\r\n    ) {\r\n        Row(\r\n            modifier = Modifier\r\n                .fillMaxWidth()\r\n                .padding(16.dp),\r\n            verticalAlignment = Alignment.CenterVertically\r\n        ) {\r\n            Icon(Icons.Default.LocationOn, contentDescription = \"Location\", tint = Color.Gray)\r\n            Spacer(modifier = Modifier.width(8.dp))\r\n            Column(modifier = Modifier.weight(1f)) {\r\n                Row(verticalAlignment = Alignment.CenterVertically) {\r\n                    Text(text = title, fontWeight = FontWeight.Bold)\r\n                    if (title == \"Nhà\") {\r\n                        Spacer(modifier = Modifier.width(8.dp))\r\n                        Text(\r\n                            text = \"Mặc định\",\r\n                            fontSize = 12.sp,\r\n                            color = Color.Black,\r\n                            modifier = Modifier\r\n                                .background(Color.LightGray, shape = RoundedCornerShape(5.dp))\r\n                                .padding(horizontal = 6.dp, vertical = 2.dp)\r\n                        )\r\n                    }\r\n                }\r\n                Text(text = address, fontSize = 12.sp, color = Color.Gray)\r\n            }\r\n            RadioButton(\r\n                selected = selected, onClick = onSelect,\r\n                colors = RadioButtonDefaults.colors(\r\n                    selectedColor = Color.Black,\r\n                    unselectedColor = Color.Gray\r\n                )\r\n            )\r\n        }\r\n    }\r\n}\r\n\r\n@Preview(showBackground = true)\r\n@Composable\r\nfun AddressPreview() {\r\n    val navController = rememberNavController()\r\n    AddressScreen(navController)\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/fpl/md19/beefashion/screens/adress/AddressScreen.kt b/app/src/main/java/fpl/md19/beefashion/screens/adress/AddressScreen.kt
+--- a/app/src/main/java/fpl/md19/beefashion/screens/adress/AddressScreen.kt	(revision 8624c537ecc3788d97ef757e0400419a2358d374)
++++ b/app/src/main/java/fpl/md19/beefashion/screens/adress/AddressScreen.kt	(date 1741125886010)
+@@ -1,56 +1,110 @@
+ package fpl.md19.beefashion
+ 
++import android.util.Log
+ import androidx.compose.foundation.BorderStroke
+ import androidx.compose.foundation.Image
+ import androidx.compose.foundation.background
+ import androidx.compose.foundation.clickable
++import androidx.compose.foundation.gestures.Orientation
++import androidx.compose.foundation.gestures.draggable
++import androidx.compose.foundation.gestures.rememberDraggableState
+ import androidx.compose.foundation.layout.Arrangement
++import androidx.compose.foundation.layout.Box
+ import androidx.compose.foundation.layout.Column
+ import androidx.compose.foundation.layout.Row
+ import androidx.compose.foundation.layout.Spacer
+ import androidx.compose.foundation.layout.fillMaxSize
+ import androidx.compose.foundation.layout.fillMaxWidth
+ import androidx.compose.foundation.layout.height
++import androidx.compose.foundation.layout.offset
+ import androidx.compose.foundation.layout.padding
+ import androidx.compose.foundation.layout.size
+ import androidx.compose.foundation.layout.width
+ import androidx.compose.foundation.shape.RoundedCornerShape
+ import androidx.compose.material.icons.Icons
+ import androidx.compose.material.icons.filled.Add
++import androidx.compose.material.icons.filled.Delete
+ import androidx.compose.material.icons.filled.LocationOn
++import androidx.compose.material3.AlertDialog
+ import androidx.compose.material3.Button
+ import androidx.compose.material3.ButtonDefaults
+ import androidx.compose.material3.Card
+ import androidx.compose.material3.CardDefaults
++import androidx.compose.material3.CircularProgressIndicator
+ import androidx.compose.material3.Icon
+ import androidx.compose.material3.RadioButton
+ import androidx.compose.material3.RadioButtonDefaults
++import androidx.compose.material3.SnackbarHostState
+ import androidx.compose.material3.Text
++import androidx.compose.material3.TextButton
+ import androidx.compose.runtime.Composable
++import androidx.compose.runtime.LaunchedEffect
++import androidx.compose.runtime.collectAsState
+ import androidx.compose.runtime.getValue
+ import androidx.compose.runtime.mutableStateOf
+ import androidx.compose.runtime.remember
+ import androidx.compose.runtime.setValue
+ import androidx.compose.ui.Alignment
+ import androidx.compose.ui.Modifier
++import androidx.compose.ui.draw.clip
+ import androidx.compose.ui.graphics.Color
++import androidx.compose.ui.layout.onGloballyPositioned
++import androidx.compose.ui.platform.LocalDensity
+ import androidx.compose.ui.res.painterResource
+ import androidx.compose.ui.text.font.FontWeight
+ import androidx.compose.ui.tooling.preview.Preview
++import androidx.compose.ui.unit.IntOffset
+ import androidx.compose.ui.unit.dp
+ import androidx.compose.ui.unit.sp
++import androidx.lifecycle.viewmodel.compose.viewModel
+ import androidx.navigation.NavController
+ import androidx.navigation.compose.rememberNavController
++import fpl.md19.beefashion.api.ApiService
++import fpl.md19.beefashion.api.HttpRequest
++import fpl.md19.beefashion.models.AddressModel
++import fpl.md19.beefashion.viewModels.AddressViewModel
++import fpl.md19.beefashion.viewModels.AddressViewModelFactory
++import kotlin.math.roundToInt
+ 
+ @Composable
+-fun AddressScreen(navController: NavController) {
+-    var selectedAddress by remember { mutableStateOf("Nhà") }
+-    val addresses = listOf(
+-        "Nhà" to "925 S Chugach St #APT 10, Alaska",
+-        "Văn phòng" to "2438 6th Ave, Ketchikan, Alaska",
+-        "Chung cư" to "251 Vista Dr #B301, Juneau, Alaska",
+-        "Nhà ông bà" to "4821 Ridge Top Cir, Anchorage, Alaska"
+-    )
++fun AddressScreen(
++    navController: NavController,
++    viewModel: AddressViewModel,
++    customerId: String
++) {
++    val apiService = remember { HttpRequest.getInstance() }
++    val factory = remember { AddressViewModelFactory(apiService) }
++    val viewModel: AddressViewModel = viewModel(factory = factory)
++    var selectedAddress by remember { mutableStateOf("") }
++    val addresses by viewModel.addresses.collectAsState()
++    val isLoading by viewModel.isLoading.collectAsState()
++    val deleteStatus by viewModel.deleteStatus.collectAsState()
++    var showDeleteDialog by remember { mutableStateOf(false) }
++    var addressToDelete by remember { mutableStateOf<AddressModel?>(null) }
++
++
++    LaunchedEffect(customerId) {
++        Log.d("AddressScreen", "User ID being used: '$customerId'")
++        if (customerId.isNotBlank()) {
++            viewModel.fetchAddresses(customerId)
++        }
++    }
++    LaunchedEffect(addresses) {
++        Log.d("AddressScreen", "Danh sách địa chỉ sau khi cập nhật: ${addresses.size}")
++    }
++
++    val snackbarHostState = remember { SnackbarHostState() }
++    LaunchedEffect(deleteStatus) {
++        when (deleteStatus) {
++            is AddressViewModel.DeleteStatus.Success -> {
++                snackbarHostState.showSnackbar("Địa chỉ đã được xóa thành công")
++            }
++            is AddressViewModel.DeleteStatus.Error -> {
++                snackbarHostState.showSnackbar((deleteStatus as AddressViewModel.DeleteStatus.Error).message)
++            }
++            else -> {}
++        }
++    }
+ 
+     Column(
+         modifier = Modifier
+@@ -90,21 +144,65 @@
+ 
+         Spacer(modifier = Modifier.height(8.dp))
+ 
+-        // Address List
+-        addresses.forEach { (title, address) ->
+-            AddressItem(
+-                title = title,
+-                address = address,
+-                selected = selectedAddress == title,
+-                onSelect = { selectedAddress = title }
+-            )
++        if (isLoading) {
++            Box(
++                modifier = Modifier
++                    .fillMaxWidth()
++                    .height(200.dp),
++                contentAlignment = Alignment.Center
++            ) {
++                CircularProgressIndicator(color = Color.Black)
++            }
++        } else if (addresses.isEmpty()) {
++            Box(
++                modifier = Modifier
++                    .fillMaxWidth()
++                    .height(200.dp),
++                contentAlignment = Alignment.Center
++            ) {
++                Text(text = "Không có địa chỉ nào")
++            }
++        } else {
++            val fixedAddresses = addresses.take(10)
++            Log.d("AddressScreen", "Displaying addresses: ${addresses.size}")
++            addresses.forEach { address ->
++                Log.d("AddressScreen", "Address: $address")
++            }
++
++            val sortedAddresses = if (selectedAddress != null) {
++                val selected = fixedAddresses.find { it.id == selectedAddress }
++                val others = fixedAddresses.filter { it.id != selectedAddress }
++                listOfNotNull(selected) + others
++            } else {
++                fixedAddresses
++            }
++
++            sortedAddresses.forEachIndexed { index, addressModel ->
++                Log.d("AddressScreen", "Displaying address at index $index: ${addressModel.id}")
++                val fullAddress =
++                    "${addressModel.detail}, ${addressModel.ward}, ${addressModel.district}, ${addressModel.province}"
++                val isDefault = index == 0 && selectedAddress != null
++
++                AddressItem(
++                    address = fullAddress,
++                    selected = selectedAddress == addressModel.id,
++                    isDefault = isDefault,
++                    onSelect = { selectedAddress = addressModel.id },
++                    onDelete = {
++                        Log.d("UI", "Preparing to delete: ${addressModel.id}")
++                        addressToDelete = addressModel
++                        showDeleteDialog = true
++                    }
++                )
++            }
+         }
+ 
+         Spacer(modifier = Modifier.height(16.dp))
+ 
+-        // Add New Address Button
+         Button(
+-            onClick = {  navController.navigate("NewAddressScreen")},
++            onClick = {
++                navController.navigate("NewAddressScreen/$customerId")
++            },
+             modifier = Modifier
+                 .fillMaxWidth()
+                 .height(50.dp),
+@@ -120,7 +218,7 @@
+         Spacer(modifier = Modifier.weight(1f))
+ 
+         Button(
+-            onClick = {  },
++            onClick = { },
+             modifier = Modifier
+                 .fillMaxWidth()
+                 .height(50.dp),
+@@ -130,58 +228,165 @@
+         ) {
+             Text(text = "Chọn", color = Color.White, fontWeight = FontWeight.Bold)
+         }
+-    }
+-}
++
++        if (showDeleteDialog) {
++            AlertDialog(
++                onDismissRequest = {
++                    showDeleteDialog = false
++                    addressToDelete = null
++                },
++                title = { Text("Xác nhận xóa") },
++                text = { Text("Bạn có chắc chắn muốn xóa địa chỉ này không?") },
++                confirmButton = {
++                    TextButton(
++                        onClick = {
++                            Log.d("UI", "Clicked delete for address: $addressToDelete")
++                            addressToDelete?.let { address ->
++                                Log.d("UI", "Calling deleteAddress for id: ${address.id}")
++                                viewModel.deleteAddress(address)
++
++                                if (address.id == selectedAddress) {
++                                    selectedAddress = ""
++                                }
++                            }
++                            showDeleteDialog = false
++                            addressToDelete = null
++                        }
++
++                    ) {
++                        Text("Xóa", color = Color.Red)
++                    }
+ 
++                },
++                dismissButton = {
++                    TextButton(
++                        onClick = {
++                            showDeleteDialog = false
++                            addressToDelete = null
++                        }
++                    ) {
++                        Text("Hủy")
++                    }
++                }
++            )
++        }
++    }
++}
+ @Composable
+-fun AddressItem(title: String, address: String, selected: Boolean, onSelect: () -> Unit) {
+-    Card(
+-        modifier = Modifier
+-            .fillMaxWidth()
+-            .padding(vertical = 4.dp),
+-        shape = RoundedCornerShape(10.dp),
+-        border = BorderStroke(1.dp, Color.LightGray),
+-        colors = CardDefaults.cardColors(containerColor = Color.White)
+-    ) {
+-        Row(
+-            modifier = Modifier
+-                .fillMaxWidth()
+-                .padding(16.dp),
+-            verticalAlignment = Alignment.CenterVertically
+-        ) {
+-            Icon(Icons.Default.LocationOn, contentDescription = "Location", tint = Color.Gray)
+-            Spacer(modifier = Modifier.width(8.dp))
+-            Column(modifier = Modifier.weight(1f)) {
+-                Row(verticalAlignment = Alignment.CenterVertically) {
+-                    Text(text = title, fontWeight = FontWeight.Bold)
+-                    if (title == "Nhà") {
+-                        Spacer(modifier = Modifier.width(8.dp))
++fun AddressItem(
++    address: String,
++    selected: Boolean,
++    isDefault: Boolean,
++    onSelect: () -> Unit,
++    onDelete: () -> Unit
++) {
++    val density = LocalDensity.current
++
++    var offsetX by remember { mutableStateOf(0f) }
++    var deleteThreshold by remember { mutableStateOf(0f) }
++    val deleteRevealed = offsetX < -deleteThreshold * 0.5f
++
++    val draggableState = rememberDraggableState { delta ->
++        val newOffset = (offsetX + delta).coerceIn(-deleteThreshold, 0f)
++        offsetX = newOffset
++    }
++
++    Box(
++        modifier = Modifier
++            .fillMaxWidth()
++            .padding(vertical = 4.dp)
++    ) {
++        Box(
++            modifier = Modifier
++                .matchParentSize()
++                .clip(RoundedCornerShape(10.dp))
++                .background(Color.LightGray)
++                .padding(end = 16.dp),
++
++            contentAlignment = Alignment.CenterEnd
++
++        ) {
++            Box(
++                modifier = Modifier
++                    .size(40.dp)
++                    .clickable(enabled = deleteRevealed) {
++                        onDelete()  // Gọi callback xóa khi nhấp vào nút
++                        offsetX = 0f
++                    },
++                contentAlignment = Alignment.Center
++            ) {
++                Icon(
++                    imageVector = Icons.Default.Delete,
++                    contentDescription = "Delete",
++                    tint = Color.White,
++                    modifier = Modifier.size(24.dp)
++                )
++            }
++        }
++
++        Card(
++            modifier = Modifier
++                .fillMaxWidth()
++                .height(85.dp)
++                .offset { IntOffset(offsetX.roundToInt(), 0) }
++                .draggable(
++                    state = draggableState,
++                    orientation = Orientation.Horizontal,
++                    onDragStopped = {
++                        if (offsetX > -deleteThreshold * 0.5f) {
++                            offsetX = 0f
++                        }
++                    }
++                )
++                .onGloballyPositioned {
++                    deleteThreshold = with(density) { 100.dp.toPx() }
++                },
++            shape = RoundedCornerShape(10.dp),
++            border = BorderStroke(1.dp, Color.LightGray),
++            colors = CardDefaults.cardColors(containerColor = Color.White)
++        ) {
++            Row(
++                modifier = Modifier
++                    .fillMaxWidth()
++                    .padding(16.dp),
++                verticalAlignment = Alignment.CenterVertically
++            ) {
++                Icon(Icons.Default.LocationOn, contentDescription = "Location", tint = Color.Gray)
++                Spacer(modifier = Modifier.width(8.dp))
++                Column(modifier = Modifier.weight(1f)) {
++                    if (isDefault) {
+                         Text(
+                             text = "Mặc định",
+-                            fontSize = 12.sp,
++                            fontSize = 8.sp,
+                             color = Color.Black,
+                             modifier = Modifier
+                                 .background(Color.LightGray, shape = RoundedCornerShape(5.dp))
+-                                .padding(horizontal = 6.dp, vertical = 2.dp)
++                                .padding(horizontal = 6.dp)
+                         )
+                     }
+-                }
+-                Text(text = address, fontSize = 12.sp, color = Color.Gray)
+-            }
+-            RadioButton(
+-                selected = selected, onClick = onSelect,
+-                colors = RadioButtonDefaults.colors(
+-                    selectedColor = Color.Black,
+-                    unselectedColor = Color.Gray
+-                )
+-            )
++                    Text(text = address, fontSize = 12.sp, color = Color.Gray)
++                }
++                RadioButton(
++                    selected = selected,
++                    onClick = onSelect,
++                    colors = RadioButtonDefaults.colors(
++                        selectedColor = Color.Black,
++                        unselectedColor = Color.Gray
++                    )
++                )
++            }
+         }
+     }
+ }
+-
+ @Preview(showBackground = true)
+ @Composable
+ fun AddressPreview() {
+     val navController = rememberNavController()
+-    AddressScreen(navController)
+-}
+\ No newline at end of file
++    val viewModel: AddressViewModel = viewModel()
++
++    LaunchedEffect(Unit) { viewModel.fetchAddresses("12345") }
++    AddressScreen(navController, viewModel, "12345")
++}
++
++
++
+Index: app/src/main/java/fpl/md19/beefashion/screens/auth/SignUpScreen.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package fpl.md19.beefashion.screens.auth\r\n\r\nimport android.widget.Toast\r\nimport androidx.compose.foundation.background\r\nimport androidx.compose.foundation.clickable\r\nimport androidx.compose.foundation.layout.Arrangement\r\nimport androidx.compose.foundation.layout.Column\r\nimport androidx.compose.foundation.layout.Row\r\nimport androidx.compose.foundation.layout.Spacer\r\nimport androidx.compose.foundation.layout.fillMaxSize\r\nimport androidx.compose.foundation.layout.fillMaxWidth\r\nimport androidx.compose.foundation.layout.height\r\nimport androidx.compose.foundation.layout.padding\r\nimport androidx.compose.foundation.layout.size\r\nimport androidx.compose.foundation.shape.RoundedCornerShape\r\nimport androidx.compose.material3.Button\r\nimport androidx.compose.material3.ButtonDefaults\r\nimport androidx.compose.material3.Icon\r\nimport androidx.compose.material3.IconButton\r\nimport androidx.compose.material3.OutlinedTextField\r\nimport androidx.compose.material3.OutlinedTextFieldDefaults\r\nimport androidx.compose.material3.Text\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.compose.runtime.LaunchedEffect\r\nimport androidx.compose.runtime.collectAsState\r\nimport androidx.compose.runtime.getValue\r\nimport androidx.compose.runtime.mutableStateOf\r\nimport androidx.compose.runtime.remember\r\nimport androidx.compose.runtime.setValue\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.graphics.Color\r\nimport androidx.compose.ui.platform.LocalContext\r\nimport androidx.compose.ui.res.painterResource\r\nimport androidx.compose.ui.text.font.FontWeight\r\nimport androidx.compose.ui.text.input.PasswordVisualTransformation\r\nimport androidx.compose.ui.text.input.VisualTransformation\r\nimport androidx.compose.ui.tooling.preview.Preview\r\nimport androidx.compose.ui.unit.dp\r\nimport androidx.compose.ui.unit.sp\r\nimport androidx.lifecycle.viewmodel.compose.viewModel\r\nimport androidx.navigation.NavController\r\nimport androidx.navigation.compose.rememberNavController\r\nimport fpl.md19.beefashion.R\r\nimport fpl.md19.beefashion.viewModels.LoginViewModel\r\n\r\n@Composable\r\nfun SignUpScreen(\r\n    navController: NavController,\r\n    viewModel: LoginViewModel = viewModel()\r\n) {\r\n    // State để lưu giá trị đầu vào\r\n    var name by remember { mutableStateOf(\"\") }\r\n    var email by remember { mutableStateOf(\"\") }\r\n    var password by remember { mutableStateOf(\"\") }\r\n    var confirmPassword by remember { mutableStateOf(\"\") }\r\n    var passwordVisible by remember { mutableStateOf(false) }\r\n    var confirmPasswordVisible by remember { mutableStateOf(false) }\r\n\r\n    // Kiểm tra xem tất cả các trường đã được điền chưa\r\n    val isFormValid = name.isNotEmpty() && email.isNotEmpty() &&\r\n            password.isNotEmpty() && confirmPassword.isNotEmpty()\r\n\r\n    val context = LocalContext.current\r\n\r\n    // Lấy trạng thái thông báo từ ViewModel\r\n    val registerMessage by viewModel.registerMessage.collectAsState()\r\n\r\n    Column(\r\n        modifier = Modifier\r\n            .fillMaxSize()\r\n            .background(Color.White)\r\n            .padding(horizontal = 24.dp)\r\n            .padding(top = 40.dp)\r\n    ) {\r\n        Text(\r\n            text = \"Tạo tài khoản\",\r\n            fontSize = 28.sp,\r\n            fontWeight = FontWeight.Bold,\r\n            color = Color.Black\r\n        )\r\n\r\n        Text(\r\n            text = \"Hãy tạo tài khoản của bạn.\",\r\n            fontSize = 16.sp,\r\n            color = Color.Gray,\r\n            modifier = Modifier.padding(top = 8.dp)\r\n        )\r\n\r\n        Column(\r\n            modifier = Modifier\r\n                .fillMaxWidth()\r\n                .padding(top = 32.dp),\r\n            verticalArrangement = Arrangement.spacedBy(20.dp)\r\n        ) {\r\n            // Trường nhập Họ tên\r\n            Column {\r\n                Text(\r\n                    text = \"Họ và tên\",\r\n                    fontSize = 16.sp,\r\n                    color = Color.Black,\r\n                    modifier = Modifier.padding(bottom = 8.dp)\r\n                )\r\n                OutlinedTextField(\r\n                    value = name,\r\n                    onValueChange = { name = it },\r\n                    placeholder = { Text(\"Nhập họ và tên của bạn\") },\r\n                    modifier = Modifier.fillMaxWidth(),\r\n                    shape = RoundedCornerShape(12.dp),\r\n                    colors = OutlinedTextFieldDefaults.colors(\r\n                        unfocusedBorderColor = Color.LightGray,\r\n                        focusedBorderColor = Color.Black\r\n                    )\r\n                )\r\n            }\r\n\r\n            // Trường nhập Email\r\n            Column {\r\n                Text(\r\n                    text = \"Email\",\r\n                    fontSize = 16.sp,\r\n                    color = Color.Black,\r\n                    modifier = Modifier.padding(bottom = 8.dp)\r\n                )\r\n                OutlinedTextField(\r\n                    value = email,\r\n                    onValueChange = { email = it },\r\n                    placeholder = { Text(\"Nhập địa chỉ email của bạn\") },\r\n                    modifier = Modifier.fillMaxWidth(),\r\n                    shape = RoundedCornerShape(12.dp),\r\n                    colors = OutlinedTextFieldDefaults.colors(\r\n                        unfocusedBorderColor = Color.LightGray,\r\n                        focusedBorderColor = Color.Black\r\n                    )\r\n                )\r\n            }\r\n\r\n            // Trường nhập Mật khẩu\r\n            Column {\r\n                Text(\r\n                    text = \"Mật khẩu mới\",\r\n                    fontSize = 16.sp,\r\n                    color = Color.Black,\r\n                    modifier = Modifier.padding(bottom = 8.dp)\r\n                )\r\n                OutlinedTextField(\r\n                    value = password,\r\n                    onValueChange = { password = it },\r\n                    placeholder = { Text(\"Nhập mật khẩu của bạn\") },\r\n                    modifier = Modifier.fillMaxWidth(),\r\n                    shape = RoundedCornerShape(12.dp),\r\n                    colors = OutlinedTextFieldDefaults.colors(\r\n                        unfocusedBorderColor = Color.LightGray,\r\n                        focusedBorderColor = Color.Black\r\n                    ),\r\n                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),\r\n                    trailingIcon = {\r\n                        IconButton(\r\n                            onClick = { passwordVisible = !passwordVisible }\r\n                        ) {\r\n                            Icon(\r\n                                painter = painterResource(\r\n                                    id = if (passwordVisible) {\r\n                                        R.drawable.visibility // Icon khi đang hiện mật khẩu\r\n                                    } else {\r\n                                        R.drawable.invisible // Icon khi đang ẩn mật khẩu\r\n                                    }\r\n                                ),\r\n                                contentDescription = if (passwordVisible) {\r\n                                    \"Ẩn mật khẩu\"\r\n                                } else {\r\n                                    \"Hiển thị mật khẩu\"\r\n                                },\r\n                                modifier = Modifier.size(24.dp)\r\n                            )\r\n                        }\r\n                    }\r\n                )\r\n            }\r\n\r\n            // Trường nhập lại Mật khẩu\r\n            Column {\r\n                Text(\r\n                    text = \"Nhập lại mật khẩu mới\",\r\n                    fontSize = 16.sp,\r\n                    color = Color.Black,\r\n                    modifier = Modifier.padding(bottom = 8.dp)\r\n                )\r\n                OutlinedTextField(\r\n                    value = confirmPassword,\r\n                    onValueChange = { confirmPassword = it },\r\n                    placeholder = { Text(\"Nhập lại mật khẩu của bạn\") },\r\n                    modifier = Modifier.fillMaxWidth(),\r\n                    shape = RoundedCornerShape(12.dp),\r\n                    colors = OutlinedTextFieldDefaults.colors(\r\n                        unfocusedBorderColor = Color.LightGray,\r\n                        focusedBorderColor = Color.Black\r\n                    ),\r\n                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),\r\n                    trailingIcon = {\r\n                        IconButton(\r\n                            onClick = { confirmPasswordVisible = !confirmPasswordVisible }\r\n                        ) {\r\n                            Icon(\r\n                                painter = painterResource(\r\n                                    id = if (confirmPasswordVisible) {\r\n                                        R.drawable.visibility // Icon khi đang hiện mật khẩu\r\n                                    } else {\r\n                                        R.drawable.invisible // Icon khi đang ẩn mật khẩu\r\n                                    }\r\n                                ),\r\n                                contentDescription = if (confirmPasswordVisible) {\r\n                                    \"Ẩn mật khẩu\"\r\n                                } else {\r\n                                    \"Hiển thị mật khẩu\"\r\n                                },\r\n                                modifier = Modifier.size(24.dp)\r\n                            )\r\n                        }\r\n                    }\r\n                )\r\n            }\r\n        }\r\n\r\n        // Nút Đăng ký tài khoản\r\n        Button(\r\n            onClick = {\r\n                when {\r\n                    name.isBlank() || email.isBlank() || password.isBlank() || confirmPassword.isBlank() -> {\r\n                        Toast.makeText(context, \"Vui lòng nhập đầy đủ dữ liệu!\", Toast.LENGTH_SHORT).show()\r\n                    }\r\n                    password != confirmPassword -> {\r\n                        Toast.makeText(context, \"Mật khẩu không khớp!\", Toast.LENGTH_SHORT).show()\r\n                    }\r\n                    else -> {\r\n                        viewModel.register(email, password, name)\r\n                    }\r\n                }\r\n            },\r\n            modifier = Modifier\r\n                .fillMaxWidth()\r\n                .padding(top = 24.dp)\r\n                .height(50.dp),\r\n            colors = ButtonDefaults.buttonColors(\r\n                containerColor = if (isFormValid) Color.Black else Color.LightGray\r\n            ),\r\n            shape = RoundedCornerShape(12.dp)\r\n        ) {\r\n            Text(\r\n                text = \"Tạo tài khoản\",\r\n                color = Color.White,\r\n                fontSize = 16.sp\r\n            )\r\n        }\r\n\r\n        // Lắng nghe thông báo từ ViewModel\r\n        LaunchedEffect(registerMessage) {\r\n            registerMessage?.let { message ->\r\n                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()\r\n                if (message == \"Đăng ký thành công!\") {\r\n                    navController.navigate(\"LoginScreen\") {\r\n                        popUpTo(\"SignUpScreen\") { inclusive = true }\r\n                    }\r\n                }\r\n            }\r\n        }\r\n\r\n        Spacer(modifier = Modifier.weight(1f))\r\n\r\n        // Đã có tài khoản\r\n        Row(\r\n            modifier = Modifier\r\n                .fillMaxWidth()\r\n                .padding(top = 24.dp, bottom = 24.dp),\r\n            horizontalArrangement = Arrangement.Center\r\n        ) {\r\n            Text(\r\n                text = \"Đã có tài khoản? \",\r\n                fontSize = 16.sp,\r\n                color = Color.Gray\r\n            )\r\n            Text(\r\n                text = \"Đăng nhập\",\r\n                fontSize = 16.sp,\r\n                color = Color.Black,\r\n                modifier = Modifier.clickable {\r\n                    navController.navigate(\"LoginScreen\") {\r\n                        popUpTo(\"SignUpScreen\") { inclusive = true }\r\n                    }\r\n                }\r\n            )\r\n        }\r\n    }\r\n}\r\n\r\n@Preview(showSystemUi = true, showBackground = true)\r\n@Composable\r\nfun SignUpScreenPreview() {\r\n    val navController = rememberNavController()\r\n    SignUpScreen(navController)\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/fpl/md19/beefashion/screens/auth/SignUpScreen.kt b/app/src/main/java/fpl/md19/beefashion/screens/auth/SignUpScreen.kt
+--- a/app/src/main/java/fpl/md19/beefashion/screens/auth/SignUpScreen.kt	(revision 8624c537ecc3788d97ef757e0400419a2358d374)
++++ b/app/src/main/java/fpl/md19/beefashion/screens/auth/SignUpScreen.kt	(date 1741115986560)
+@@ -55,7 +55,7 @@
+     var confirmPassword by remember { mutableStateOf("") }
+     var passwordVisible by remember { mutableStateOf(false) }
+     var confirmPasswordVisible by remember { mutableStateOf(false) }
+-
++    var id by remember { mutableStateOf("") }
+     // Kiểm tra xem tất cả các trường đã được điền chưa
+     val isFormValid = name.isNotEmpty() && email.isNotEmpty() &&
+             password.isNotEmpty() && confirmPassword.isNotEmpty()
+@@ -232,7 +232,7 @@
+                         Toast.makeText(context, "Mật khẩu không khớp!", Toast.LENGTH_SHORT).show()
+                     }
+                     else -> {
+-                        viewModel.register(email, password, name)
++                        viewModel.register(email, password, name,id)
+                     }
+                 }
+             },
+Index: gradle/libs.versions.toml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>[versions]\r\nagp = \"8.8.0\"\r\nkotlin = \"2.0.0\"\r\ncoreKtx = \"1.15.0\"\r\njunit = \"4.13.2\"\r\njunitVersion = \"1.2.1\"\r\nespressoCore = \"3.6.1\"\r\nlifecycleRuntimeKtx = \"2.8.7\"\r\nactivityCompose = \"1.10.0\"\r\ncomposeBom = \"2024.04.01\"\r\ngoogleGmsGoogleServices = \"4.4.2\"\r\nfirebaseAuth = \"23.2.0\"\r\nruntimeLivedata = \"1.7.8\"\r\n\r\n[libraries]\r\nandroidx-core-ktx = { group = \"androidx.core\", name = \"core-ktx\", version.ref = \"coreKtx\" }\r\njunit = { group = \"junit\", name = \"junit\", version.ref = \"junit\" }\r\nandroidx-junit = { group = \"androidx.test.ext\", name = \"junit\", version.ref = \"junitVersion\" }\r\nandroidx-espresso-core = { group = \"androidx.test.espresso\", name = \"espresso-core\", version.ref = \"espressoCore\" }\r\nandroidx-lifecycle-runtime-ktx = { group = \"androidx.lifecycle\", name = \"lifecycle-runtime-ktx\", version.ref = \"lifecycleRuntimeKtx\" }\r\nandroidx-activity-compose = { group = \"androidx.activity\", name = \"activity-compose\", version.ref = \"activityCompose\" }\r\nandroidx-compose-bom = { group = \"androidx.compose\", name = \"compose-bom\", version.ref = \"composeBom\" }\r\nandroidx-ui = { group = \"androidx.compose.ui\", name = \"ui\" }\r\nandroidx-ui-graphics = { group = \"androidx.compose.ui\", name = \"ui-graphics\" }\r\nandroidx-ui-tooling = { group = \"androidx.compose.ui\", name = \"ui-tooling\" }\r\nandroidx-ui-tooling-preview = { group = \"androidx.compose.ui\", name = \"ui-tooling-preview\" }\r\nandroidx-ui-test-manifest = { group = \"androidx.compose.ui\", name = \"ui-test-manifest\" }\r\nandroidx-ui-test-junit4 = { group = \"androidx.compose.ui\", name = \"ui-test-junit4\" }\r\nandroidx-material3 = { group = \"androidx.compose.material3\", name = \"material3\" }\r\nfirebase-auth = { group = \"com.google.firebase\", name = \"firebase-auth\", version.ref = \"firebaseAuth\" }\r\nandroidx-runtime-livedata = { group = \"androidx.compose.runtime\", name = \"runtime-livedata\", version.ref = \"runtimeLivedata\" }\r\n\r\n[plugins]\r\nandroid-application = { id = \"com.android.application\", version.ref = \"agp\" }\r\nkotlin-android = { id = \"org.jetbrains.kotlin.android\", version.ref = \"kotlin\" }\r\nkotlin-compose = { id = \"org.jetbrains.kotlin.plugin.compose\", version.ref = \"kotlin\" }\r\ngoogle-gms-google-services = { id = \"com.google.gms.google-services\", version.ref = \"googleGmsGoogleServices\" }\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
+--- a/gradle/libs.versions.toml	(revision 8624c537ecc3788d97ef757e0400419a2358d374)
++++ b/gradle/libs.versions.toml	(date 1740593519904)
+@@ -11,6 +11,7 @@
+ googleGmsGoogleServices = "4.4.2"
+ firebaseAuth = "23.2.0"
+ runtimeLivedata = "1.7.8"
++playServicesLocation = "21.3.0"
+ 
+ [libraries]
+ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+@@ -29,6 +30,7 @@
+ androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+ firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+ androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
++play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+ 
+ [plugins]
+ android-application = { id = "com.android.application", version.ref = "agp" }
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\">\r\n    <uses-permission android:name=\"android.permission.INTERNET\" />\r\n    <uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />\r\n\r\n    <application\r\n        android:allowBackup=\"true\"\r\n        android:dataExtractionRules=\"@xml/data_extraction_rules\"\r\n        android:fullBackupContent=\"@xml/backup_rules\"\r\n        android:icon=\"@mipmap/ic_launcher\"\r\n        android:label=\"@string/app_name\"\r\n        android:roundIcon=\"@mipmap/ic_launcher_round\"\r\n        android:supportsRtl=\"true\"\r\n        android:theme=\"@style/Theme.Beefashion\"\r\n        android:usesCleartextTraffic=\"true\"\r\n        tools:targetApi=\"31\">\r\n        <activity\r\n            android:name=\".MainActivity\"\r\n            android:exported=\"true\"\r\n            android:label=\"@string/app_name\"\r\n            android:theme=\"@style/Theme.Beefashion\">\r\n            <intent-filter>\r\n                <action android:name=\"android.intent.action.MAIN\" />\r\n\r\n                <category android:name=\"android.intent.category.LAUNCHER\" />\r\n            </intent-filter>\r\n        </activity>\r\n    </application>\r\n\r\n</manifest>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+--- a/app/src/main/AndroidManifest.xml	(revision 8624c537ecc3788d97ef757e0400419a2358d374)
++++ b/app/src/main/AndroidManifest.xml	(date 1740593340447)
+@@ -3,6 +3,8 @@
+     xmlns:tools="http://schemas.android.com/tools">
+     <uses-permission android:name="android.permission.INTERNET" />
+     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
++    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
++    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+ 
+     <application
+         android:allowBackup="true"
+@@ -26,6 +28,11 @@
+                 <category android:name="android.intent.category.LAUNCHER" />
+             </intent-filter>
+         </activity>
++
++        <meta-data
++            android:name="com.google.android.geo.API_KEY"
++            android:value="AIzaSyCw3Xw6g-f7HxP5rBfigJfBKJT_c1nvgDI"/>
++
+     </application>
+ 
+ </manifest>
+\ No newline at end of file
+Index: app/src/main/java/fpl/md19/beefashion/viewModels/LoginViewModel.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package fpl.md19.beefashion.viewModels\r\n\r\n\r\nimport android.content.Context\r\nimport android.util.Log\r\nimport androidx.lifecycle.ViewModel\r\nimport androidx.lifecycle.viewModelScope\r\nimport com.google.gson.Gson\r\nimport fpl.md19.beefashion.api.HttpRequest\r\nimport fpl.md19.beefashion.models.UserModel\r\nimport fpl.md19.beefashion.requests.LoginRequest\r\nimport fpl.md19.beefashion.GlobalVarible.UserSesion\r\nimport fpl.md19.beefashion.requests.RegisterRequest\r\nimport kotlinx.coroutines.flow.MutableStateFlow\r\nimport kotlinx.coroutines.flow.StateFlow\r\nimport kotlinx.coroutines.launch\r\nimport retrofit2.Response\r\n\r\nclass LoginViewModel : ViewModel() {\r\n    private val _loginMessage = MutableStateFlow<String?>(null)\r\n    val loginMessage: StateFlow<String?> = _loginMessage\r\n\r\n    private val _registerMessage = MutableStateFlow<String?>(null)\r\n    val registerMessage: StateFlow<String?> = _registerMessage\r\n\r\n    private val _loginResponse = MutableStateFlow<Response<UserModel>?>(null)\r\n    val loginResponse: StateFlow<Response<UserModel>?> = _loginResponse\r\n\r\n    private val _registerResponse = MutableStateFlow<Response<UserModel>?>(null)\r\n    val registerResponse: StateFlow<Response<UserModel>?> = _registerResponse\r\n\r\n    var rememberedEmail: String = \"\"\r\n        private set\r\n    var rememberedPassword: String = \"\"\r\n        private set\r\n    var isRemembered: Boolean = false\r\n        private set\r\n\r\n    private val PREF_NAME = \"login_preferences\"\r\n    private val PREF_EMAIL = \"email\"\r\n    private val PREF_PASSWORD = \"password\"\r\n    private val PREF_REMEMBER = \"remember_me\"\r\n\r\n    fun login(context: Context, email: String, password: String, rememberMe: Boolean) {\r\n        viewModelScope.launch {\r\n            try {\r\n                _loginResponse.value = null\r\n                _loginMessage.value = null\r\n\r\n                val response = HttpRequest.getInstance().Login(LoginRequest(email, password))\r\n                if (response.isSuccessful) {\r\n                    _loginResponse.value = response\r\n                    _loginMessage.value = \"Đăng nhập thành công!\"\r\n                    UserSesion.currentUser = response.body()\r\n\r\n                    if (rememberMe) {\r\n                        saveCredentials(\r\n                            context, email, password, userModel = UserSesion.currentUser!!\r\n                        )\r\n                    } else {\r\n                        clearCredentials(context)\r\n                    }\r\n                } else {\r\n                    if (response.code() == 404) {\r\n                        _loginMessage.value = \"Tài khoản hoặc mật khẩu không chính xác.\"\r\n                    } else {\r\n                        _loginMessage.value = \"Đã xảy ra lỗi: ${response.message()}\"\r\n                    }\r\n                }\r\n            } catch (e: Exception) {\r\n                _loginMessage.value = \"Không thể kết nối đến server: ${e.message}\"\r\n            }\r\n        }\r\n    }\r\n\r\n    fun register(email: String, password: String, fullName: String) {\r\n        viewModelScope.launch {\r\n            try {\r\n                _registerResponse.value = null\r\n                _registerMessage.value = null\r\n                val response =\r\n                    HttpRequest.getInstance().Register(RegisterRequest(fullName, email, password))\r\n                if (response.isSuccessful) {\r\n                    _registerMessage.value = \"Đăng ký thành công!\"\r\n                    UserSesion.currentUser = UserModel(\r\n                        email = email,\r\n                        fullName = fullName,\r\n                        password = password\r\n                    )\r\n                } else {\r\n                    if (response.code() == 409) {\r\n                        _registerMessage.value = \"Email này đã tồn tại!\"\r\n                    } else {\r\n                        _registerMessage.value = \"Đã xảy ra lỗi: ${response.message()}\"\r\n                    }\r\n                }\r\n            } catch (e: Exception) {\r\n                _registerMessage.value = \"Không thể kết nối đến server: ${e.message}\"\r\n            }\r\n        }\r\n    }\r\n\r\n    fun loadRememberedCredentials(context: Context) {\r\n        val sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)\r\n\r\n        val userJson = sharedPreferences.getString(\"user\", null)\r\n        if (userJson != null) {\r\n            val gson = Gson()\r\n            val userModel = gson.fromJson(userJson, UserModel::class.java)\r\n\r\n            rememberedEmail = sharedPreferences.getString(PREF_EMAIL, \"\") ?: \"\"\r\n            rememberedPassword = sharedPreferences.getString(PREF_PASSWORD, \"\") ?: \"\"\r\n            isRemembered = sharedPreferences.getBoolean(PREF_REMEMBER, false)\r\n        } else {\r\n            rememberedPassword = \"\"\r\n            isRemembered = false\r\n        }\r\n\r\n\r\n    }\r\n\r\n    private fun saveCredentials(\r\n        context: Context, email: String, password: String, userModel: UserModel\r\n    ) {\r\n        val sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)\r\n\r\n        val editor = sharedPreferences.edit()\r\n\r\n        val gson = Gson()\r\n        val userJson = gson.toJson(userModel)\r\n\r\n        editor.putString(\"user\", userJson)\r\n        editor.putString(PREF_EMAIL, email)\r\n        editor.putString(PREF_PASSWORD, password)\r\n        editor.putBoolean(PREF_REMEMBER, true)\r\n        editor.apply()\r\n\r\n    }\r\n\r\n    private fun clearCredentials(context: Context) {\r\n        val sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)\r\n        sharedPreferences.edit().remove(\"user\").remove(PREF_EMAIL).remove(PREF_PASSWORD)\r\n            .putBoolean(PREF_REMEMBER, false).apply()\r\n    }\r\n\r\n    fun logout(context: Context) {\r\n        clearCredentials(context)\r\n\r\n\r\n        _loginMessage.value = \"Đăng xuất thành công!\"\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/fpl/md19/beefashion/viewModels/LoginViewModel.kt b/app/src/main/java/fpl/md19/beefashion/viewModels/LoginViewModel.kt
+--- a/app/src/main/java/fpl/md19/beefashion/viewModels/LoginViewModel.kt	(revision 8624c537ecc3788d97ef757e0400419a2358d374)
++++ b/app/src/main/java/fpl/md19/beefashion/viewModels/LoginViewModel.kt	(date 1741115916675)
+@@ -73,7 +73,7 @@
+         }
+     }
+ 
+-    fun register(email: String, password: String, fullName: String) {
++    fun register(email: String, password: String, fullName: String,id :String) {
+         viewModelScope.launch {
+             try {
+                 _registerResponse.value = null
+@@ -85,7 +85,8 @@
+                     UserSesion.currentUser = UserModel(
+                         email = email,
+                         fullName = fullName,
+-                        password = password
++                        password = password,
++                        id = id
+                     )
+                 } else {
+                     if (response.code() == 409) {
+Index: .idea/deploymentTargetSelector.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"deploymentTargetSelector\">\r\n    <selectionStates>\r\n      <SelectionState runConfigName=\"app\">\r\n        <option name=\"selectionMode\" value=\"DROPDOWN\" />\r\n      </SelectionState>\r\n    </selectionStates>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/deploymentTargetSelector.xml b/.idea/deploymentTargetSelector.xml
+--- a/.idea/deploymentTargetSelector.xml	(revision 8624c537ecc3788d97ef757e0400419a2358d374)
++++ b/.idea/deploymentTargetSelector.xml	(date 1740845649620)
+@@ -4,6 +4,14 @@
+     <selectionStates>
+       <SelectionState runConfigName="app">
+         <option name="selectionMode" value="DROPDOWN" />
++        <DropdownSelection timestamp="2025-03-01T16:11:20.474256400Z">
++          <Target type="DEFAULT_BOOT">
++            <handle>
++              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\minhn\.android\avd\Pixel_4_XL_API_34.avd" />
++            </handle>
++          </Target>
++        </DropdownSelection>
++        <DialogSelection />
+       </SelectionState>
+     </selectionStates>
+   </component>
+Index: app/src/main/java/fpl/md19/beefashion/api/ApiService.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package fpl.md19.beefashion.api\r\n\r\nimport fpl.md19.beefashion.models.UserModel\r\nimport fpl.md19.beefashion.requests.LoginRequest\r\nimport fpl.md19.beefashion.requests.RegisterRequest\r\nimport retrofit2.Response\r\nimport retrofit2.http.Body\r\nimport retrofit2.http.POST\r\n\r\ninterface ApiService {\r\n    @POST(\"/auth/login\")\r\n    suspend fun Login(@Body request: LoginRequest): Response<UserModel>\r\n\r\n    @POST(\"/auth/register\")\r\n    suspend fun Register(@Body request: RegisterRequest): Response<UserModel>\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/fpl/md19/beefashion/api/ApiService.kt b/app/src/main/java/fpl/md19/beefashion/api/ApiService.kt
+--- a/app/src/main/java/fpl/md19/beefashion/api/ApiService.kt	(revision 8624c537ecc3788d97ef757e0400419a2358d374)
++++ b/app/src/main/java/fpl/md19/beefashion/api/ApiService.kt	(date 1741114050717)
+@@ -1,11 +1,19 @@
+ package fpl.md19.beefashion.api
+ 
++import fpl.md19.beefashion.models.AddressModel
+ import fpl.md19.beefashion.models.UserModel
++import fpl.md19.beefashion.requests.AddressRequest
+ import fpl.md19.beefashion.requests.LoginRequest
+ import fpl.md19.beefashion.requests.RegisterRequest
++import fpl.md19.beefashion.viewModels.District
++import fpl.md19.beefashion.viewModels.Province
+ import retrofit2.Response
+ import retrofit2.http.Body
++import retrofit2.http.DELETE
++import retrofit2.http.GET
+ import retrofit2.http.POST
++import retrofit2.http.PUT
++import retrofit2.http.Path
+ 
+ interface ApiService {
+     @POST("/auth/login")
+@@ -13,4 +21,36 @@
+ 
+     @POST("/auth/register")
+     suspend fun Register(@Body request: RegisterRequest): Response<UserModel>
++
++
++    @GET("/addresses/{customerId}")
++    suspend fun getAllAddresses(@Path("customerId") customerId: String): Response<List<AddressModel>>
++
++    @POST("/addresses/{customerId}")
++    suspend fun createAddress(
++        @Path("customerId") customerId: String,
++        @Body addressRequest: AddressRequest
++    ): Response<AddressModel>
++
++    @DELETE("/addresses/{customerId}/{id}")
++    suspend fun deleteAddress(
++        @Path("customerId") customerId: String,
++        @Path("id") addressId: String
++    ): Response<Unit>
++
++    @PUT("/addresses/{customerId}/{id}")
++    suspend fun updateAddress(
++        @Path("customerId") customerId: String,
++        @Path("id") addressId: String,
++        @Body addressRequest: AddressRequest
++    ): Response<AddressModel>
++
++    @GET("https://provinces.open-api.vn/api/p/")
++    suspend fun getProvinces(): Response<List<Province>>
++
++    @GET("https://provinces.open-api.vn/api/p/{province_code}?depth=2")
++    suspend fun getDistricts(@Path("province_code") provinceCode: String): Response<Province>
++
++    @GET("https://provinces.open-api.vn/api/d/{district_code}?depth=2")
++    suspend fun getWards(@Path("district_code") districtCode: String): Response<District>
+ }
+\ No newline at end of file
+Index: app/build.gradle.kts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>plugins {\r\n    alias(libs.plugins.android.application)\r\n    alias(libs.plugins.kotlin.android)\r\n    alias(libs.plugins.kotlin.compose)\r\n    alias(libs.plugins.google.gms.google.services)\r\n}\r\n\r\nandroid {\r\n    namespace = \"fpl.md19.beefashion\"\r\n    compileSdk = 35\r\n\r\n    defaultConfig {\r\n        applicationId = \"fpl.md19.beefashion\"\r\n        minSdk = 24\r\n        targetSdk = 35\r\n        versionCode = 1\r\n        versionName = \"1.0\"\r\n\r\n        testInstrumentationRunner = \"androidx.test.runner.AndroidJUnitRunner\"\r\n    }\r\n\r\n    buildTypes {\r\n        release {\r\n            isMinifyEnabled = false\r\n            proguardFiles(\r\n                getDefaultProguardFile(\"proguard-android-optimize.txt\"),\r\n                \"proguard-rules.pro\"\r\n            )\r\n        }\r\n    }\r\n    compileOptions {\r\n        sourceCompatibility = JavaVersion.VERSION_11\r\n        targetCompatibility = JavaVersion.VERSION_11\r\n    }\r\n    kotlinOptions {\r\n        jvmTarget = \"11\"\r\n    }\r\n    buildFeatures {\r\n        compose = true\r\n    }\r\n\r\n}\r\n\r\ndependencies {\r\n\r\n    implementation(libs.androidx.core.ktx)\r\n    implementation(libs.androidx.lifecycle.runtime.ktx)\r\n    implementation(libs.androidx.activity.compose)\r\n    implementation(platform(libs.androidx.compose.bom))\r\n    implementation(libs.androidx.ui)\r\n    implementation(libs.androidx.ui.graphics)\r\n    implementation(libs.androidx.ui.tooling.preview)\r\n    implementation(libs.androidx.material3)\r\n    implementation(libs.firebase.auth)\r\n    implementation(libs.androidx.runtime.livedata)\r\n    testImplementation(libs.junit)\r\n    androidTestImplementation(libs.androidx.junit)\r\n    androidTestImplementation(libs.androidx.espresso.core)\r\n    androidTestImplementation(platform(libs.androidx.compose.bom))\r\n    androidTestImplementation(libs.androidx.ui.test.junit4)\r\n    debugImplementation(libs.androidx.ui.tooling)\r\n    debugImplementation(libs.androidx.ui.test.manifest)\r\n\r\n    implementation(\"androidx.hilt:hilt-navigation-compose:1.2.0\")\r\n    implementation(\"androidx.navigation:navigation-compose:2.8.5\")\r\n\r\n    // Retrofit for API calls\r\n    implementation(\"com.squareup.retrofit2:retrofit:2.9.0\")\r\n    implementation(\"com.squareup.retrofit2:converter-gson:2.9.0\")\r\n\r\n\r\n\r\n\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/build.gradle.kts b/app/build.gradle.kts
+--- a/app/build.gradle.kts	(revision 8624c537ecc3788d97ef757e0400419a2358d374)
++++ b/app/build.gradle.kts	(date 1740593519956)
+@@ -53,6 +53,7 @@
+     implementation(libs.androidx.material3)
+     implementation(libs.firebase.auth)
+     implementation(libs.androidx.runtime.livedata)
++    implementation(libs.play.services.location)
+     testImplementation(libs.junit)
+     androidTestImplementation(libs.androidx.junit)
+     androidTestImplementation(libs.androidx.espresso.core)
+@@ -71,4 +72,8 @@
+ 
+ 
+ 
++    implementation("com.google.maps.android:maps-compose:6.4.4")
++    implementation("com.google.android.gms:play-services-maps:19.1.0")
++    implementation ("com.google.accompanist:accompanist-permissions:0.31.1-alpha")
++
+ }
+\ No newline at end of file
+Index: app/src/main/java/fpl/md19/beefashion/models/UserModel.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package fpl.md19.beefashion.models\r\n\r\ndata class UserModel (\r\n    val fullName: String,\r\n    val email: String,\r\n    val password: String,\r\n)
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/fpl/md19/beefashion/models/UserModel.kt b/app/src/main/java/fpl/md19/beefashion/models/UserModel.kt
+--- a/app/src/main/java/fpl/md19/beefashion/models/UserModel.kt	(revision 8624c537ecc3788d97ef757e0400419a2358d374)
++++ b/app/src/main/java/fpl/md19/beefashion/models/UserModel.kt	(date 1741115819207)
+@@ -1,6 +1,7 @@
+ package fpl.md19.beefashion.models
+ 
+ data class UserModel (
++    val id: String,
+     val fullName: String,
+     val email: String,
+     val password: String,
+Index: app/src/main/java/fpl/md19/beefashion/screens/cart/MyOderScreen.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package fpl.md19.beefashion.screens.cart\r\n\r\nimport androidx.compose.foundation.Image\r\nimport androidx.compose.foundation.border\r\nimport androidx.compose.foundation.clickable\r\nimport androidx.compose.foundation.layout.Arrangement\r\nimport androidx.compose.foundation.layout.Column\r\nimport androidx.compose.foundation.layout.Row\r\nimport androidx.compose.foundation.layout.Spacer\r\nimport androidx.compose.foundation.layout.fillMaxSize\r\nimport androidx.compose.foundation.layout.fillMaxWidth\r\nimport androidx.compose.foundation.layout.height\r\nimport androidx.compose.foundation.layout.padding\r\nimport androidx.compose.foundation.layout.size\r\nimport androidx.compose.foundation.layout.width\r\nimport androidx.compose.foundation.lazy.LazyColumn\r\nimport androidx.compose.foundation.shape.RoundedCornerShape\r\nimport androidx.compose.material3.Card\r\nimport androidx.compose.material3.CardDefaults\r\nimport androidx.compose.material3.Icon\r\nimport androidx.compose.material3.Text\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.graphics.Color\r\nimport androidx.compose.ui.res.painterResource\r\nimport androidx.compose.ui.text.font.FontWeight\r\nimport androidx.compose.ui.tooling.preview.Preview\r\nimport androidx.compose.ui.unit.dp\r\nimport androidx.compose.ui.unit.sp\r\nimport androidx.navigation.NavController\r\nimport androidx.navigation.compose.rememberNavController\r\nimport fpl.md19.beefashion.R\r\nimport fpl.md19.beefashion.models.MyOder\r\nimport androidx.compose.foundation.lazy.items\r\nimport androidx.compose.material3.Button\r\nimport androidx.compose.material3.ButtonDefaults\r\nimport androidx.compose.ui.Alignment\r\nimport androidx.compose.ui.draw.clip\r\n\r\n\r\n@Composable\r\nfun MyOderScreen (navController : NavController) {\r\n\r\n    val myOderList: List<MyOder> = listOf(\r\n        MyOder(\"Áo ngắn\", \"Size M\", \"189000\", R.drawable.ao_phong),\r\n        MyOder(\"Áo ngắn\", \"Size M\", \"189000\", R.drawable.ao_phong),\r\n        MyOder(\"Áo ngắn\", \"Size M\", \"189000\", R.drawable.ao_phong),\r\n        MyOder(\"Áo ngắn\", \"Size M\", \"189000\", R.drawable.ao_phong),\r\n        MyOder(\"Áo ngắn\", \"Size M\", \"189000\", R.drawable.ao_phong),\r\n        MyOder(\"Áo ngắn\", \"Size M\", \"189000\", R.drawable.ao_phong),\r\n        MyOder(\"Áo ngắn\", \"Size M\", \"189000\", R.drawable.ao_phong),\r\n    )\r\n    Column (\r\n        modifier = Modifier\r\n            .fillMaxSize()\r\n            .padding(25.dp, top = 30.dp, end = 25.dp),\r\n        verticalArrangement = Arrangement.Top\r\n    ) {\r\n        Row(\r\n            modifier = Modifier.fillMaxWidth(),\r\n            horizontalArrangement = Arrangement.SpaceBetween,\r\n            verticalAlignment = Alignment.CenterVertically\r\n        ) {\r\n            Icon(\r\n                painter = painterResource(id = R.drawable.ic_arrow_back),\r\n                contentDescription = \"Back\",\r\n                modifier = Modifier\r\n                    .size(24.dp)\r\n                    .clickable { navController.popBackStack() }\r\n            )\r\n            Text(\r\n                text = \"Đơn hàng\",\r\n                fontSize = 24.sp,\r\n                fontWeight = FontWeight.Bold\r\n            )\r\n            Icon(\r\n                painter = painterResource(id = R.drawable.bell),\r\n                contentDescription = \"Notifications\",\r\n                modifier = Modifier.size(24.dp)\r\n            )\r\n        }\r\n\r\n        Spacer(modifier = Modifier.height(25.dp))\r\n\r\n        LazyColumn(\r\n            verticalArrangement = Arrangement.spacedBy(10.dp)\r\n        ) {\r\n            items(myOderList) { myOder ->\r\n                MyOderCart(myOder, navController)\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\n@Composable\r\nfun MyOderCart(myOder: MyOder, navController : NavController) {\r\n    Card(\r\n        modifier = Modifier\r\n            .fillMaxWidth()\r\n            .padding(8.dp),\r\n        shape = RoundedCornerShape(8.dp),\r\n        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)\r\n    ) {\r\n        Row(modifier = Modifier.padding(16.dp)) {\r\n            Image(\r\n                painter = painterResource(id = myOder.imageRes),\r\n                contentDescription = myOder.title,\r\n                modifier = Modifier\r\n                    .size(80.dp)\r\n                    .border(1.dp, Color.Gray, RoundedCornerShape(10.dp))\r\n            )\r\n\r\n            Spacer(modifier = Modifier.width(16.dp))\r\n\r\n            Column {\r\n                Text(\r\n                    text = myOder.title,\r\n                    fontSize = 18.sp,\r\n                    fontWeight = FontWeight.Bold\r\n                )\r\n                Spacer(modifier = Modifier.height(5.dp))\r\n                Text(\r\n                    text = myOder.size,\r\n                    fontSize = 14.sp,\r\n                    color = Color.Gray\r\n                )\r\n                Spacer(modifier = Modifier.height(16.dp))\r\n                Text(\r\n                    text = \"${myOder.price} VND\",\r\n                    fontSize = 16.sp,\r\n                    fontWeight = FontWeight.Bold,\r\n                    color = Color.Red\r\n                )\r\n            }\r\n            Column(\r\n                modifier = Modifier.fillMaxWidth(),\r\n                verticalArrangement = Arrangement.spacedBy(8.dp),\r\n                horizontalAlignment = Alignment.CenterHorizontally\r\n            ) {\r\n                Button(\r\n                    onClick = { /* Xử lý trạng thái đơn hàng */ },\r\n                    shape = RoundedCornerShape(8.dp),\r\n                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),\r\n                    modifier = Modifier\r\n                        .fillMaxWidth()\r\n                        .height(40.dp)\r\n                ) {\r\n                    Text(\r\n                        text = \"In Transit\",\r\n                        color = Color.Black,\r\n                        fontSize = 14.sp\r\n                    )\r\n                }\r\n\r\n                Button(\r\n                    onClick = { navController.navigate(\"TrackOrderScreen\")},\r\n                    shape = RoundedCornerShape(8.dp),\r\n                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),\r\n                    modifier = Modifier\r\n                        .fillMaxWidth()\r\n                        .height(40.dp)\r\n                ) {\r\n                    Text(\r\n                        text = \"Track Order\",\r\n                        color = Color.White,\r\n                        fontSize = 14.sp\r\n                    )\r\n                }\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\n@Preview (showBackground = true, showSystemUi = true)\r\n@Composable\r\nfun PreviewMyOderScreen () {\r\n    val navController = rememberNavController()\r\n    MyOderScreen(navController)\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/fpl/md19/beefashion/screens/cart/MyOderScreen.kt b/app/src/main/java/fpl/md19/beefashion/screens/cart/MyOderScreen.kt
+--- a/app/src/main/java/fpl/md19/beefashion/screens/cart/MyOderScreen.kt	(revision 8624c537ecc3788d97ef757e0400419a2358d374)
++++ b/app/src/main/java/fpl/md19/beefashion/screens/cart/MyOderScreen.kt	(date 1740826750140)
+@@ -137,20 +137,20 @@
+                 verticalArrangement = Arrangement.spacedBy(8.dp),
+                 horizontalAlignment = Alignment.CenterHorizontally
+             ) {
+-                Button(
+-                    onClick = { /* Xử lý trạng thái đơn hàng */ },
+-                    shape = RoundedCornerShape(8.dp),
+-                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+-                    modifier = Modifier
+-                        .fillMaxWidth()
+-                        .height(40.dp)
+-                ) {
+-                    Text(
+-                        text = "In Transit",
+-                        color = Color.Black,
+-                        fontSize = 14.sp
+-                    )
+-                }
++//                Button(
++//                    onClick = { /* Xử lý trạng thái đơn hàng */ },
++//                    shape = RoundedCornerShape(8.dp),
++//                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
++//                    modifier = Modifier
++//                        .fillMaxWidth()
++//                        .height(40.dp)
++//                ) {
++//                    Text(
++//                        text = "In Transit",
++//                        color = Color.Black,
++//                        fontSize = 14.sp
++//                    )
++//                }
+ 
+                 Button(
+                     onClick = { navController.navigate("TrackOrderScreen")},
+@@ -161,7 +161,7 @@
+                         .height(40.dp)
+                 ) {
+                     Text(
+-                        text = "Track Order",
++                        text = "Theo dõi",
+                         color = Color.White,
+                         fontSize = 14.sp
+                     )
+Index: app/src/main/java/fpl/md19/beefashion/screens/tab/AccountScreen.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package fpl.md19.beefashion.screens.tab\r\n\r\nimport androidx.compose.foundation.Image\r\nimport androidx.compose.foundation.background\r\nimport androidx.compose.foundation.clickable\r\nimport androidx.compose.foundation.layout.Arrangement\r\nimport androidx.compose.foundation.layout.Box\r\nimport androidx.compose.foundation.layout.Column\r\nimport androidx.compose.foundation.layout.Row\r\nimport androidx.compose.foundation.layout.Spacer\r\nimport androidx.compose.foundation.layout.fillMaxSize\r\nimport androidx.compose.foundation.layout.fillMaxWidth\r\nimport androidx.compose.foundation.layout.height\r\nimport androidx.compose.foundation.layout.padding\r\nimport androidx.compose.foundation.layout.size\r\nimport androidx.compose.foundation.layout.width\r\nimport androidx.compose.foundation.lazy.LazyColumn\r\nimport androidx.compose.material3.Divider\r\nimport androidx.compose.material3.Icon\r\nimport androidx.compose.material3.Text\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.compose.runtime.mutableStateOf\r\nimport androidx.compose.runtime.remember\r\nimport androidx.compose.ui.Alignment\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.graphics.Color\r\nimport androidx.compose.ui.res.painterResource\r\nimport androidx.compose.ui.text.font.FontWeight\r\nimport androidx.compose.ui.text.style.TextAlign\r\nimport androidx.compose.ui.tooling.preview.Preview\r\nimport androidx.compose.ui.unit.dp\r\nimport androidx.compose.ui.unit.sp\r\nimport androidx.lifecycle.viewmodel.compose.viewModel\r\nimport androidx.navigation.NavController\r\nimport androidx.navigation.compose.rememberNavController\r\nimport fpl.md19.beefashion.GlobalVarible.UserSesion\r\nimport fpl.md19.beefashion.R\r\nimport fpl.md19.beefashion.components.LogOutComponent\r\nimport fpl.md19.beefashion.viewModels.LoginViewModel\r\n\r\n\r\n@Composable\r\nfun AccountScreen (navController: NavController,  loginViewModel: LoginViewModel = viewModel()) {\r\n    var showLogoutDialog = remember { mutableStateOf(false) }\r\n\r\n    Column(\r\n        modifier = Modifier\r\n            .fillMaxSize()\r\n            .padding(25.dp, top = 30.dp, end = 25.dp)\r\n    ) {\r\n        // Header\r\n        Row(\r\n            modifier = Modifier.fillMaxWidth(),\r\n            horizontalArrangement = Arrangement.SpaceBetween,\r\n            verticalAlignment = Alignment.CenterVertically\r\n        ) {\r\n            Icon(\r\n                painter = painterResource(id = R.drawable.ic_arrow_back),\r\n                contentDescription = \"Back\",\r\n                modifier = Modifier\r\n                    .size(24.dp)\r\n                    .clickable { navController.popBackStack() }\r\n            )\r\n            Text(\r\n                text = \"Giỏ hàng\",\r\n                fontSize = 24.sp,\r\n                fontWeight = FontWeight.Bold\r\n            )\r\n            Icon(\r\n                painter = painterResource(id = R.drawable.bell),\r\n                contentDescription = \"Notifications\",\r\n                modifier = Modifier.size(24.dp)\r\n            )\r\n        }\r\n\r\n        LazyColumn(\r\n            modifier = Modifier\r\n                .fillMaxSize()\r\n                .padding(top = 12.dp)\r\n        ) {\r\n            item { Divider() }\r\n            item { AccountItem(R.drawable.ic_orders, \"Đơn hàng\", navController, \"MyOderScreen\") }\r\n            item { Divider(thickness = 8.dp, color = Color.LightGray) }\r\n            item { AccountItem(R.drawable.ic_details, \"Thông tin\", navController, \"MyDetailsScreen\") }\r\n            item { AccountItem(R.drawable.ic_address, \"Địa chỉ\", navController, \"AddressScreen\") }\r\n            item { AccountItem(R.drawable.ic_notifications, \"Thông báo\", navController, \"NotificationsScreen\") }\r\n            item { Divider(thickness = 8.dp, color = Color.LightGray) }\r\n            item { AccountItem(R.drawable.ic_help, \"Trợ giúp\", navController, \"HelpScreen\") }\r\n            item { Divider(thickness = 8.dp, color = Color.LightGray) }\r\n            item { Spacer(modifier = Modifier.height(16.dp)) }\r\n            item { LogoutItem(onClick = { showLogoutDialog.value = true }) }\r\n        }\r\n    }\r\n    // Hiển thị LogOutComponent khi showLogoutDialog là true\r\n    LogOutComponent(\r\n        onConfirm = {\r\n            loginViewModel.logout(context = navController.context)\r\n            UserSesion.currentUser = null\r\n            showLogoutDialog.value = false\r\n            navController.navigate(\"LoginScreen\") {\r\n                popUpTo(\"HomeScreen\") { inclusive = true }\r\n            }\r\n        },\r\n        onDismiss = {\r\n            showLogoutDialog.value = false\r\n        },\r\n        isVisible = showLogoutDialog.value\r\n    )\r\n}\r\n\r\n@Composable\r\nfun AccountItem(imageRes: Int, title: String, navController: NavController, route: String) {\r\n    Row(\r\n        modifier = Modifier\r\n            .fillMaxWidth()\r\n            .clickable { navController.navigate(route) }\r\n            .padding(16.dp),\r\n        verticalAlignment = Alignment.CenterVertically\r\n    ) {\r\n        Image(\r\n            painter = painterResource(id = imageRes),\r\n            contentDescription = title,\r\n            modifier = Modifier.size(24.dp)\r\n        )\r\n        Spacer(modifier = Modifier.width(16.dp))\r\n        Text(text = title, fontSize = 16.sp)\r\n        Spacer(modifier = Modifier.weight(1f))\r\n        Image(\r\n            painter = painterResource(id = R.drawable.ic_arrow_right),\r\n            contentDescription = \"Arrow\",\r\n            modifier = Modifier.size(24.dp)\r\n        )\r\n    }\r\n    Divider()\r\n}\r\n\r\n@Composable\r\nfun LogoutItem(onClick: () -> Unit) {\r\n    Row(\r\n        modifier = Modifier\r\n            .fillMaxWidth()\r\n            .clickable {  onClick()  }\r\n            .padding(16.dp),\r\n        verticalAlignment = Alignment.CenterVertically\r\n    ) {\r\n        Image(\r\n            painter = painterResource(id = R.drawable.ic_logout),\r\n            contentDescription = \"Logout\",\r\n            modifier = Modifier.size(24.dp)\r\n        )\r\n        Spacer(modifier = Modifier.width(16.dp))\r\n        Text(text = \"Đăng xuất\", color = Color.Red, fontSize = 16.sp)\r\n    }\r\n}\r\n@Preview (showBackground = true, showSystemUi = true)\r\n@Composable\r\nfun PreviewAccountScreen () {\r\n    val navController = rememberNavController()\r\n    AccountScreen(navController)\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/fpl/md19/beefashion/screens/tab/AccountScreen.kt b/app/src/main/java/fpl/md19/beefashion/screens/tab/AccountScreen.kt
+--- a/app/src/main/java/fpl/md19/beefashion/screens/tab/AccountScreen.kt	(revision 8624c537ecc3788d97ef757e0400419a2358d374)
++++ b/app/src/main/java/fpl/md19/beefashion/screens/tab/AccountScreen.kt	(date 1740600720897)
+@@ -82,7 +82,7 @@
+             item { AccountItem(R.drawable.ic_orders, "Đơn hàng", navController, "MyOderScreen") }
+             item { Divider(thickness = 8.dp, color = Color.LightGray) }
+             item { AccountItem(R.drawable.ic_details, "Thông tin", navController, "MyDetailsScreen") }
+-            item { AccountItem(R.drawable.ic_address, "Địa chỉ", navController, "AddressScreen") }
++            item { AccountItem(R.drawable.ic_address, "Địa chỉ", navController, "AddressScreen/{customerId}") }
+             item { AccountItem(R.drawable.ic_notifications, "Thông báo", navController, "NotificationsScreen") }
+             item { Divider(thickness = 8.dp, color = Color.LightGray) }
+             item { AccountItem(R.drawable.ic_help, "Trợ giúp", navController, "HelpScreen") }
+@@ -139,7 +139,7 @@
+     Row(
+         modifier = Modifier
+             .fillMaxWidth()
+-            .clickable {  onClick()  }
++            .clickable { onClick() }
+             .padding(16.dp),
+         verticalAlignment = Alignment.CenterVertically
+     ) {
+Index: app/src/main/java/fpl/md19/beefashion/navigation/BottomNavigiton.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package fpl.md19.beefashion.navigation\r\n\r\nimport android.os.Build\r\nimport androidx.annotation.RequiresApi\r\nimport androidx.compose.foundation.layout.Box\r\nimport androidx.compose.foundation.layout.fillMaxSize\r\nimport androidx.compose.foundation.layout.offset\r\nimport androidx.compose.foundation.layout.padding\r\nimport androidx.compose.foundation.layout.size\r\nimport androidx.compose.material3.Badge\r\nimport androidx.compose.material3.BadgedBox\r\nimport androidx.compose.material3.ExperimentalMaterial3Api\r\nimport androidx.compose.material3.Icon\r\nimport androidx.compose.material3.NavigationBar\r\nimport androidx.compose.material3.NavigationBarItem\r\nimport androidx.compose.material3.NavigationBarItemDefaults\r\nimport androidx.compose.material3.Scaffold\r\nimport androidx.compose.material3.Surface\r\nimport androidx.compose.material3.Text\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.compose.runtime.getValue\r\nimport androidx.compose.runtime.mutableIntStateOf\r\nimport androidx.compose.runtime.saveable.rememberSaveable\r\nimport androidx.compose.runtime.setValue\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.graphics.Color\r\nimport androidx.compose.ui.platform.LocalContext\r\nimport androidx.compose.ui.res.painterResource\r\nimport androidx.compose.ui.tooling.preview.Preview\r\nimport androidx.compose.ui.unit.dp\r\nimport androidx.navigation.NavController\r\nimport androidx.navigation.NavHostController\r\nimport androidx.navigation.compose.NavHost\r\nimport androidx.navigation.compose.composable\r\nimport androidx.navigation.compose.currentBackStackEntryAsState\r\nimport androidx.navigation.compose.rememberNavController\r\nimport fpl.md19.beefashion.AddressScreen\r\nimport fpl.md19.beefashion.NewAddressScreen\r\nimport fpl.md19.beefashion.R\r\nimport fpl.md19.beefashion.TrackOrderScreen\r\nimport fpl.md19.beefashion.screens.accounts.MyDetailsScreen\r\nimport fpl.md19.beefashion.screens.accounts.NotificationsScreen\r\nimport fpl.md19.beefashion.screens.auth.ForgotPasswordScreen\r\nimport fpl.md19.beefashion.screens.auth.LoginScreen\r\nimport fpl.md19.beefashion.screens.auth.SignUpScreen\r\nimport fpl.md19.beefashion.screens.auth.WelcomeScreen\r\nimport fpl.md19.beefashion.screens.auth.WelcomeScreen1\r\nimport fpl.md19.beefashion.screens.cart.MyOderScreen\r\nimport fpl.md19.beefashion.screens.product.ProductScreen\r\nimport fpl.md19.beefashion.screens.support.HelpScreen\r\nimport fpl.md19.beefashion.screens.tab.AccountScreen\r\nimport fpl.md19.beefashion.screens.tab.CartScreen\r\nimport fpl.md19.beefashion.screens.tab.HomeScreen\r\nimport fpl.md19.beefashion.screens.tab.SavedScreen\r\nimport fpl.md19.beefashion.screens.tab.SearchScreen\r\n\r\n\r\n\r\ndata class TabItem(\r\n    val unselectedIcon: Int,\r\n    val selectedIcon: Int,\r\n    val content: @Composable (NavController) -> Unit,\r\n    val screenName: String,\r\n)\r\n\r\nval tabItems = listOf(\r\n    TabItem(\r\n        unselectedIcon = R.drawable.home_icon,\r\n        selectedIcon = R.drawable.home_icon_dark,\r\n        content = { navController -> HomeScreen(navController) },\r\n        screenName = \"HomeScreen\"\r\n    ),\r\n    TabItem(\r\n        unselectedIcon = R.drawable.search,\r\n        selectedIcon = R.drawable.search,\r\n        content = { navController -> SearchScreen(navController) },\r\n        screenName = \"searchScreen\"\r\n    ),\r\n    TabItem(\r\n        unselectedIcon = R.drawable.cart_icon,\r\n        selectedIcon = R.drawable.cart_icon_dack,\r\n        content = { navController -> CartScreen(navController) },\r\n        screenName = \"cartScreen\"\r\n    ),\r\n    TabItem(\r\n        unselectedIcon = R.drawable.heart_icon,\r\n        selectedIcon = R.drawable.heart_icon_dack,\r\n        content = { navController -> SavedScreen(navController) },\r\n        screenName = \"savedScreen\"\r\n    ),\r\n    TabItem(\r\n        unselectedIcon = R.drawable.account_icon,\r\n        selectedIcon = R.drawable.account_icon_dack,\r\n        content = { navController -> AccountScreen(navController) },\r\n        screenName = \"accountScreen\"\r\n    )\r\n)\r\n\r\n@RequiresApi(Build.VERSION_CODES.O)\r\n@Composable\r\nfun BottomNavBar(\r\n    modifier: Modifier = Modifier,\r\n    navController: NavController,\r\n) {\r\n    Surface(modifier = Modifier.fillMaxSize()) {\r\n        Scaffold(modifier = Modifier.fillMaxSize(),\r\n            bottomBar = { TabView(tabItems, navController = navController) }) {\r\n            Box(modifier = Modifier.padding(it)) {\r\n                NestedBottomTab(\r\n                    navController = navController as NavHostController,\r\n                )\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\n@RequiresApi(Build.VERSION_CODES.O)\r\n@Composable\r\nfun NestedBottomTab(\r\n    navController: NavHostController\r\n) {\r\n    val context = LocalContext.current\r\n\r\n    NavHost(\r\n        navController, \"WelcomeScreen\"\r\n    ) {\r\n        //dinh nghia man hinh\r\n        composable(\"WelcomeScreen\") {\r\n            WelcomeScreen(navController)\r\n        }\r\n        composable(\"WelcomeScreen1\") {\r\n            WelcomeScreen1(navController)\r\n        }\r\n        composable(\"LoginScreen\") {\r\n            LoginScreen(navController)\r\n        }\r\n        composable(\"SignUpScreen\") {\r\n            SignUpScreen(navController)\r\n        }\r\n        composable(\"AddressScreen\") {\r\n            AddressScreen(navController)\r\n        }\r\n        composable(\"NewAddressScreen\") {\r\n            NewAddressScreen(navController)\r\n        }\r\n        composable(\"MyOderScreen\") {\r\n            MyOderScreen(navController)\r\n        }\r\n        composable(\"MyDetailsScreen\") {\r\n            MyDetailsScreen(\r\n                navController,\r\n                onBackClick = { /* Do nothing or mock back click action */ },\r\n                onNotificationClick = { /* Do nothing or mock notification click action */ },\r\n                onSubmit = { /* Do nothing or mock submit action */ }\r\n            )\r\n        }\r\n        composable(\"NotificationsScreen\") {\r\n            NotificationsScreen(navController)\r\n        }\r\n        composable(\"TrackOrderScreen\") {\r\n            TrackOrderScreen(navController)\r\n        }\r\n        composable(\"HelpScreen\") {\r\n            HelpScreen(navController)\r\n        }\r\n        composable(\"ForgotPasswordScreen\") {\r\n            ForgotPasswordScreen(navController)\r\n        }\r\n        composable(\"HomeScreen\") {\r\n            HomeScreen(navController)\r\n        }\r\n        composable(\"searchScreen\") {\r\n            SearchScreen(navController)\r\n        }\r\n        composable(\"cartScreen\") {\r\n            CartScreen(navController)\r\n        }\r\n        composable(\"savedScreen\") {\r\n            SavedScreen(navController)\r\n        }\r\n        composable(\"accountScreen\") {\r\n            AccountScreen(navController)\r\n        }\r\n        composable(\"productScreen\") {\r\n            ProductScreen(navController)\r\n        }\r\n    }\r\n}\r\n\r\n@Composable\r\nfun TabView(tabBarItems: List<TabItem>, navController: NavController) {\r\n    var selectedTabIndex by rememberSaveable {\r\n        mutableIntStateOf(0)\r\n    }\r\n    val navBackStack by navController.currentBackStackEntryAsState()\r\n    val currentDestination = navBackStack?.destination\r\n\r\n    val bottomBarDestination = tabBarItems.any() {\r\n        it.screenName == currentDestination?.route\r\n    }\r\n    if (bottomBarDestination) {\r\n        NavigationBar(containerColor = Color.White) {\r\n            tabBarItems.forEachIndexed { index, tabBarItem ->\r\n                NavigationBarItem(\r\n                    selected = selectedTabIndex == index,\r\n                    onClick = {\r\n                        navController.navigate(tabBarItem.screenName)\r\n                        selectedTabIndex = index\r\n                    },\r\n                    icon = {\r\n                        TabBarIconView(\r\n                            icon = tabBarItem.selectedIcon,\r\n                            isFocused = selectedTabIndex == index\r\n                        )\r\n                    },\r\n                    colors = NavigationBarItemDefaults.colors(\r\n                        selectedIconColor = Color.Black,\r\n                        unselectedIconColor = Color.Gray,\r\n                        indicatorColor = Color.White\r\n                    )\r\n                )\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\n// This component helps to clean up the API call from our TabView above,\r\n// but could just as easily be added inside the TabView without creating this custom component\r\n\r\n@Composable\r\nfun TabBarIconView(\r\n    icon: Int,\r\n    badgeAmount: Int? = null,\r\n    isFocused: Boolean,\r\n) {\r\n    val iconSize = if (icon == R.drawable.cart_icon || icon == R.drawable.cart_icon_dack) {\r\n        30.dp // Tăng kích thước icon giỏ hàng\r\n    } else {\r\n        25.dp\r\n    }\r\n\r\n    val iconOffset = if (icon == R.drawable.cart_icon || icon == R.drawable.cart_icon_dack) {\r\n        (-7).dp // Dịch chuyển icon giỏ hàng lên trên\r\n    } else {\r\n        0.dp\r\n    }\r\n\r\n    BadgedBox(badge = { TabBarBadgeView(badgeAmount) }) {\r\n        Icon(\r\n            painter = painterResource(id = icon),\r\n            contentDescription = \"\",\r\n            modifier = Modifier\r\n                .size(iconSize)\r\n                .offset(y = iconOffset) // Đẩy icon lên trên\r\n        )\r\n    }\r\n}\r\n\r\n\r\n// This component helps to clean up the API call from our TabBarIconView above,\r\n// but could just as easily be added inside the TabBarIconView without creating this custom component\r\n@Composable\r\n@OptIn(ExperimentalMaterial3Api::class)\r\nfun TabBarBadgeView(count: Int? = null) {\r\n    if (count != null) {\r\n        Badge {\r\n            Text(count.toString())\r\n        }\r\n    }\r\n}\r\n\r\n\r\n@Preview(showBackground = true, showSystemUi = true)\r\n@Composable\r\nfun PreviewMusicScreen() {\r\n//    // Tạo navController giả cho Preview\r\n//    val navController = rememberNavController()\r\n//\r\n//    // Tạo movieViewModel giả\r\n//    val movieViewModel = MovieViewModel()\r\n//\r\n//    // Gọi MovieListScreen với cả navController và movieViewModel\r\n//    MovieListScreen(navController = navController, movieViewModel = movieViewModel)\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/fpl/md19/beefashion/navigation/BottomNavigiton.kt b/app/src/main/java/fpl/md19/beefashion/navigation/BottomNavigiton.kt
+--- a/app/src/main/java/fpl/md19/beefashion/navigation/BottomNavigiton.kt	(revision 8624c537ecc3788d97ef757e0400419a2358d374)
++++ b/app/src/main/java/fpl/md19/beefashion/navigation/BottomNavigiton.kt	(date 1741123103713)
+@@ -1,6 +1,7 @@
+ package fpl.md19.beefashion.navigation
+ 
+ import android.os.Build
++import android.util.Log
+ import androidx.annotation.RequiresApi
+ import androidx.compose.foundation.layout.Box
+ import androidx.compose.foundation.layout.fillMaxSize
+@@ -28,16 +29,22 @@
+ import androidx.compose.ui.res.painterResource
+ import androidx.compose.ui.tooling.preview.Preview
+ import androidx.compose.ui.unit.dp
++import androidx.lifecycle.ViewModel
++import androidx.lifecycle.ViewModelProvider
++import androidx.lifecycle.viewmodel.compose.viewModel
+ import androidx.navigation.NavController
+ import androidx.navigation.NavHostController
++import androidx.navigation.NavType
+ import androidx.navigation.compose.NavHost
+ import androidx.navigation.compose.composable
+ import androidx.navigation.compose.currentBackStackEntryAsState
+-import androidx.navigation.compose.rememberNavController
++import androidx.navigation.navArgument
+ import fpl.md19.beefashion.AddressScreen
+ import fpl.md19.beefashion.NewAddressScreen
+ import fpl.md19.beefashion.R
+ import fpl.md19.beefashion.TrackOrderScreen
++import fpl.md19.beefashion.api.ApiService
++import fpl.md19.beefashion.api.HttpRequest
+ import fpl.md19.beefashion.screens.accounts.MyDetailsScreen
+ import fpl.md19.beefashion.screens.accounts.NotificationsScreen
+ import fpl.md19.beefashion.screens.auth.ForgotPasswordScreen
+@@ -53,7 +60,11 @@
+ import fpl.md19.beefashion.screens.tab.HomeScreen
+ import fpl.md19.beefashion.screens.tab.SavedScreen
+ import fpl.md19.beefashion.screens.tab.SearchScreen
+-
++import fpl.md19.beefashion.viewModels.AddressViewModel
++import fpl.md19.beefashion.viewModels.NewAddressViewModel
++import fpl.md19.beefashion.viewModels.NewAddressViewModelFactory
++import retrofit2.Retrofit
++import retrofit2.converter.gson.GsonConverterFactory
+ 
+ 
+ data class TabItem(
+@@ -137,11 +148,45 @@
+         composable("SignUpScreen") {
+             SignUpScreen(navController)
+         }
+-        composable("AddressScreen") {
+-            AddressScreen(navController)
++        composable(
++            route = "AddressScreen/{customerId}",
++            arguments = listOf(navArgument("customerId") { type = NavType.StringType })
++        ) { backStackEntry ->
++            val customerId = backStackEntry.arguments?.getString("customerId") ?: ""
++            val viewModel: AddressViewModel = viewModel {
++                val apiService = HttpRequest.getInstance()
++                AddressViewModel(apiService)
++            }
++            AddressScreen(navController, viewModel, customerId)
+         }
+-        composable("NewAddressScreen") {
+-            NewAddressScreen(navController)
++
++        composable(
++            route = "NewAddressScreen/{customerId}",
++            arguments = listOf(navArgument("customerId") { type = NavType.StringType })
++        ) { backStackEntry ->
++            val customerId = backStackEntry.arguments?.getString("customerId") ?: ""
++
++            // Get the same ViewModel instance from the parent
++            val addressViewModel: AddressViewModel = viewModel()
++            // Khởi tạo apiService
++            val retrofit = Retrofit.Builder()
++                .baseUrl("https://provinces.open-api.vn/api/")
++                .addConverterFactory(GsonConverterFactory.create())
++                .build()
++
++            val apiService = retrofit.create(ApiService::class.java)
++
++            // Tạo ViewModel với Factory
++            val newAddressViewModel: NewAddressViewModel = viewModel(
++                factory = NewAddressViewModelFactory(apiService)
++            )
++
++            NewAddressScreen(
++                navController = navController,
++                addressViewModel = addressViewModel,
++                newAddressViewModel = newAddressViewModel,
++                customerId = customerId
++            )
+         }
+         composable("MyOderScreen") {
+             MyOderScreen(navController)

@@ -39,6 +39,7 @@ android {
         compose = true
     }
 
+
 }
 
 dependencies {
@@ -53,6 +54,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.firebase.auth)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -84,4 +86,9 @@ dependencies {
     //Image
     implementation ("com.google.accompanist:accompanist-pager:0.31.1-alpha")
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
+
+    implementation("com.google.maps.android:maps-compose:6.4.4")
+    implementation("com.google.android.gms:play-services-maps:19.1.0")
+    implementation ("com.google.accompanist:accompanist-permissions:0.31.1-alpha")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 }
