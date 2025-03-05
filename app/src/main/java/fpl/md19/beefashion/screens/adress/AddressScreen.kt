@@ -1,6 +1,7 @@
 package fpl.md19.beefashion
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -34,7 +35,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,11 +60,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import fpl.md19.beefashion.api.ApiService
-import fpl.md19.beefashion.api.HttpRequest
+import fpl.md19.beefashion.GlobalVarible.UserSesion
 import fpl.md19.beefashion.models.AddressModel
 import fpl.md19.beefashion.viewModels.AddressViewModel
-import fpl.md19.beefashion.viewModels.AddressViewModelFactory
+import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 @Composable
@@ -72,17 +72,14 @@ fun AddressScreen(
     viewModel: AddressViewModel,
     customerId: String
 ) {
-    val apiService = remember { HttpRequest.getInstance() }
-    val factory = remember { AddressViewModelFactory(apiService) }
-    val viewModel: AddressViewModel = viewModel(factory = factory)
     var selectedAddress by remember { mutableStateOf("") }
     val addresses by viewModel.addresses.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val deleteStatus by viewModel.deleteStatus.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
     var addressToDelete by remember { mutableStateOf<AddressModel?>(null) }
-
-
+    val createStatus by viewModel.createStatus.collectAsState()
+    val context = LocalContext.current
     LaunchedEffect(customerId) {
         Log.d("AddressScreen", "User ID being used: '$customerId'")
         if (customerId.isNotBlank()) {
@@ -92,15 +89,24 @@ fun AddressScreen(
     LaunchedEffect(addresses) {
         Log.d("AddressScreen", "Danh sách địa chỉ sau khi cập nhật: ${addresses.size}")
     }
+    LaunchedEffect(addresses) {
+        Log.d("AddressScreen", "Danh sách địa chỉ sau khi cập nhật: ${addresses.size}")
 
-    val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(deleteStatus) {
-        when (deleteStatus) {
-            is AddressViewModel.DeleteStatus.Success -> {
-                snackbarHostState.showSnackbar("Địa chỉ đã được xóa thành công")
-            }
-            is AddressViewModel.DeleteStatus.Error -> {
-                snackbarHostState.showSnackbar((deleteStatus as AddressViewModel.DeleteStatus.Error).message)
+        if (addresses.isNotEmpty() && selectedAddress.isBlank()) {
+            selectedAddress = addresses.first().id
+        }
+    }
+
+    LaunchedEffect(createStatus) {
+        when (createStatus) {
+            is AddressViewModel.CreateStatus.Success -> {
+                val userId = UserSesion.currentUser?.id
+                if (!userId.isNullOrBlank()) {
+                    Log.d("AddressScreen", "Địa chỉ được tạo thành công, đang tải lại...")
+                    viewModel.fetchAddresses(userId)
+                    delay(500)
+                    viewModel._createStatus.value = AddressViewModel.CreateStatus.Idle
+                }
             }
             else -> {}
         }
@@ -201,19 +207,38 @@ fun AddressScreen(
 
         Button(
             onClick = {
-                navController.navigate("NewAddressScreen/$customerId")
+                if (addresses.size >= 5) {
+                    Toast.makeText(
+                        context,
+                        "Bạn chỉ có thể lưu tối đa 5 địa chỉ. Hãy xóa bớt để thêm mới.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    navController.navigate("NewAddressScreen/$customerId")
+                }
             },
+            enabled = addresses.size < 5,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (addresses.size < 5) Color.White else Color.Gray
+            ),
             shape = RoundedCornerShape(12.dp),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Add", tint = Color.Black)
+            Icon(
+                Icons.Default.Add,
+                contentDescription = "Add",
+                tint = if (addresses.size < 5) Color.Black else Color.DarkGray
+            )
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = "Thêm địa chỉ mới", color = Color.Black)
+            Text(
+                text = "Thêm địa chỉ mới",
+                color = if (addresses.size < 5) Color.Black else Color.DarkGray
+            )
         }
+
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -272,6 +297,7 @@ fun AddressScreen(
         }
     }
 }
+
 @Composable
 fun AddressItem(
     address: String,
@@ -378,6 +404,7 @@ fun AddressItem(
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun AddressPreview() {

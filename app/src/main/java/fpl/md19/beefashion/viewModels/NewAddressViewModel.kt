@@ -2,17 +2,16 @@ package fpl.md19.beefashion.viewModels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import fpl.md19.beefashion.api.ApiService
-import fpl.md19.beefashion.requests.AddressRequest
+import fpl.md19.beefashion.api.HttpRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class NewAddressViewModel(private val apiService: ApiService? = null) : ViewModel() {
-
+class NewAddressViewModel() : ViewModel() {
+    private val apiService: ApiService = HttpRequest.getInstance()
     private val _provinces = MutableStateFlow<List<Province>>(emptyList())
     val provinces: StateFlow<List<Province>> = _provinces.asStateFlow()
 
@@ -141,17 +140,6 @@ class NewAddressViewModel(private val apiService: ApiService? = null) : ViewMode
         object Loading : CreateStatus()
         object Success : CreateStatus()
         data class Error(val message: String) : CreateStatus()
-    }
-}
-
-// Tạo Factory Class để khởi tạo ViewModel với tham số ApiService
-class NewAddressViewModelFactory(private val apiService: ApiService) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(NewAddressViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return NewAddressViewModel(apiService) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }
 

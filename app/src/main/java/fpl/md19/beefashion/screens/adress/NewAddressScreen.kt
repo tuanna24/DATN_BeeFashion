@@ -37,32 +37,37 @@ fun NewAddressScreen(
     val isLoading by newAddressViewModel.isLoading.collectAsState()
     val error by newAddressViewModel.error.collectAsState()
 
-    // Nếu có lỗi, hiển thị Snackbar
     LaunchedEffect(error) {
         error?.let { errorMessage ->
-            // Hiển thị thông báo lỗi (có thể dùng Snackbar)
-            // Sau đó clear lỗi để không hiển thị lại
             newAddressViewModel.clearError()
         }
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_back),
                 contentDescription = "Back",
-                modifier = Modifier.size(24.dp).clickable { navController.popBackStack() }
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable { navController.popBackStack() }
             )
             Text(text = "Địa chỉ mới", fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Image(
                 painter = painterResource(id = R.drawable.ic_notifications),
                 contentDescription = "Notifications",
-                modifier = Modifier.size(24.dp).clickable { }
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable { }
             )
         }
 
@@ -70,10 +75,11 @@ fun NewAddressScreen(
             MapScreen()
         }
 
-        // Hiển thị loading nếu cần
         if (isLoading) {
             Box(
-                modifier = Modifier.fillMaxWidth().height(200.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = Color.Black)
@@ -89,7 +95,6 @@ fun NewAddressScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddressForm(
     navController: NavController,
@@ -111,12 +116,20 @@ fun AddressForm(
     var expandedDistrict by remember { mutableStateOf(false) }
     var expandedWard by remember { mutableStateOf(false) }
     var detail by rememberSaveable { mutableStateOf("") }
+    var showSuccessDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+    val addresses by addressViewModel.addresses.collectAsState()
 
-    // Xử lý trạng thái tạo địa chỉ
     LaunchedEffect(createStatus) {
         when (createStatus) {
-            is AddressViewModel.CreateStatus.Success -> navController.popBackStack()
-            is AddressViewModel.CreateStatus.Error -> Toast.makeText(context, "Lỗi khi tạo địa chỉ", Toast.LENGTH_SHORT).show()
+            is AddressViewModel.CreateStatus.Success -> {
+                showSuccessDialog = true
+            }
+
+            is AddressViewModel.CreateStatus.Error -> {
+                Toast.makeText(context, "Lỗi khi tạo địa chỉ", Toast.LENGTH_SHORT).show()
+            }
+
             else -> {}
         }
     }
@@ -175,28 +188,54 @@ fun AddressForm(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        val isFormValid = selectedProvince != null && selectedDistrict != null && selectedWard != null && detail.isNotEmpty()
+        val isFormValid =
+            selectedProvince != null && selectedDistrict != null && selectedWard != null && detail.isNotEmpty()
 
         Button(
             onClick = {
                 if (isFormValid) {
-                    val addressRequest = AddressRequest(
-                        province = selectedProvince?.first.orEmpty(),
-                        district = selectedDistrict?.first.orEmpty(),
-                        ward = selectedWard.orEmpty(),
-                        detail = detail
-                    )
-                    addressViewModel.createAddress(addressRequest) // Không cần truyền customerId nữa
+                    val newAddress =
+                        "${selectedProvince?.first.orEmpty()} - ${selectedDistrict?.first.orEmpty()} - ${selectedWard.orEmpty()} - $detail"
+                    val isDuplicate = addresses.any {
+                        "${it.province} - ${it.district} - ${it.ward} - ${it.detail}" == newAddress
+                    }
+
+                    if (isDuplicate) {
+                        errorMessage = "Địa chỉ đã tồn tại. Vui lòng nhập địa chỉ khác."
+                    } else {
+                        val addressRequest = AddressRequest(
+                            province = selectedProvince?.first.orEmpty(),
+                            district = selectedDistrict?.first.orEmpty(),
+                            ward = selectedWard.orEmpty(),
+                            detail = detail
+                        )
+                        addressViewModel.createAddress(addressRequest)
+                    }
                 }
             },
-            modifier = Modifier.fillMaxWidth().height(50.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
             shape = RoundedCornerShape(12.dp),
             enabled = isFormValid
-
         ) {
             Text("Thêm địa chỉ")
         }
+        if (errorMessage.isNotEmpty()) {
+            Text(
+                text = errorMessage,
+                color = Color.Red,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
 
+        if (showSuccessDialog) {
+            SuccessDialog(
+                onDismiss = { showSuccessDialog = false },
+                navController = navController
+            )
+        }
         if (!isFormValid) {
             Text(
                 text = "Vui lòng điền đầy đủ thông tin",
@@ -229,7 +268,9 @@ fun DropdownField(
             enabled = enabled,
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.fillMaxWidth().menuAnchor()
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor()
         )
 
         if (expanded && items.isNotEmpty()) {
@@ -301,5 +342,10 @@ fun NewAddressPreview() {
     val addressViewModel = viewModel<AddressViewModel>()
     val newAddressViewModel = viewModel<NewAddressViewModel>() // Thêm ViewModel này
 
-    NewAddressScreen(navController, addressViewModel, newAddressViewModel, customerId = "preview-customer-id")
+    NewAddressScreen(
+        navController,
+        addressViewModel,
+        newAddressViewModel,
+        customerId = "preview-customer-id"
+    )
 }

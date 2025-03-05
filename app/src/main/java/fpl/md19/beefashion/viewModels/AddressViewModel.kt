@@ -2,10 +2,10 @@ package fpl.md19.beefashion.viewModels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import fpl.md19.beefashion.GlobalVarible.UserSesion
 import fpl.md19.beefashion.api.ApiService
+import fpl.md19.beefashion.api.HttpRequest
 import fpl.md19.beefashion.models.AddressModel
 import fpl.md19.beefashion.requests.AddressRequest
 import fpl.md19.beefashion.screens.data.FakeAddressData
@@ -15,18 +15,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-
-class AddressViewModel(
-    private val apiService: ApiService? = null
-
-) : ViewModel() {
+class AddressViewModel() : ViewModel() {
+    private val apiService: ApiService = HttpRequest.getInstance()
     private val _addresses = MutableStateFlow<List<AddressModel>>(emptyList())
     val addresses: StateFlow<List<AddressModel>> = _addresses.asStateFlow()
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
     private val _deleteStatus = MutableStateFlow<DeleteStatus>(DeleteStatus.Idle)
     val deleteStatus: StateFlow<DeleteStatus> = _deleteStatus
-    private val _createStatus = MutableStateFlow<CreateStatus>(CreateStatus.Idle)
+    val _createStatus = MutableStateFlow<CreateStatus>(CreateStatus.Idle)
     val createStatus: StateFlow<CreateStatus> = _createStatus
 
     init {
@@ -38,10 +35,10 @@ class AddressViewModel(
             try {
                 Log.d("AddressViewModel", "Fetching user ID from session...")
 
-                val userId = UserSesion.currentUser?.id // Lấy userId từ session
+                val userId = UserSesion.currentUser?.id
                 if (!userId.isNullOrBlank()) {
                     Log.d("AddressViewModel", "User ID retrieved: $userId")
-                    fetchAddresses(userId) // Gọi API lấy danh sách địa chỉ
+                    fetchAddresses(userId)
                 } else {
                     Log.e("AddressViewModel", "User ID is null or blank")
                 }
@@ -50,8 +47,6 @@ class AddressViewModel(
             }
         }
     }
-
-
 
     fun fetchAddresses(customerId: String) {
         if (customerId.isBlank()) {
@@ -73,7 +68,10 @@ class AddressViewModel(
                     Log.d("AddressViewModel", "Loaded fake addresses: ${_addresses.value.size}")
                 } else {
                     apiService?.let { service ->
-                        Log.d("AddressViewModel", "Calling API: getAllAddresses for userId: $customerId")
+                        Log.d(
+                            "AddressViewModel",
+                            "Calling API: getAllAddresses for userId: $customerId"
+                        )
 
                         val response = service.getAllAddresses(customerId)
                         Log.d("AddressViewModel", "Response Code: ${response.code()}")
@@ -82,10 +80,16 @@ class AddressViewModel(
                         if (response.isSuccessful) {
                             response.body()?.let { addresses ->
                                 _addresses.value = addresses
-                                Log.d("AddressViewModel", "Loaded addresses from API: ${addresses.size}")
+                                Log.d(
+                                    "AddressViewModel",
+                                    "Loaded addresses from API: ${addresses.size}"
+                                )
                             }
                         } else {
-                            Log.e("AddressViewModel", "Failed to fetch addresses: ${response.code()}")
+                            Log.e(
+                                "AddressViewModel",
+                                "Failed to fetch addresses: ${response.code()}"
+                            )
                         }
                     } ?: Log.e("AddressViewModel", "ApiService is null")
                 }
@@ -96,6 +100,7 @@ class AddressViewModel(
             }
         }
     }
+
     fun deleteAddress(address: AddressModel) {
         val userId = UserSesion.currentUser?.id
         if (userId == null) {
@@ -113,10 +118,16 @@ class AddressViewModel(
                 apiService?.let { service ->
                     val response = service.deleteAddress(userId, addressId)
 
-                    Log.d("AddressViewModel", "Delete Response Code: ${response.code()}, Body: ${response.errorBody()?.string()}")
+                    Log.d(
+                        "AddressViewModel",
+                        "Delete Response Code: ${response.code()}, Body: ${
+                            response.errorBody()?.string()
+                        }"
+                    )
 
                     if (response.isSuccessful) {
-                        _addresses.value = _addresses.value.filter { it.id != addressId }  // Xóa trực tiếp trong danh sách
+                        _addresses.value =
+                            _addresses.value.filter { it.id != addressId }  // Xóa trực tiếp trong danh sách
                         _deleteStatus.value = DeleteStatus.Success
                         Log.d("AddressViewModel", "Address deleted successfully!")
                     } else {
@@ -135,47 +146,30 @@ class AddressViewModel(
             }
         }
     }
-
     fun createAddress(addressRequest: AddressRequest) {
         val userId = UserSesion.currentUser?.id
-        if (userId.isNullOrBlank()) {
-            Log.e("AddressViewModel", "User ID is null or blank. Cannot create address.")
-            _createStatus.value = CreateStatus.Error("Không thể tạo địa chỉ: User ID không hợp lệ.")
-            return
-        }
+        if (userId.isNullOrBlank()) return
 
         viewModelScope.launch {
             try {
-                _isLoading.value = true
+                // Reset trạng thái trước khi gọi API
+                _createStatus.value = CreateStatus.Idle
                 _createStatus.value = CreateStatus.Loading
-                Log.d("AddressViewModel", "Creating new address for userId: $userId")
 
-                if (apiService == null) {
-                    Log.e("AddressViewModel", "ApiService is null - Không thể gọi API")
-                    _createStatus.value = CreateStatus.Error("Dịch vụ API không khả dụng. Vui lòng thử lại sau.")
-                    return@launch
-                }
-
-                val response = apiService.createAddress(userId, addressRequest)
-                Log.d("AddressViewModel", "Create Response Code: ${response.code()}")
-
-                if (response.isSuccessful) {
-                    fetchAddresses(userId) // Cập nhật danh sách địa chỉ sau khi tạo
+                val response = apiService?.createAddress(userId, addressRequest)
+                if (response?.isSuccessful == true) {
+                    response.body()?.let { newAddress ->
+                        _addresses.value = _addresses.value + newAddress
+                    }
                     _createStatus.value = CreateStatus.Success
                 } else {
-                    _createStatus.value = CreateStatus.Error("Lỗi khi tạo địa chỉ: ${response.code()}")
+                    _createStatus.value = CreateStatus.Error("Lỗi khi thêm địa chỉ")
                 }
             } catch (e: Exception) {
                 _createStatus.value = CreateStatus.Error("Lỗi ngoại lệ: ${e.localizedMessage}")
-                Log.e("AddressViewModel", "Lỗi khi tạo địa chỉ", e)
-            } finally {
-                _isLoading.value = false
-                delay(3000)
-                _createStatus.value = CreateStatus.Idle
             }
         }
     }
-
 
     sealed class CreateStatus {
         object Idle : CreateStatus()
@@ -191,12 +185,5 @@ class AddressViewModel(
         data class Error(val message: String) : DeleteStatus()
     }
 }
-class AddressViewModelFactory(private val apiService: ApiService) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(AddressViewModel::class.java)) {
-            return AddressViewModel(apiService) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
-}
+
 
