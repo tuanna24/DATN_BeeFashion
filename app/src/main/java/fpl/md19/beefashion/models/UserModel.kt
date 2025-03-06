@@ -1,5 +1,8 @@
 package fpl.md19.beefashion.models
 
+import java.util.UUID
+
+
 data class UserModel (
     val id: String,
     val fullName: String,
@@ -7,5 +10,5 @@ data class UserModel (
     val dateOfBirth: String?,
     val gender: String?,
     val phone: String?,
-    val profileImageUrl: String? = null
+    val image: String?
 )

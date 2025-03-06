@@ -8,5 +8,5 @@ data class UpdateUserRequest(
     val dateOfBirth: String?,
     val gender: String?,
     val phone: String?,
-    val file: MultipartBody.Part?
+    val image: MultipartBody.Part?
 )
