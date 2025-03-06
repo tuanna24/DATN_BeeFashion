@@ -137,20 +137,20 @@ fun MyOderCart(myOder: MyOder, navController : NavController) {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Button(
-                    onClick = { /* Xử lý trạng thái đơn hàng */ },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
-                ) {
-                    Text(
-                        text = "In Transit",
-                        color = Color.Black,
-                        fontSize = 14.sp
-                    )
-                }
+//                Button(
+//                    onClick = { /* Xử lý trạng thái đơn hàng */ },
+//                    shape = RoundedCornerShape(8.dp),
+//                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(40.dp)
+//                ) {
+//                    Text(
+//                        text = "In Transit",
+//                        color = Color.Black,
+//                        fontSize = 14.sp
+//                    )
+//                }
 
                 Button(
                     onClick = { navController.navigate("TrackOrderScreen")},
@@ -161,7 +161,7 @@ fun MyOderCart(myOder: MyOder, navController : NavController) {
                         .height(40.dp)
                 ) {
                     Text(
-                        text = "Track Order",
+                        text = "Theo dõi",
                         color = Color.White,
                         fontSize = 14.sp
                     )

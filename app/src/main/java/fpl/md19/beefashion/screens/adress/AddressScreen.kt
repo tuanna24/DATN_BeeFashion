@@ -1,56 +1,116 @@
 package fpl.md19.beefashion
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import fpl.md19.beefashion.GlobalVarible.UserSesion
+import fpl.md19.beefashion.models.AddressModel
+import fpl.md19.beefashion.viewModels.AddressViewModel
+import kotlinx.coroutines.delay
+import kotlin.math.roundToInt
 
 @Composable
-fun AddressScreen(navController: NavController) {
-    var selectedAddress by remember { mutableStateOf("Nhà") }
-    val addresses = listOf(
-        "Nhà" to "925 S Chugach St #APT 10, Alaska",
-        "Văn phòng" to "2438 6th Ave, Ketchikan, Alaska",
-        "Chung cư" to "251 Vista Dr #B301, Juneau, Alaska",
-        "Nhà ông bà" to "4821 Ridge Top Cir, Anchorage, Alaska"
-    )
+fun AddressScreen(
+    navController: NavController,
+    viewModel: AddressViewModel,
+    customerId: String
+) {
+    var selectedAddress by remember { mutableStateOf("") }
+    val addresses by viewModel.addresses.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val deleteStatus by viewModel.deleteStatus.collectAsState()
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var addressToDelete by remember { mutableStateOf<AddressModel?>(null) }
+    val createStatus by viewModel.createStatus.collectAsState()
+    val context = LocalContext.current
+    LaunchedEffect(customerId) {
+        Log.d("AddressScreen", "User ID being used: '$customerId'")
+        if (customerId.isNotBlank()) {
+            viewModel.fetchAddresses(customerId)
+        }
+    }
+    LaunchedEffect(addresses) {
+        Log.d("AddressScreen", "Danh sách địa chỉ sau khi cập nhật: ${addresses.size}")
+    }
+    LaunchedEffect(addresses) {
+        Log.d("AddressScreen", "Danh sách địa chỉ sau khi cập nhật: ${addresses.size}")
+
+        if (addresses.isNotEmpty() && selectedAddress.isBlank()) {
+            selectedAddress = addresses.first().id
+        }
+    }
+
+    LaunchedEffect(createStatus) {
+        when (createStatus) {
+            is AddressViewModel.CreateStatus.Success -> {
+                val userId = UserSesion.currentUser?.id
+                if (!userId.isNullOrBlank()) {
+                    Log.d("AddressScreen", "Địa chỉ được tạo thành công, đang tải lại...")
+                    viewModel.fetchAddresses(userId)
+                    delay(500)
+                    viewModel._createStatus.value = AddressViewModel.CreateStatus.Idle
+                }
+            }
+            else -> {}
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -90,37 +150,100 @@ fun AddressScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Address List
-        addresses.forEach { (title, address) ->
-            AddressItem(
-                title = title,
-                address = address,
-                selected = selectedAddress == title,
-                onSelect = { selectedAddress = title }
-            )
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color.Black)
+            }
+        } else if (addresses.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "Không có địa chỉ nào")
+            }
+        } else {
+            val fixedAddresses = addresses.take(10)
+            Log.d("AddressScreen", "Displaying addresses: ${addresses.size}")
+            addresses.forEach { address ->
+                Log.d("AddressScreen", "Address: $address")
+            }
+
+            val sortedAddresses = if (selectedAddress != null) {
+                val selected = fixedAddresses.find { it.id == selectedAddress }
+                val others = fixedAddresses.filter { it.id != selectedAddress }
+                listOfNotNull(selected) + others
+            } else {
+                fixedAddresses
+            }
+
+            sortedAddresses.forEachIndexed { index, addressModel ->
+                Log.d("AddressScreen", "Displaying address at index $index: ${addressModel.id}")
+                val fullAddress =
+                    "${addressModel.detail}, ${addressModel.ward}, ${addressModel.district}, ${addressModel.province}"
+                val isDefault = index == 0 && selectedAddress != null
+
+                AddressItem(
+                    address = fullAddress,
+                    selected = selectedAddress == addressModel.id,
+                    isDefault = isDefault,
+                    onSelect = { selectedAddress = addressModel.id },
+                    onDelete = {
+                        Log.d("UI", "Preparing to delete: ${addressModel.id}")
+                        addressToDelete = addressModel
+                        showDeleteDialog = true
+                    }
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Add New Address Button
         Button(
-            onClick = {  navController.navigate("NewAddressScreen")},
+            onClick = {
+                if (addresses.size >= 5) {
+                    Toast.makeText(
+                        context,
+                        "Bạn chỉ có thể lưu tối đa 5 địa chỉ. Hãy xóa bớt để thêm mới.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    navController.navigate("NewAddressScreen/$customerId")
+                }
+            },
+            enabled = addresses.size < 5,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (addresses.size < 5) Color.White else Color.Gray
+            ),
             shape = RoundedCornerShape(12.dp),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Add", tint = Color.Black)
+            Icon(
+                Icons.Default.Add,
+                contentDescription = "Add",
+                tint = if (addresses.size < 5) Color.Black else Color.DarkGray
+            )
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = "Thêm địa chỉ mới", color = Color.Black)
+            Text(
+                text = "Thêm địa chỉ mới",
+                color = if (addresses.size < 5) Color.Black else Color.DarkGray
+            )
         }
+
 
         Spacer(modifier = Modifier.weight(1f))
 
         Button(
-            onClick = {  },
+            onClick = { },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -130,51 +253,154 @@ fun AddressScreen(navController: NavController) {
         ) {
             Text(text = "Chọn", color = Color.White, fontWeight = FontWeight.Bold)
         }
+
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    showDeleteDialog = false
+                    addressToDelete = null
+                },
+                title = { Text("Xác nhận xóa") },
+                text = { Text("Bạn có chắc chắn muốn xóa địa chỉ này không?") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            Log.d("UI", "Clicked delete for address: $addressToDelete")
+                            addressToDelete?.let { address ->
+                                Log.d("UI", "Calling deleteAddress for id: ${address.id}")
+                                viewModel.deleteAddress(address)
+
+                                if (address.id == selectedAddress) {
+                                    selectedAddress = ""
+                                }
+                            }
+                            showDeleteDialog = false
+                            addressToDelete = null
+                        }
+
+                    ) {
+                        Text("Xóa", color = Color.Red)
+                    }
+
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showDeleteDialog = false
+                            addressToDelete = null
+                        }
+                    ) {
+                        Text("Hủy")
+                    }
+                }
+            )
+        }
     }
 }
 
 @Composable
-fun AddressItem(title: String, address: String, selected: Boolean, onSelect: () -> Unit) {
-    Card(
+fun AddressItem(
+    address: String,
+    selected: Boolean,
+    isDefault: Boolean,
+    onSelect: () -> Unit,
+    onDelete: () -> Unit
+) {
+    val density = LocalDensity.current
+
+    var offsetX by remember { mutableStateOf(0f) }
+    var deleteThreshold by remember { mutableStateOf(0f) }
+    val deleteRevealed = offsetX < -deleteThreshold * 0.5f
+
+    val draggableState = rememberDraggableState { delta ->
+        val newOffset = (offsetX + delta).coerceIn(-deleteThreshold, 0f)
+        offsetX = newOffset
+    }
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        shape = RoundedCornerShape(10.dp),
-        border = BorderStroke(1.dp, Color.LightGray),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+            .padding(vertical = 4.dp)
     ) {
-        Row(
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color.LightGray)
+                .padding(end = 16.dp),
+
+            contentAlignment = Alignment.CenterEnd
+
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clickable(enabled = deleteRevealed) {
+                        onDelete()  // Gọi callback xóa khi nhấp vào nút
+                        offsetX = 0f
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete",
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .height(85.dp)
+                .offset { IntOffset(offsetX.roundToInt(), 0) }
+                .draggable(
+                    state = draggableState,
+                    orientation = Orientation.Horizontal,
+                    onDragStopped = {
+                        if (offsetX > -deleteThreshold * 0.5f) {
+                            offsetX = 0f
+                        }
+                    }
+                )
+                .onGloballyPositioned {
+                    deleteThreshold = with(density) { 100.dp.toPx() }
+                },
+            shape = RoundedCornerShape(10.dp),
+            border = BorderStroke(1.dp, Color.LightGray),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
-            Icon(Icons.Default.LocationOn, contentDescription = "Location", tint = Color.Gray)
-            Spacer(modifier = Modifier.width(8.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = title, fontWeight = FontWeight.Bold)
-                    if (title == "Nhà") {
-                        Spacer(modifier = Modifier.width(8.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(Icons.Default.LocationOn, contentDescription = "Location", tint = Color.Gray)
+                Spacer(modifier = Modifier.width(8.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    if (isDefault) {
                         Text(
                             text = "Mặc định",
-                            fontSize = 12.sp,
+                            fontSize = 8.sp,
                             color = Color.Black,
                             modifier = Modifier
                                 .background(Color.LightGray, shape = RoundedCornerShape(5.dp))
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                                .padding(horizontal = 6.dp)
                         )
                     }
+                    Text(text = address, fontSize = 12.sp, color = Color.Gray)
                 }
-                Text(text = address, fontSize = 12.sp, color = Color.Gray)
-            }
-            RadioButton(
-                selected = selected, onClick = onSelect,
-                colors = RadioButtonDefaults.colors(
-                    selectedColor = Color.Black,
-                    unselectedColor = Color.Gray
+                RadioButton(
+                    selected = selected,
+                    onClick = onSelect,
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = Color.Black,
+                        unselectedColor = Color.Gray
+                    )
                 )
-            )
+            }
         }
     }
 }
@@ -183,5 +409,11 @@ fun AddressItem(title: String, address: String, selected: Boolean, onSelect: () 
 @Composable
 fun AddressPreview() {
     val navController = rememberNavController()
-    AddressScreen(navController)
+    val viewModel: AddressViewModel = viewModel()
+
+    LaunchedEffect(Unit) { viewModel.fetchAddresses("12345") }
+    AddressScreen(navController, viewModel, "12345")
 }
+
+
+

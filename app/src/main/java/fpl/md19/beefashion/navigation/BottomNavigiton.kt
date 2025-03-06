@@ -1,6 +1,7 @@
 package fpl.md19.beefashion.navigation
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,11 +29,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
 import fpl.md19.beefashion.AddressScreen
 import fpl.md19.beefashion.NewAddressScreen
 import fpl.md19.beefashion.R
@@ -53,8 +57,8 @@ import fpl.md19.beefashion.screens.tab.CartScreen
 import fpl.md19.beefashion.screens.tab.HomeScreen
 import fpl.md19.beefashion.screens.tab.SavedScreen
 import fpl.md19.beefashion.screens.tab.SearchScreen
-import fpl.md19.beefashion.viewModels.AuthViewModel
-
+import fpl.md19.beefashion.viewModels.AddressViewModel
+import fpl.md19.beefashion.viewModels.NewAddressViewModel
 
 data class TabItem(
     val unselectedIcon: Int,
@@ -137,12 +141,38 @@ fun NestedBottomTab(
         composable("SignUpScreen") {
             SignUpScreen(navController)
         }
-        composable("AddressScreen") {
-            AddressScreen(navController)
+        composable(
+            route = "AddressScreen/{customerId}",
+            arguments = listOf(navArgument("customerId")
+            { type = NavType.StringType })
+        ) { backStackEntry ->
+            val customerId = backStackEntry.arguments?.getString("customerId") ?: ""
+            val viewModel: AddressViewModel = viewModel {
+                AddressViewModel()
+            }
+            AddressScreen(navController, viewModel, customerId)
         }
-        composable("NewAddressScreen") {
-            NewAddressScreen(navController)
+
+        composable(
+            route = "NewAddressScreen/{customerId}",
+            arguments = listOf(navArgument("customerId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val customerId = backStackEntry.arguments?.getString("customerId") ?: ""
+
+            // Get the same ViewModel instance from the parent
+            val addressViewModel: AddressViewModel = viewModel()
+
+            // Lấy ViewModel trực tiếp
+            val newAddressViewModel: NewAddressViewModel = viewModel()
+
+            NewAddressScreen(
+                navController = navController,
+                addressViewModel = addressViewModel,
+                newAddressViewModel = newAddressViewModel,
+                customerId = customerId
+            )
         }
+
         composable("myOderScreen") {
             MyOderScreen(navController)
         }
