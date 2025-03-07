@@ -73,12 +73,11 @@ fun MyDetailsScreen(
     var gender by remember { mutableStateOf(user?.gender ?: "") }
     var phone by remember { mutableStateOf(user?.phone ?: "") }
 
-    var avatarUri by remember {
-        mutableStateOf<Uri?>(
-            if (user?.profileImageUrl.isNullOrEmpty())
+    var avatarUri by remember {mutableStateOf<Uri?>(
+            if (user?.image.isNullOrEmpty())
                 null
             else
-                Uri.parse(user?.profileImageUrl)
+                Uri.parse(user?.image)
         )
     }
 
@@ -100,11 +99,7 @@ fun MyDetailsScreen(
         }
     }
 
-    val avatarModel = if (avatarUri == null) {
-        R.drawable.ao_phong  // hoặc hình ảnh mặc định của bạn
-    } else {
-        avatarUri
-    }
+    val avatarModel = avatarUri ?: R.drawable.ao_phong
 
     val isFormValid = fullName.isNotEmpty() && email.isNotEmpty() && dateOfBirth.isNotEmpty() && gender.isNotEmpty() && phone.isNotEmpty()
 
@@ -341,7 +336,7 @@ fun MyDetailsScreen(
                     gender = if (gender.isBlank()) null else gender,
                     phone = if (phone.isBlank()) null else phone,
                     dateOfBirth = if (dateOfBirth.isBlank()) null else dateOfBirth,
-                    file = avatarUri?.let { createMultipartBody(it, context) }  // Include the avatar file
+                    image = avatarUri?.let { createMultipartBody(it, context) }  // Include the avatar file
                 )
 
                 myDetailsViewModel.updateProfile(

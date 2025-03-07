@@ -88,6 +88,6 @@ interface ApiService {
         @Part("phone") phone: RequestBody?,
         @Part("gender") gender: RequestBody?,
         @Part("dateOfBirth") dateOfBirth: RequestBody?,
-        @Part file: MultipartBody.Part?
+        @Part image: MultipartBody.Part?
     ): Response<UserModel>
 }
