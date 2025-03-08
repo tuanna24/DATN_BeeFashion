@@ -50,39 +50,7 @@ fun ProductScreen(
     var selectedQuantity by remember { mutableStateOf(0) }
     var isFavorite by remember { mutableStateOf(false) }
     var showLoginDialog by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-
-    // Kiểm tra trạng thái đăng nhập dựa vào UserSession và theo dõi sự thay đổi
-    var isLoggedIn by remember { mutableStateOf(false) }
-
-    // Đảm bảo thông tin đăng nhập được tải khi component được tạo và khi có thay đổi
-    LaunchedEffect(Unit) {
-        loginViewModel.loadRememberedCredentials(context)
-        isLoggedIn = UserSesion.currentUser != null
-    }
-
-    // Quan trọng: Theo dõi thay đổi của UserSession để cập nhật trạng thái đăng nhập
-    val lifecycleOwner by rememberUpdatedState(newValue = LocalLifecycleOwner.current) // Dùng rememberUpdatedState để lấy lifecycleOwner
-
-    DisposableEffect(lifecycleOwner) { // Truyền lifecycleOwner vào DisposableEffect
-        val checkLoginStatus = {
-            isLoggedIn = UserSesion.currentUser != null
-        }
-
-        val lifecycleObserver = object : DefaultLifecycleObserver {
-            override fun onResume(owner: LifecycleOwner) {
-                loginViewModel.loadRememberedCredentials(context)
-                checkLoginStatus()
-            }
-        }
-
-        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
-        }
-    }
-
+    val isLoggedIn = UserSesion.currentUser != null
 
     LaunchedEffect(productId) {
         viewModel.fetchProductDetails(productId)
@@ -308,7 +276,6 @@ fun ProductScreen(
                         onClick = {
                             // Kiểm tra lại trạng thái đăng nhập trước khi thực hiện hành động mua hàng
                             loginViewModel.loadRememberedCredentials(context)
-                            isLoggedIn = UserSesion.currentUser != null
 
                             if (isLoggedIn) {
                                 // Người dùng đã đăng nhập, hiển thị bottom sheet mua hàng
