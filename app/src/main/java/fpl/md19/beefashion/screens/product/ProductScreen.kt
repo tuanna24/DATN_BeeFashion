@@ -22,6 +22,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -47,6 +50,39 @@ fun ProductScreen(
     var selectedQuantity by remember { mutableStateOf(0) }
     var isFavorite by remember { mutableStateOf(false) }
     var showLoginDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    // Kiểm tra trạng thái đăng nhập dựa vào UserSession và theo dõi sự thay đổi
+    var isLoggedIn by remember { mutableStateOf(false) }
+
+    // Đảm bảo thông tin đăng nhập được tải khi component được tạo và khi có thay đổi
+    LaunchedEffect(Unit) {
+        loginViewModel.loadRememberedCredentials(context)
+        isLoggedIn = UserSesion.currentUser != null
+    }
+
+    // Quan trọng: Theo dõi thay đổi của UserSession để cập nhật trạng thái đăng nhập
+    val lifecycleOwner by rememberUpdatedState(newValue = LocalLifecycleOwner.current) // Dùng rememberUpdatedState để lấy lifecycleOwner
+
+    DisposableEffect(lifecycleOwner) { // Truyền lifecycleOwner vào DisposableEffect
+        val checkLoginStatus = {
+            isLoggedIn = UserSesion.currentUser != null
+        }
+
+        val lifecycleObserver = object : DefaultLifecycleObserver {
+            override fun onResume(owner: LifecycleOwner) {
+                loginViewModel.loadRememberedCredentials(context)
+                checkLoginStatus()
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
+        }
+    }
+
 
     LaunchedEffect(productId) {
         viewModel.fetchProductDetails(productId)
@@ -54,16 +90,6 @@ fun ProductScreen(
 
     val product by viewModel.productDetail.observeAsState()
     val errorMessage by viewModel.errorMessage.observeAsState()
-
-    // Kiểm tra trạng thái đăng nhập dựa vào UserSesion
-    val isLoggedIn = remember { mutableStateOf(UserSesion.currentUser != null) }
-
-    val context = LocalContext.current
-    // Đảm bảo thông tin đăng nhập được tải khi component được tạo
-    LaunchedEffect(Unit) {
-        loginViewModel.loadRememberedCredentials(context)
-        isLoggedIn.value = UserSesion.currentUser != null
-    }
 
     val brands by brandsViewModel.brand
     val products by productsViewModels.products
@@ -280,7 +306,11 @@ fun ProductScreen(
 
                     Button(
                         onClick = {
-                            if (isLoggedIn.value) {
+                            // Kiểm tra lại trạng thái đăng nhập trước khi thực hiện hành động mua hàng
+                            loginViewModel.loadRememberedCredentials(context)
+                            isLoggedIn = UserSesion.currentUser != null
+
+                            if (isLoggedIn) {
                                 // Người dùng đã đăng nhập, hiển thị bottom sheet mua hàng
                                 showBottomSheet = true
                             } else {
