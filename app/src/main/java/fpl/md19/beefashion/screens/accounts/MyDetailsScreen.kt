@@ -73,6 +73,11 @@ fun MyDetailsScreen(
     var gender by remember { mutableStateOf(user?.gender ?: "") }
     var phone by remember { mutableStateOf(user?.phone ?: "") }
 
+    var isGenderDropdownExpanded by remember { mutableStateOf(false) }
+
+    // Danh sách các lựa chọn giới tính
+    val genderOptions = listOf("Nam", "Nữ", "Khác")
+
     var avatarUri by remember {mutableStateOf<Uri?>(
             if (user?.image.isNullOrEmpty())
                 null
@@ -271,17 +276,57 @@ fun MyDetailsScreen(
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
             )
-            OutlinedTextField(
-                value = gender,
-                onValueChange = { gender = it },
-                placeholder = { Text("Nhập giới tính của bạn") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.LightGray,
-                    focusedBorderColor = Color.Black
+
+            // Dropdown cho giới tính
+            ExposedDropdownMenuBox(
+                expanded = isGenderDropdownExpanded,
+                onExpandedChange = { isGenderDropdownExpanded = it },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                OutlinedTextField(
+                    value = gender,
+                    onValueChange = {},
+                    readOnly = true,
+                    placeholder = { Text("Chọn giới tính") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color.Black
+                    ),
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = isGenderDropdownExpanded)
+                    }
                 )
-            )
+
+                ExposedDropdownMenu(
+                    expanded = isGenderDropdownExpanded,
+                    onDismissRequest = { isGenderDropdownExpanded = false },
+                    modifier = Modifier.background(Color.White)
+                ) {
+                    genderOptions.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option) },
+                            onClick = {
+                                gender = option
+                                isGenderDropdownExpanded = false
+                            },
+                            // Hiển thị checkbox cho tùy chọn được chọn
+                            trailingIcon = {
+                                if (gender == option) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_arrow_down),
+                                        contentDescription = "Selected",
+                                        tint = Color.Black
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -342,6 +387,7 @@ fun MyDetailsScreen(
                 myDetailsViewModel.updateProfile(
                     updatedUser = updatedUser,
                     onSuccess = { updatedUserModel ->
+                        UserSesion.currentUser = updatedUserModel
                         Toast.makeText(context, "Cập nhật thành công!", Toast.LENGTH_SHORT).show()
                         onSubmit()
                         navController.popBackStack()
