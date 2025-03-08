@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -77,7 +78,8 @@ fun AccountScreen(navController: NavController, loginViewModel: LoginViewModel =
                 item { Spacer(modifier = Modifier.height(16.dp)) }
                 item { LogoutItem(onClick = { showLogoutDialog.value = true }) }
             } else {
-                item { LoginItem(onClick = { navController.navigate("LoginScreen") }) }
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+                item { LoginItem(navController) }
             }
         }
     }
@@ -144,24 +146,38 @@ fun LogoutItem(onClick: () -> Unit) {
 }
 
 @Composable
-fun LoginItem(onClick: () -> Unit) {
+fun LoginItem(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
-            .background(Color.Blue)
-            .clickable { onClick() },
-        contentAlignment = Alignment.Center
+            .padding(vertical = 16.dp)
     ) {
-        Text(
-            text = "Đăng nhập",
-            color = Color.White,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(12.dp)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { navController.navigate("LoginScreen") }
+                .background(color = Color(0xFF3498DB), shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.login), // Bạn cần thêm icon đăng nhập
+                contentDescription = "Login",
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Đăng nhập",
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
