@@ -3,24 +3,12 @@ package fpl.md19.beefashion.screens.tab
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,17 +26,16 @@ import fpl.md19.beefashion.R
 import fpl.md19.beefashion.components.LogOutComponent
 import fpl.md19.beefashion.viewModels.LoginViewModel
 
-
 @Composable
-fun AccountScreen (navController: NavController,  loginViewModel: LoginViewModel = viewModel()) {
+fun AccountScreen(navController: NavController, loginViewModel: LoginViewModel = viewModel()) {
     var showLogoutDialog = remember { mutableStateOf(false) }
+    val isLoggedIn = UserSesion.currentUser != null
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(25.dp, top = 30.dp, end = 25.dp)
     ) {
-        // Header
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -62,7 +49,7 @@ fun AccountScreen (navController: NavController,  loginViewModel: LoginViewModel
                     .clickable { navController.popBackStack() }
             )
             Text(
-                text = "Giỏ hàng",
+                text = "Tài khoản",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -78,34 +65,39 @@ fun AccountScreen (navController: NavController,  loginViewModel: LoginViewModel
                 .fillMaxSize()
                 .padding(top = 12.dp)
         ) {
-            item { Divider() }
-            item { AccountItem(R.drawable.ic_orders, "Đơn hàng", navController, "MyOderScreen") }
-            item { Divider(thickness = 8.dp, color = Color.LightGray) }
-            item { AccountItem(R.drawable.ic_details, "Thông tin", navController, "MyDetailsScreen") }
-            item { AccountItem(R.drawable.ic_address, "Địa chỉ", navController, "AddressScreen/{customerId}") }
-            item { AccountItem(R.drawable.ic_notifications, "Thông báo", navController, "NotificationsScreen") }
-            item { Divider(thickness = 8.dp, color = Color.LightGray) }
-            item { AccountItem(R.drawable.ic_help, "Trợ giúp", navController, "HelpScreen") }
-            item { Divider(thickness = 8.dp, color = Color.LightGray) }
-            item { Spacer(modifier = Modifier.height(16.dp)) }
-            item { LogoutItem(onClick = { showLogoutDialog.value = true }) }
+            if (isLoggedIn) {
+                item { Divider() }
+                item { AccountItem(R.drawable.ic_orders, "Đơn hàng", navController, "MyOrderScreen") }
+                item { Divider(thickness = 8.dp, color = Color.LightGray) }
+                item { AccountItem(R.drawable.ic_details, "Thông tin", navController, "MyDetailsScreen") }
+                item { AccountItem(R.drawable.ic_address, "Địa chỉ", navController, "AddressScreen/{customerId}") }
+                item { AccountItem(R.drawable.ic_notifications, "Thông báo", navController, "NotificationsScreen") }
+                item { Divider(thickness = 8.dp, color = Color.LightGray) }
+                item { AccountItem(R.drawable.ic_help, "Trợ giúp", navController, "HelpScreen") }
+                item { Divider(thickness = 8.dp, color = Color.LightGray) }
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+                item { LogoutItem(onClick = { showLogoutDialog.value = true }) }
+            } else {
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+                item { LoginItem(navController) }
+            }
         }
     }
-    // Hiển thị LogOutComponent khi showLogoutDialog là true
-    LogOutComponent(
-        onConfirm = {
-            loginViewModel.logout(context = navController.context)
-            UserSesion.currentUser = null
-            showLogoutDialog.value = false
-            navController.navigate("LoginScreen") {
-                popUpTo("HomeScreen") { inclusive = true }
-            }
-        },
-        onDismiss = {
-            showLogoutDialog.value = false
-        },
-        isVisible = showLogoutDialog.value
-    )
+
+    if (isLoggedIn) {
+        LogOutComponent(
+            onConfirm = {
+                loginViewModel.logout(context = navController.context)
+                UserSesion.currentUser = null
+                showLogoutDialog.value = false
+                navController.navigate("LoginScreen") {
+                    popUpTo("HomeScreen") { inclusive = true }
+                }
+            },
+            onDismiss = { showLogoutDialog.value = false },
+            isVisible = showLogoutDialog.value
+        )
+    }
 }
 
 @Composable
@@ -152,9 +144,44 @@ fun LogoutItem(onClick: () -> Unit) {
         Text(text = "Đăng xuất", color = Color.Red, fontSize = 16.sp)
     }
 }
-@Preview (showBackground = true, showSystemUi = true)
+
 @Composable
-fun PreviewAccountScreen () {
+fun LoginItem(navController: NavController) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { navController.navigate("LoginScreen") }
+                .background(color = Color(0xFF3498DB), shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.login), // Bạn cần thêm icon đăng nhập
+                contentDescription = "Login",
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Đăng nhập",
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PreviewAccountScreen() {
     val navController = rememberNavController()
     AccountScreen(navController)
 }
