@@ -25,6 +25,8 @@ class AddressViewModel() : ViewModel() {
     val deleteStatus: StateFlow<DeleteStatus> = _deleteStatus
     val _createStatus = MutableStateFlow<CreateStatus>(CreateStatus.Idle)
     val createStatus: StateFlow<CreateStatus> = _createStatus
+    private val _updateStatus = MutableStateFlow<UpdateStatus>(UpdateStatus.Idle)
+    val updateStatus: StateFlow<UpdateStatus> = _updateStatus
 
     init {
         fetchUserIdAndAddresses()
@@ -170,6 +172,29 @@ class AddressViewModel() : ViewModel() {
             }
         }
     }
+    fun updateAddress(addressId: String, addressRequest: AddressRequest) {
+        val userId = UserSesion.currentUser?.id ?: return
+
+        viewModelScope.launch {
+            try {
+                _updateStatus.value = UpdateStatus.Loading
+
+                val response = apiService.updateAddress(userId, addressId, addressRequest)
+                if (response.isSuccessful) {
+                    response.body()?.let { updatedAddress ->
+                        _addresses.value = _addresses.value.map {
+                            if (it.id == addressId) updatedAddress else it
+                        }
+                    }
+                    _updateStatus.value = UpdateStatus.Success
+                } else {
+                    _updateStatus.value = UpdateStatus.Error("Lỗi khi cập nhật địa chỉ")
+                }
+            } catch (e: Exception) {
+                _updateStatus.value = UpdateStatus.Error("Lỗi ngoại lệ: ${e.localizedMessage}")
+            }
+        }
+    }
 
     sealed class CreateStatus {
         object Idle : CreateStatus()
@@ -183,6 +208,12 @@ class AddressViewModel() : ViewModel() {
         object Loading : DeleteStatus()
         object Success : DeleteStatus()
         data class Error(val message: String) : DeleteStatus()
+    }
+    sealed class UpdateStatus {
+        object Idle : UpdateStatus()
+        object Loading : UpdateStatus()
+        object Success : UpdateStatus()
+        data class Error(val message: String) : UpdateStatus()
     }
 }
 

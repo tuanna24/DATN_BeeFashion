@@ -26,13 +26,16 @@ import fpl.md19.beefashion.requests.AddressRequest
 import fpl.md19.beefashion.screens.adress.MapScreen
 import fpl.md19.beefashion.viewModels.AddressViewModel
 import fpl.md19.beefashion.viewModels.NewAddressViewModel
+import java.text.Normalizer
+import java.util.regex.Pattern
 
 @Composable
 fun NewAddressScreen(
     navController: NavController,
     addressViewModel: AddressViewModel,
     newAddressViewModel: NewAddressViewModel,
-    customerId: String
+    customerId: String,
+
 ) {
     val isLoading by newAddressViewModel.isLoading.collectAsState()
     val error by newAddressViewModel.error.collectAsState()
@@ -257,6 +260,23 @@ fun DropdownField(
     enabled: Boolean = true,
     onItemSelected: (String, String) -> Unit
 ) {
+    var searchQuery by remember { mutableStateOf("") }
+    fun removeDiacritics(input: String): String {
+        val normalized = Normalizer.normalize(input, Normalizer.Form.NFD)
+        return normalized.replace("\\p{M}".toRegex(), "").lowercase()
+    }
+
+    val filteredItems = items.filter {
+        val itemText = it.first.lowercase() // Chuỗi gốc có dấu
+        val itemNormalized = removeDiacritics(it.first) // Chuỗi không dấu
+        val queryText = searchQuery.lowercase()
+        val queryNormalized = removeDiacritics(searchQuery)
+
+        // Kiểm tra xem chuỗi nhập có khớp với cả có dấu và không dấu
+        itemText.contains(queryText, ignoreCase = true) ||
+                itemNormalized.contains(queryNormalized, ignoreCase = true)
+    }
+
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { if (enabled) onExpandedChange(it) }
@@ -273,15 +293,28 @@ fun DropdownField(
                 .menuAnchor()
         )
 
-        if (expanded && items.isNotEmpty()) {
+        if (expanded) {
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { onExpandedChange(false) }
             ) {
-                items.forEach { (name, code) ->
+                TextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = { Text("Tìm kiếm...") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                )
+
+                filteredItems.forEach { (name, code) ->
                     DropdownMenuItem(
                         text = { Text(name) },
-                        onClick = { onItemSelected(name, code) }
+                        onClick = {
+                            onItemSelected(name, code)
+                            searchQuery = ""
+                            onExpandedChange(false)
+                        }
                     )
                 }
             }
