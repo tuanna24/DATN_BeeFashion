@@ -101,7 +101,7 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    fun loadRememberedCredentials(context: Context) {
+    fun loadRememberedCredentials(context: Context, onAutoLogin: () -> Unit) {
         val sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
 
         val userJson = sharedPreferences.getString("user", null)
@@ -116,14 +116,18 @@ class LoginViewModel : ViewModel() {
             rememberedEmail = sharedPreferences.getString(PREF_EMAIL, "") ?: ""
             rememberedPassword = sharedPreferences.getString(PREF_PASSWORD, "") ?: ""
             isRemembered = sharedPreferences.getBoolean(PREF_REMEMBER, false)
+
+            // Nếu "Nhớ mật khẩu" được bật, thực hiện đăng nhập tự động
+            if (isRemembered && rememberedEmail.isNotEmpty() && rememberedPassword.isNotEmpty()) {
+                login(context, rememberedEmail, rememberedPassword, true)
+                onAutoLogin() // Gọi callback để điều hướng
+            }
         } else {
             rememberedEmail = ""
             rememberedPassword = ""
             isRemembered = false
             UserSesion.currentUser = null
         }
-
-
     }
 
     private fun saveCredentials(

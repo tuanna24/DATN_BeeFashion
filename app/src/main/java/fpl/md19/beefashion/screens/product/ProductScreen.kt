@@ -275,9 +275,15 @@ fun ProductScreen(
                     Button(
                         onClick = {
                             // Kiểm tra lại trạng thái đăng nhập trước khi thực hiện hành động mua hàng
-                            loginViewModel.loadRememberedCredentials(context)
+                            loginViewModel.loadRememberedCredentials(context) {
+                                // Callback khi đăng nhập tự động thành công (nếu có thông tin đăng nhập đã lưu)
+                                if (UserSesion.currentUser != null) {
+                                    showBottomSheet = true // Hiển thị bottom sheet nếu đăng nhập thành công
+                                }
+                            }
 
-                            if (isLoggedIn) {
+                            // Kiểm tra trạng thái đăng nhập sau khi tải thông tin
+                            if (UserSesion.currentUser != null) {
                                 // Người dùng đã đăng nhập, hiển thị bottom sheet mua hàng
                                 showBottomSheet = true
                             } else {

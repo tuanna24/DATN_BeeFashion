@@ -67,7 +67,12 @@ fun LoginScreen(
 
     // Tải thông tin đăng nhập đã lưu (nếu có)
     LaunchedEffect(Unit) {
-        viewModel.loadRememberedCredentials(context)
+        viewModel.loadRememberedCredentials(context) {
+            // Điều hướng đến HomeScreen nếu đăng nhập tự động thành công
+            navController.navigate("HomeScreen") {
+                popUpTo("LoginScreen") { inclusive = true }
+            }
+        }
         email = viewModel.rememberedEmail
         password = viewModel.rememberedPassword
         isRememberMeChecked = viewModel.isRemembered
