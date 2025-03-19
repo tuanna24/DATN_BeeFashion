@@ -2,6 +2,7 @@ package fpl.md19.beefashion.api
 
 import fpl.md19.beefashion.models.AddressModel
 import fpl.md19.beefashion.models.Brand
+import fpl.md19.beefashion.models.Carts
 import fpl.md19.beefashion.models.Categories
 import fpl.md19.beefashion.models.ProductDetails
 import fpl.md19.beefashion.models.Products
@@ -31,7 +32,6 @@ interface ApiService {
 
     @POST("/auth/register")
     suspend fun Register(@Body request: RegisterRequest): Response<UserModel>
-
 
     @GET("/addresses/{customerId}")
     suspend fun getAllAddresses(@Path("customerId") customerId: String): Response<List<AddressModel>>
@@ -90,4 +90,14 @@ interface ApiService {
         @Part("dateOfBirth") dateOfBirth: RequestBody?,
         @Part image: MultipartBody.Part?
     ): Response<UserModel>
+
+    @POST("/carts/{userId}/{productId}")
+    suspend fun addProductToCart(
+        @Path("userId") userId: String,
+        @Path("productId") productId: String,
+        @Body carts: Carts
+    ): Response<Unit>
+
+    @GET("/carts/{userId}")
+    suspend fun getCart(@Path("userId") userId: String): Response<List<Products>>
 }

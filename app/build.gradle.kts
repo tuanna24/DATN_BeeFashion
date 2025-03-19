@@ -80,9 +80,6 @@ dependencies {
 
     implementation("io.coil-kt:coil-compose:2.7.0")
 
-
-
-
     //Image
     implementation ("com.google.accompanist:accompanist-pager:0.31.1-alpha")
     implementation("androidx.compose.material:material-icons-extended:1.5.4")

@@ -141,6 +141,14 @@ fun NestedBottomTab(
         composable("SignUpScreen") {
             SignUpScreen(navController)
         }
+        composable("addressScreen") {
+                backStackEntry ->
+            val customerId = backStackEntry.arguments?.getString("customerId") ?: ""
+            val viewModel: AddressViewModel = viewModel {
+                AddressViewModel()
+            }
+            AddressScreen(navController, viewModel, customerId)
+        }
         composable(
             route = "AddressScreen/{customerId}",
             arguments = listOf(navArgument("customerId")
@@ -171,6 +179,10 @@ fun NestedBottomTab(
                 newAddressViewModel = newAddressViewModel,
                 customerId = customerId
             )
+        }
+
+        composable("paymentScreen") {
+            PaymentScreen(navController)
         }
 
         composable("myOderScreen") {
