@@ -146,7 +146,9 @@ fun CartScreen(
                 SummaryRow("Tổng cộng", total, isBold = true)
 
                 Button(
-                    onClick = { /* Xử lý thanh toán */ },
+                    onClick = {
+                        navController. navigate("paymentScreen")
+                    },
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(if (selectedItems.isNotEmpty()) Color.Black else Color.Gray),
                     enabled = selectedItems.isNotEmpty(),

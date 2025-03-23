@@ -1,5 +1,7 @@
 package fpl.md19.beefashion.screens.payment
 
+import android.R.attr.onClick
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,10 +11,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +32,9 @@ import java.util.Locale
 
 @Composable
 fun PaymentScreen(navController: NavController) {
+    val selectedMethod = remember { mutableStateOf("") }
+    val contex = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -53,7 +62,7 @@ fun PaymentScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.size(24.dp)) // Giữ khoảng trống cân đối
+            Spacer(modifier = Modifier.size(25.dp)) // Giữ khoảng trống cân đối
         }
 
         // Địa chỉ giao hàng
@@ -80,8 +89,7 @@ fun PaymentScreen(navController: NavController) {
                 ) {
 
                     Text (
-
-                        text = "Tún Nè (+84) 966 347 311",
+                        text = "Tún Nè (0966347311)",
                         fontWeight = FontWeight.Bold
                     )
 
@@ -114,7 +122,7 @@ fun PaymentScreen(navController: NavController) {
                 .padding(15.dp)
         ) {
             Column {
-                Text(text = "AKEDO", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(text = "Sản phẩm", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Spacer(modifier = Modifier.height(10.dp))
                 Row {
                     Image(
@@ -124,8 +132,18 @@ fun PaymentScreen(navController: NavController) {
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
-                        Text(text = "⚡ Giá Sốc ⚡ Thắt lưng nam da cao cấp khóa kim...", fontSize = 14.sp)
-                        Text(text = "Cón Lóc Vàng", fontSize = 12.sp, color = Color.Gray)
+                        Text(
+                            text = "⚡ Giá Sốc ⚡",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(3.dp))
+                        Text(
+                            text = "Size: ",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
                         Text(
                             text = formatCurrency(23900),
                             fontSize = 16.sp,
@@ -134,8 +152,56 @@ fun PaymentScreen(navController: NavController) {
                         )
                     }
                     Spacer(modifier = Modifier.weight(1f))
-                    Text(text = "x1", fontSize = 14.sp, color = Color.Gray)
+                    Text(text = "Số lượng: x1", fontSize = 14.sp, color = Color.Gray)
                 }
+            }
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White, RoundedCornerShape(10.dp))
+                .padding(6.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(10.dp)
+            ) {
+                Text(text = "Phương thức thanh toán", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "Thanh toán khi nhận hàng", color = Color.Gray)
+                    RadioButton(
+                        selected = selectedMethod.value == "cod",
+                        onClick = {
+                            selectedMethod.value = "cod"
+                            Toast.makeText(contex, "Bạn đã chọn thanh toán khi nhận hàng!", Toast.LENGTH_SHORT).show()
+                                  },
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "Thanh toán bằng ZaloPay", color = Color.Gray)
+                    RadioButton(
+                        selected = selectedMethod.value == "zalopay",
+                        onClick = {
+                            selectedMethod.value = "zalopay"
+                            Toast.makeText(contex, "Bạm đã chọn thanh toán bằng ZaloPay!", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
             }
         }
 
@@ -146,7 +212,7 @@ fun PaymentScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.White, RoundedCornerShape(10.dp))
-                .padding(15.dp)
+                .padding(6.dp)
         ) {
             Column (
                 modifier = Modifier.padding(10.dp)
@@ -207,15 +273,30 @@ fun PaymentScreen(navController: NavController) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Text(text = "Tổng thanh toán", fontSize = 14.sp, color = Color.Gray)
-                Text(text = formatCurrency(22900), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Red)
+                Text(
+                    text = "Tổng thanh toán",
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+                Text(
+                    text = formatCurrency(22900),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Red
+                )
             }
             Button(
-                onClick = { /* TODO: Xử lý đặt hàng */ },
+                onClick = {
+                    Toast.makeText(contex, "Xác nhận thanh toán!", Toast.LENGTH_SHORT).show()
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),
                 modifier = Modifier.padding(8.dp)
             ) {
-                Text(text = "Đặt hàng", color = Color.White, fontSize = 16.sp)
+                Text(
+                    text = "Đặt hàng",
+                    color = Color.White,
+                    fontSize = 16.sp
+                )
             }
         }
     }

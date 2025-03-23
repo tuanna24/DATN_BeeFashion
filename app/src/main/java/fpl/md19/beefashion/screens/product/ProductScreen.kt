@@ -30,7 +30,9 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import fpl.md19.beefashion.R
 import fpl.md19.beefashion.GlobalVarible.UserSesion
+import fpl.md19.beefashion.components.AddToCartBottomSheet
 import fpl.md19.beefashion.components.BuyNowBottomSheet
+import fpl.md19.beefashion.screens.payment.formatCurrency
 import fpl.md19.beefashion.viewModels.BrandViewModel
 import fpl.md19.beefashion.viewModels.LoginViewModel
 import fpl.md19.beefashion.viewModels.ProductsViewModels
@@ -246,17 +248,18 @@ fun ProductScreen(
                         )
                     }
                     val context = LocalContext.current
-                    var isAddedToCart by remember { mutableStateOf(false) }
-
                     var showBottomSheet by remember { mutableStateOf(false) }
+
+                    var showAddBottomSheet by remember { mutableStateOf(false) }
 
                     IconButton(
                         onClick = {
-                            if (isAddedToCart) {
-                                Toast.makeText(context, "Sản phẩm đã có trong giỏ hàng!", Toast.LENGTH_SHORT).show()
-                            } else {
-                                isAddedToCart = true
-                                Toast.makeText(context, "Thêm vào giỏ hàng thành công!", Toast.LENGTH_SHORT).show()
+                            loginViewModel.loadRememberedCredentials(context) {
+                                if (isLoggedIn) {
+                                    showAddBottomSheet = true
+                                } else {
+                                    showAddBottomSheet = true
+                                }
                             }
                         },
                         modifier = Modifier
@@ -275,20 +278,25 @@ fun ProductScreen(
                     Button(
                         onClick = {
                             // Kiểm tra lại trạng thái đăng nhập trước khi thực hiện hành động mua hàng
-                            loginViewModel.loadRememberedCredentials(context) {
-                                // Callback khi đăng nhập tự động thành công (nếu có thông tin đăng nhập đã lưu)
-                                if (UserSesion.currentUser != null) {
-                                    showBottomSheet = true // Hiển thị bottom sheet nếu đăng nhập thành công
-                                }
-                            }
+//                            loginViewModel.loadRememberedCredentials(context) {
+//                                // Callback khi đăng nhập tự động thành công (nếu có thông tin đăng nhập đã lưu)
+//                                if (UserSesion.currentUser != null) {
+//                                    showBottomSheet = true // Hiển thị bottom sheet nếu đăng nhập thành công
+//                                } else {
+//                                    showLoginDialog = true
+//                                }
+//                            }
 
                             // Kiểm tra trạng thái đăng nhập sau khi tải thông tin
                             if (UserSesion.currentUser != null) {
                                 // Người dùng đã đăng nhập, hiển thị bottom sheet mua hàng
-                                showBottomSheet = true
-                            } else {
-                                // Người dùng chưa đăng nhập, hiển thị dialog đăng nhập
-                                showLoginDialog = true
+                                loginViewModel.loadRememberedCredentials(context) {
+                                    if (isLoggedIn) {
+                                        showBottomSheet = true
+                                    } else {
+                                        showLoginDialog = true
+                                    }
+                                }
                             }
                         },
                         shape = RoundedCornerShape(8.dp),
@@ -304,7 +312,6 @@ fun ProductScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-
                     val productDetailViewModel: ProductDetailViewModel = viewModel()
                     if (showBottomSheet) {
                         BuyNowBottomSheet(
@@ -312,6 +319,15 @@ fun ProductScreen(
                             viewModel = productDetailViewModel,
                             productId = productId,
                             onDismiss = { showBottomSheet = false },
+                            navController
+                        )
+                    }
+                    if (showAddBottomSheet) {
+                        AddToCartBottomSheet(
+                            productsViewModels = productsViewModels,
+                            viewModel = productDetailViewModel,
+                            productId = productId,
+                            onDismiss = {showAddBottomSheet = false },
                             navController
                         )
                     }

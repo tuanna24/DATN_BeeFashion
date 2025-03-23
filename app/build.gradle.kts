@@ -88,4 +88,9 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:19.1.0")
     implementation ("com.google.accompanist:accompanist-permissions:0.31.1-alpha")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
+    //Zalo Pay
+    implementation ("org.json:json:20210307")
+    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.9.3")
 }

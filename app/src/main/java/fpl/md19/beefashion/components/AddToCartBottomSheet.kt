@@ -1,5 +1,6 @@
 package fpl.md19.beefashion.components
 
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,17 +45,16 @@ import androidx.compose.material3.IconButton
 
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 
 import coil.compose.AsyncImage
 import fpl.md19.beefashion.screens.payment.formatCurrency
-
 import fpl.md19.beefashion.viewModels.ProductsViewModels
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BuyNowBottomSheet(
+fun AddToCartBottomSheet (
     productsViewModels: ProductsViewModels = viewModel(),
     viewModel: ProductDetailViewModel = viewModel(),
     productId: String,
@@ -261,15 +261,23 @@ fun BuyNowBottomSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            val context = LocalContext.current
+            var isAddedToCart by remember { mutableStateOf(false) }
+
             Button(
                 onClick = {
-                    navController.navigate("paymentScreen")
+                    if (isAddedToCart) {
+                        Toast.makeText(context, "Sản phẩm đã có trong giỏ hàng!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        isAddedToCart = true
+                        Toast.makeText(context, "Thêm vào giỏ hàng thành công!", Toast.LENGTH_SHORT).show()
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(Color.Red),
                 modifier = Modifier.fillMaxWidth().height(50.dp)
             ) {
                 Text(
-                    text = "Mua ngay",
+                    text = "Thêm vào giỏ hàng",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
