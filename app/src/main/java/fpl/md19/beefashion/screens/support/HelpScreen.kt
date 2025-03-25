@@ -44,18 +44,18 @@ fun HelpScreen(navController: NavController) {
                 painter = painterResource(id = R.drawable.ic_arrow_back),
                 contentDescription = "Back",
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(20.dp)
                     .clickable { navController.popBackStack() }
             )
             Text(
                 text = "Trợ giúp",
-                fontSize = 24.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
             Icon(
                 painter = painterResource(id = R.drawable.bell),
                 contentDescription = "Notifications",
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(20.dp)
             )
         }
         Spacer(modifier = Modifier.height(25.dp))

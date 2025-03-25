@@ -66,13 +66,13 @@ fun CartScreen(
             Icon(
                 painter = painterResource(id = R.drawable.ic_arrow_back),
                 contentDescription = "Back",
-                modifier = Modifier.size(24.dp).clickable { navController.popBackStack() }
+                modifier = Modifier.size(20.dp).clickable { navController.popBackStack() }
             )
-            Text(text = "Giỏ hàng", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text(text = "Giỏ hàng", fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Icon(
                 painter = painterResource(id = R.drawable.bell),
                 contentDescription = "Notifications",
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(20.dp)
             )
         }
 
@@ -173,41 +173,93 @@ fun CartItemView(
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.fillMaxWidth().padding(5.dp).border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp)
+            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
     ) {
         Row(
-            modifier = Modifier.padding(5.dp),
+            modifier = Modifier
+                .padding(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
                 checked = isSelected,
                 onCheckedChange = onCheckChanged,
-                modifier = Modifier.padding(end = 8.dp)
+                modifier = Modifier
+                    .padding(end = 4.dp)
+                    .size(20.dp)
             )
             Image(
                 painter = painterResource(id = item.image),
                 contentDescription = item.name,
-                modifier = Modifier.size(70.dp)
+                modifier = Modifier
+                    .size(50.dp)
             )
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(8.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = item.name, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                Spacer(modifier = Modifier.height(3.dp))
-                Text(text = item.size, fontSize = 12.sp, color = Color.Gray)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = formatCurrency(item.price * item.quantity), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text(
+                    text = item.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp,
+                    maxLines = 1
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = item.size,
+                    fontSize = 10.sp,
+                    color = Color.Gray
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = formatCurrency(item.price * item.quantity),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp
+                )
             }
-            Column(horizontalAlignment = Alignment.End) {
-                IconButton(onClick = onDelete) {
-                    Icon(painter = painterResource(id = R.drawable.delete), contentDescription = "Xóa", tint = Color.Red)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally, // Căn giữa theo chiều ngang
+                modifier = Modifier.padding(start = 8.dp) // Thêm padding để tránh dính sát
+            ) {
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier.size(20.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.delete),
+                        contentDescription = "Xóa",
+                        tint = Color.Red,
+                        modifier = Modifier.size(16.dp)
+                    )
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { if (item.quantity > 1) onUpdate(item.copy(quantity = item.quantity - 1)) }) {
-                        Icon(painter = painterResource(id = R.drawable.tru), contentDescription = "Giảm")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    IconButton(
+                        onClick = { if (item.quantity > 1) onUpdate(item.copy(quantity = item.quantity - 1)) },
+                        modifier = Modifier.size(20.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.tru),
+                            contentDescription = "Giảm",
+                            modifier = Modifier.size(14.dp)
+                        )
                     }
-                    Text(text = item.quantity.toString(), fontSize = 14.sp)
-                    IconButton(onClick = { onUpdate(item.copy(quantity = item.quantity + 1)) }) {
-                        Icon(painter = painterResource(id = R.drawable.cong), contentDescription = "Tăng")
+                    Text(
+                        text = item.quantity.toString(),
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                    IconButton(
+                        onClick = { onUpdate(item.copy(quantity = item.quantity + 1)) },
+                        modifier = Modifier.size(20.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.cong),
+                            contentDescription = "Tăng",
+                            modifier = Modifier.size(14.dp)
+                        )
                     }
                 }
             }
