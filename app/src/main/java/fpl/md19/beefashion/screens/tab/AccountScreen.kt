@@ -49,32 +49,19 @@ fun AccountScreen(navController: NavController, loginViewModel: LoginViewModel =
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF5F5F5)) // Nền nhẹ nhàng
-            .padding(16.dp)
+            .padding(15.dp)
     ) {
         // Header
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_arrow_back),
-                contentDescription = "Back",
-                modifier = Modifier
-                    .size(20.dp)
-                    .clickable { navController.popBackStack() },
-            )
             Text(
                 text = "Tài khoản",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.bell),
-                contentDescription = "Notifications",
-                modifier = Modifier.size(20.dp),
+                textAlign = TextAlign.Center
             )
         }
 
@@ -86,7 +73,7 @@ fun AccountScreen(navController: NavController, loginViewModel: LoginViewModel =
             if (isLoggedIn) {
                 item { UserProfileItem(navController, "MyDetailsScreen") }
                 item { Spacer(modifier = Modifier.height(16.dp)) }
-                item { AccountItem(R.drawable.ic_orders, "Đơn hàng", navController, "MyOrderScreen") }
+                item { AccountItem(R.drawable.ic_orders, "Đơn hàng", navController, "myOderScreen") }
                 item { AccountItem(R.drawable.ic_address, "Địa chỉ", navController, "AddressScreen/{customerId}") }
                 item { AccountItem(R.drawable.ic_notifications, "Thông báo", navController, "NotificationsScreen") }
                 item { AccountItem(R.drawable.ic_help, "Trợ giúp", navController, "HelpScreen") }

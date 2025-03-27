@@ -31,7 +31,7 @@ fun ReviewsScreen(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(horizontal = 16.dp)
+            .padding(15.dp)
     ) {
         // Header
         Row(

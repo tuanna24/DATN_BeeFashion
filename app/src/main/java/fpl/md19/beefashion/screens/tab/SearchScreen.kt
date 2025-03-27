@@ -56,32 +56,23 @@ fun SearchScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(25.dp, top = 30.dp, end = 25.dp),
-        verticalArrangement = Arrangement.Top
+            .padding(15.dp),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_arrow_back),
-                contentDescription = "Back",
-                modifier = Modifier
-                    .size(20.dp)
-                    .clickable { navController.popBackStack() }
-            )
             Text(
                 text = "Tìm kiếm",
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.bell),
-                contentDescription = "Notifications",
-                modifier = Modifier.size(20.dp)
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
             )
         }
+
 
         Spacer(modifier = Modifier.height(12.dp))
 

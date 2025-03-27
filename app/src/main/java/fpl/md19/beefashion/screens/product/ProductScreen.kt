@@ -83,7 +83,7 @@ fun ProductScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(25.dp, top = 30.dp, end = 25.dp)
+            .padding(15.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

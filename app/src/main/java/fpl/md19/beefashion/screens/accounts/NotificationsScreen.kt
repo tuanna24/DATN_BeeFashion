@@ -42,7 +42,7 @@ fun NotificationsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(15.dp)
     ) {
         // Top Bar
         Row(

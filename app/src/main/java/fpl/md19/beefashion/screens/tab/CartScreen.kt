@@ -56,23 +56,20 @@ fun CartScreen(
     val total = if (selectedItems.isNotEmpty()) subtotal + vatAmount + shippingFee else 0
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(25.dp, top = 30.dp, end = 25.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(15.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_arrow_back),
-                contentDescription = "Back",
-                modifier = Modifier.size(20.dp).clickable { navController.popBackStack() }
-            )
-            Text(text = "Giỏ hàng", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Icon(
-                painter = painterResource(id = R.drawable.bell),
-                contentDescription = "Notifications",
-                modifier = Modifier.size(20.dp)
+            Text(
+                text = "Giỏ hàng",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
             )
         }
 
@@ -136,7 +133,9 @@ fun CartScreen(
             }
 
             Column(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 10.dp, end = 10.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 SummaryRow("Tạm tính", subtotal)
@@ -180,7 +179,7 @@ fun CartItemView(
     ) {
         Row(
             modifier = Modifier
-                .padding(4.dp),
+                .padding(start = 6.dp, 4.dp,),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
@@ -219,7 +218,7 @@ fun CartItemView(
             }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally, // Căn giữa theo chiều ngang
-                modifier = Modifier.padding(start = 8.dp) // Thêm padding để tránh dính sát
+                modifier = Modifier.padding(start = 8.dp, end = 5.dp) // Thêm padding để tránh dính sát
             ) {
                 IconButton(
                     onClick = onDelete,

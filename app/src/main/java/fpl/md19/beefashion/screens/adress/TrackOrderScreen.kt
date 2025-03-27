@@ -30,7 +30,7 @@ fun TrackOrderScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
-                .padding(16.dp)
+                .padding(15.dp)
         ) {
             // Header
             Row(

@@ -53,7 +53,7 @@ fun MyOderScreen (navController : NavController) {
     Column (
         modifier = Modifier
             .fillMaxSize()
-            .padding(25.dp, top = 30.dp, end = 25.dp),
+            .padding(15.dp),
         verticalArrangement = Arrangement.Top
     ) {
         Row(
@@ -97,7 +97,10 @@ fun MyOderCart(myOder: MyOder, navController : NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(5.dp)
+            .clickable{
+                navController.navigate("TrackOrderScreen")
+            },
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -163,7 +166,7 @@ fun MyOderCart(myOder: MyOder, navController : NavController) {
                     Text(
                         text = "Theo dõi",
                         color = Color.White,
-                        fontSize = 14.sp
+                        fontSize = 12.sp
                     )
                 }
             }

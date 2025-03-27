@@ -52,7 +52,7 @@ fun AddressScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(15.dp)
     ) {
         // Header
         Row(

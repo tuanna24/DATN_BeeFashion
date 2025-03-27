@@ -176,7 +176,7 @@ fun HomeScreen(
 fun ProductList(products: List<Products>, navController: NavController) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
-        modifier = Modifier.padding(6.dp),
+        modifier = Modifier.padding(0.dp),
         verticalItemSpacing = 6.dp,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {

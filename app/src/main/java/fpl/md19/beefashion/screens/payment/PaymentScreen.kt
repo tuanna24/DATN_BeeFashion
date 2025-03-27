@@ -39,7 +39,7 @@ fun PaymentScreen(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF5F5F5))
-            .padding(6.dp) // Giảm từ 10.dp xuống 6.dp
+            .padding(15.dp)
     ) {
         // Header
         Row(
@@ -330,7 +330,8 @@ fun PaymentScreen(navController: NavController) {
             }
             Button(
                 onClick = {
-                    Toast.makeText(contex, "Xác nhận thanh toán!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(contex, "Bạn đã đặt hàng thành công!", Toast.LENGTH_SHORT).show()
+                    navController.navigate("successScreen")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),
                 modifier = Modifier

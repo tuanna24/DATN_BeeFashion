@@ -102,34 +102,7 @@ fun HelpScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Contact Form (Optional)
-        Text(
-            text = "Gửi yêu cầu hỗ trợ:",
-            fontSize = 16.sp,
-            modifier = Modifier.padding(vertical = 8.dp),
-            color = Color.Black
-        )
 
-        // Message Input Field
-        OutlinedTextField(
-            value = support.value, // Use `.value` for mutableStateOf
-            onValueChange = { support.value = it },
-            placeholder = { Text("Vấn đề cần hỗ trợ") },
-            modifier = Modifier.fillMaxWidth(),
-            maxLines = 5
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Submit Button
-        Button(onClick = {
-            // Handle support request submission
-            if (support.value.isNotEmpty()) {
-                // Handle sending email or message
-                println("Support request submitted: ${support.value}")
-            }
-        }) {
-            Text(text = "Gửi yêu cầu")
-        }
     }
 }
 

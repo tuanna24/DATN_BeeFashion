@@ -4,6 +4,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -23,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -50,6 +52,7 @@ import fpl.md19.beefashion.screens.auth.WelcomeScreen
 import fpl.md19.beefashion.screens.auth.WelcomeScreen1
 import fpl.md19.beefashion.screens.cart.MyOderScreen
 import fpl.md19.beefashion.screens.payment.PaymentScreen
+import fpl.md19.beefashion.screens.payment.SuccessScreen
 import fpl.md19.beefashion.screens.product.ProductScreen
 import fpl.md19.beefashion.screens.support.HelpScreen
 import fpl.md19.beefashion.screens.tab.AccountScreen
@@ -236,6 +239,12 @@ fun NestedBottomTab(
         composable("paymentScreen") {
             PaymentScreen(navController)
         }
+        composable("myOderScreen") {
+            MyOderScreen(navController)
+        }
+        composable("successScreen") {
+            SuccessScreen(navController)
+        }
     }
 }
 
@@ -247,9 +256,8 @@ fun TabView(tabBarItems: List<TabItem>, navController: NavController) {
     val navBackStack by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStack?.destination
 
-    val bottomBarDestination = tabBarItems.any() {
-        it.screenName == currentDestination?.route
-    }
+    val bottomBarDestination = tabBarItems.any { it.screenName == currentDestination?.route }
+
     if (bottomBarDestination) {
         NavigationBar(containerColor = Color.White) {
             tabBarItems.forEachIndexed { index, tabBarItem ->
@@ -260,10 +268,15 @@ fun TabView(tabBarItems: List<TabItem>, navController: NavController) {
                         selectedTabIndex = index
                     },
                     icon = {
-                        TabBarIconView(
-                            icon = tabBarItem.selectedIcon,
-                            isFocused = selectedTabIndex == index
-                        )
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            TabBarIconView(
+                                icon = if (selectedTabIndex == index) tabBarItem.selectedIcon else tabBarItem.unselectedIcon
+                            )
+                            Text(
+                                text = tabBarItem.screenName.replace("Screen", ""),
+                                color = if (selectedTabIndex == index) Color.Black else Color.Gray
+                            )
+                        }
                     },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color.Black,
@@ -275,35 +288,16 @@ fun TabView(tabBarItems: List<TabItem>, navController: NavController) {
         }
     }
 }
-
 // This component helps to clean up the API call from our TabView above,
 // but could just as easily be added inside the TabView without creating this custom component
 
 @Composable
-fun TabBarIconView(
-    icon: Int,
-    badgeAmount: Int? = null,
-    isFocused: Boolean,
-) {
-    val iconSize = if (icon == R.drawable.cart_icon || icon == R.drawable.cart_icon_dack) {
-        30.dp // Tăng kích thước icon giỏ hàng
-    } else {
-        25.dp
-    }
-
-    val iconOffset = if (icon == R.drawable.cart_icon || icon == R.drawable.cart_icon_dack) {
-        (-7).dp // Dịch chuyển icon giỏ hàng lên trên
-    } else {
-        0.dp
-    }
-
-    BadgedBox(badge = { TabBarBadgeView(badgeAmount) }) {
+fun TabBarIconView(icon: Int) {
+    BadgedBox(badge = { /* Hiển thị badge nếu cần */ }) {
         Icon(
             painter = painterResource(id = icon),
-            contentDescription = "",
-            modifier = Modifier
-                .size(iconSize)
-                .offset(y = iconOffset) // Đẩy icon lên trên
+            contentDescription = null,
+            modifier = Modifier.size(25.dp) // Đảm bảo tất cả icon có cùng kích thước
         )
     }
 }
