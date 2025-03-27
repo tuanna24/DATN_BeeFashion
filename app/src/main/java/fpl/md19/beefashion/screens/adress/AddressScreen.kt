@@ -1,5 +1,6 @@
 package fpl.md19.beefashion
 
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -16,7 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -106,9 +111,14 @@ fun AddressScreen(
             }
         } else {
             addresses.forEach { addressModel ->
-                val fullAddress =
-                    "${addressModel.detail}, ${addressModel.ward}, ${addressModel.district}, ${addressModel.province}"
-
+//                val fullAddress =
+//                    "${addressModel.name},${addressModel.phoneNumber}\n${addressModel.detail}, ${addressModel.ward}, ${addressModel.district}, ${addressModel.province}"
+                val fullAddress = buildAnnotatedString {
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.Black)) {
+                        append("${addressModel.name}, ${addressModel.phoneNumber}\n")
+                    }
+                    append("${addressModel.detail}, ${addressModel.ward}, ${addressModel.district}, ${addressModel.province}")
+                }
                 AddressItem(
                     address = fullAddress,
                     selected = selectedAddress == addressModel.id,
@@ -159,7 +169,12 @@ fun AddressScreen(
         Button(
             onClick = {
                 Toast.makeText(context, "Cập nhật địa chỉ nhận hàng thành công!", Toast.LENGTH_SHORT).show()
-                navController.navigate("paymentScreen")
+//                navController.navigate("paymentScreen")
+                val selectedAddressModel = addresses.find { it.id == selectedAddress }
+                selectedAddressModel?.let {
+                    val encodedAddress = Uri.encode("${it.name}, ${it.phoneNumber}\n${it.detail}, ${it.ward}, ${it.district}, ${it.province}")
+                    navController.navigate("paymentScreen/$encodedAddress")
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -174,7 +189,7 @@ fun AddressScreen(
 
 @Composable
 fun AddressItem(
-    address: String,
+    address: AnnotatedString,
     selected: Boolean,
     onSelect: () -> Unit
 ) {

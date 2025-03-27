@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import fpl.md19.beefashion.screens.adress.MapScreen
 
 @Composable
 fun TrackOrderScreen(navController: NavController) {
@@ -63,9 +62,9 @@ fun TrackOrderScreen(navController: NavController) {
                 )
             }
 
-            Box() {
-                MapScreen()
-            }
+//            Box() {
+//                MapScreen()
+//            }
         }
 
         BottomSheetOrderStatus(

@@ -23,7 +23,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.requests.AddressRequest
-import fpl.md19.beefashion.screens.adress.MapScreen
 import fpl.md19.beefashion.viewModels.AddressViewModel
 import fpl.md19.beefashion.viewModels.NewAddressViewModel
 import java.text.Normalizer
@@ -74,9 +73,9 @@ fun NewAddressScreen(
             )
         }
 
-        Box(modifier = Modifier.fillMaxHeight(0.4f)) {
-            MapScreen()
-        }
+//        Box(modifier = Modifier.fillMaxHeight(0.4f)) {
+//            MapScreen()
+//        }
 
         if (isLoading) {
             Box(

@@ -184,8 +184,15 @@ fun NestedBottomTab(
             )
         }
 
-        composable("paymentScreen") {
-            PaymentScreen(navController)
+//        composable("paymentScreen") {
+//            PaymentScreen(navController)
+//        }
+        composable(
+            "paymentScreen/{address}",
+            arguments = listOf(navArgument("address") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val address = backStackEntry.arguments?.getString("address")
+            PaymentScreen(navController, address)
         }
 
         composable("myOderScreen") {
@@ -236,9 +243,9 @@ fun NestedBottomTab(
                 ProductScreen(navController = navController, productId = productId)
             }
         }
-        composable("paymentScreen") {
-            PaymentScreen(navController)
-        }
+//        composable("paymentScreen") {
+//            PaymentScreen(navController)
+//        }
         composable("myOderScreen") {
             MyOderScreen(navController)
         }
