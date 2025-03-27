@@ -44,12 +44,12 @@ fun TrackOrderScreen(navController: NavController) {
                     painter = painterResource(id = R.drawable.ic_back),
                     contentDescription = "Back Icon",
                     modifier = Modifier
-                        .size(24.dp)
+                        .size(20.dp)
                         .clickable { navController.popBackStack() }
                 )
                 Text(
                     text = "Tình trạng đơn hàng",
-                    fontSize = 24.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.weight(1f)
@@ -58,7 +58,7 @@ fun TrackOrderScreen(navController: NavController) {
                     painter = painterResource(id = R.drawable.ic_notifications),
                     contentDescription = "Notification Icon",
                     modifier = Modifier
-                        .size(24.dp)
+                        .size(20.dp)
                         .clickable { }
                 )
             }

@@ -65,19 +65,19 @@ fun AddressScreen(
                 painter = painterResource(id = R.drawable.ic_back),
                 contentDescription = "Back",
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(20.dp)
                     .clickable { navController.popBackStack() }
             )
             Text(
                 text = "Địa chỉ",
-                fontSize = 24.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
             Image(
                 painter = painterResource(id = R.drawable.ic_notifications),
                 contentDescription = "Notifications",
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(20.dp)
                     .clickable { }
             )
         }

@@ -44,7 +44,7 @@ fun ReviewsScreen(navController: NavController) {
                 painter = painterResource(id = R.drawable.ic_back),
                 contentDescription = "Back Icon",
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(20.dp)
                     .clickable { navController.popBackStack()}
             )
 
@@ -52,7 +52,7 @@ fun ReviewsScreen(navController: NavController) {
 
             Text(
                 text = "Đánh giá",
-                fontSize = 24.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
@@ -63,7 +63,7 @@ fun ReviewsScreen(navController: NavController) {
                 painter = painterResource(id = R.drawable.ic_notifications),
                 contentDescription = "Notification Icon",
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(20.dp)
                     .clickable { }
             )
         }

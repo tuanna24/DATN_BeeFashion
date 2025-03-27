@@ -39,13 +39,13 @@ fun PaymentScreen(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF5F5F5))
-            .padding(10.dp)
+            .padding(6.dp) // Giảm từ 10.dp xuống 6.dp
     ) {
         // Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 15.dp, vertical = 10.dp),
+                .padding(horizontal = 10.dp, vertical = 6.dp), // Giảm từ 15.dp, 10.dp xuống 10.dp, 6.dp
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -53,7 +53,7 @@ fun PaymentScreen(navController: NavController) {
                 painter = painterResource(id = R.drawable.ic_arrow_back),
                 contentDescription = "Back",
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(20.dp)
                     .clickable { navController.popBackStack() }
             )
             Text(
@@ -62,18 +62,16 @@ fun PaymentScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.size(25.dp)) // Giữ khoảng trống cân đối
+            Spacer(modifier = Modifier.size(20.dp))
         }
 
         // Địa chỉ giao hàng
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(10.dp))
-                .padding(15.dp)
-                .clickable{
-                    navController.navigate("addressScreen")
-                }
+                .background(Color.White, RoundedCornerShape(8.dp)) // Giảm từ 10.dp xuống 8.dp
+                .padding(10.dp) // Giảm từ 15.dp xuống 10.dp
+                .clickable { navController.navigate("addressScreen") }
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -81,23 +79,23 @@ fun PaymentScreen(navController: NavController) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Icon(
-                    Icons.Default.LocationOn, contentDescription = "Location", tint = Color.Gray
+                    Icons.Default.LocationOn,
+                    contentDescription = "Location",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(20.dp) // Giảm kích thước icon
                 )
-                Column (
-                    modifier = Modifier
-                        .weight(1f)
+                Column(
+                    modifier = Modifier.weight(1f)
                 ) {
-
-                    Text (
+                    Text(
                         text = "Tún Nè (0966347311)",
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp // Giảm từ mặc định xuống 14.sp
                     )
-
-                    Spacer(modifier = Modifier.height(5.dp))
-
+                    Spacer(modifier = Modifier.height(2.dp)) // Giảm từ 5.dp xuống 2.dp
                     Text(
                         text = "Số Nhà 34, Ngõ 143/1 Đường Xuân Phương, Phường Phương Canh, Quận Nam Từ Liêm, Hà Nội",
-                        fontSize = 14.sp,
+                        fontSize = 12.sp, // Giảm từ 14.sp xuống 12.sp
                         color = Color.Gray
                     )
                 }
@@ -105,158 +103,203 @@ fun PaymentScreen(navController: NavController) {
                     painter = painterResource(R.drawable.ic_arrow_right),
                     contentDescription = "Edit Address",
                     tint = Color.Gray,
-                    modifier = Modifier
-                        .size(24.dp)
+                    modifier = Modifier.size(20.dp) // Giảm từ 24.dp xuống 20.dp
                 )
             }
         }
 
-
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(6.dp)) // Giảm từ 10.dp xuống 6.dp
 
         // Sản phẩm
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(10.dp))
-                .padding(15.dp)
+                .background(Color.White, RoundedCornerShape(8.dp)) // Giảm từ 10.dp xuống 8.dp
+                .padding(10.dp) // Giảm từ 15.dp xuống 10.dp
         ) {
             Column {
-                Text(text = "Sản phẩm", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = "Sản phẩm",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp // Giảm từ 16.sp xuống 14.sp
+                )
+                Spacer(modifier = Modifier.height(6.dp)) // Giảm từ 10.dp xuống 6.dp
                 Row {
                     Image(
                         painterResource(R.drawable.ao_phong),
                         contentDescription = null,
-                        modifier = Modifier.size(60.dp)
+                        modifier = Modifier.size(50.dp) // Giảm từ 60.dp xuống 50.dp
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(8.dp)) // Giảm từ 10.dp xuống 8.dp
                     Column {
                         Text(
                             text = "⚡ Giá Sốc ⚡",
-                            fontSize = 16.sp,
+                            fontSize = 14.sp, // Giảm từ 16.sp xuống 14.sp
                             fontWeight = FontWeight.Bold
                         )
-                        Spacer(modifier = Modifier.height(3.dp))
+                        Spacer(modifier = Modifier.height(2.dp)) // Giảm từ 3.dp xuống 2.dp
                         Text(
                             text = "Size: ",
-                            fontSize = 14.sp,
+                            fontSize = 12.sp, // Giảm từ 14.sp xuống 12.sp
                             color = Color.Gray
                         )
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(6.dp)) // Giảm từ 10.dp xuống 6.dp
                         Text(
                             text = formatCurrency(23900),
-                            fontSize = 16.sp,
+                            fontSize = 14.sp, // Giảm từ 16.sp xuống 14.sp
                             fontWeight = FontWeight.Bold,
                             color = Color.Red
                         )
                     }
                     Spacer(modifier = Modifier.weight(1f))
-                    Text(text = "Số lượng: x1", fontSize = 14.sp, color = Color.Gray)
+                    Text(
+                        text = "Số lượng: x1",
+                        fontSize = 12.sp, // Giảm từ 14.sp xuống 12.sp
+                        color = Color.Gray
+                    )
                 }
             }
         }
-        Spacer(modifier = Modifier.height(10.dp))
 
+        Spacer(modifier = Modifier.height(6.dp)) // Giảm từ 10.dp xuống 6.dp
+
+        // Phương thức thanh toán
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(10.dp))
-                .padding(6.dp)
+                .background(Color.White, RoundedCornerShape(8.dp)) // Giảm từ 10.dp xuống 8.dp
+                .padding(4.dp) // Giảm từ 6.dp xuống 4.dp
         ) {
             Column(
-                modifier = Modifier.padding(10.dp)
+                modifier = Modifier.padding(6.dp) // Giảm từ 10.dp xuống 6.dp
             ) {
-                Text(text = "Phương thức thanh toán", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-
-                Spacer(modifier = Modifier.height(12.dp))
-
+                Text(
+                    text = "Phương thức thanh toán",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp // Giảm từ 16.sp xuống 14.sp
+                )
+                Spacer(modifier = Modifier.height(8.dp)) // Giảm từ 12.dp xuống 8.dp
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(bottom = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(text = "Thanh toán khi nhận hàng", color = Color.Gray)
+                    Text(
+                        text = "Thanh toán khi nhận hàng",
+                        color = Color.Gray,
+                        fontSize = 12.sp // Giảm từ mặc định xuống 12.sp
+                    )
                     RadioButton(
                         selected = selectedMethod.value == "cod",
                         onClick = {
                             selectedMethod.value = "cod"
                             Toast.makeText(contex, "Bạn đã chọn thanh toán khi nhận hàng!", Toast.LENGTH_SHORT).show()
-                                  },
+                        },
+                        modifier = Modifier.size(20.dp) // Thu nhỏ RadioButton
                     )
                 }
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "Thanh toán bằng ZaloPay", color = Color.Gray)
+                    Text(
+                        text = "Thanh toán bằng ZaloPay",
+                        color = Color.Gray,
+                        fontSize = 12.sp // Giảm từ mặc định xuống 12.sp
+                    )
                     RadioButton(
                         selected = selectedMethod.value == "zalopay",
                         onClick = {
                             selectedMethod.value = "zalopay"
                             Toast.makeText(contex, "Bạm đã chọn thanh toán bằng ZaloPay!", Toast.LENGTH_SHORT).show()
-                        }
+                        },
+                        modifier = Modifier.size(20.dp) // Thu nhỏ RadioButton
                     )
                 }
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp)) // Giảm từ 12.dp xuống 8.dp
             }
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(6.dp)) // Giảm từ 10.dp xuống 6.dp
 
         // Chi tiết thanh toán
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(10.dp))
-                .padding(6.dp)
+                .background(Color.White, RoundedCornerShape(8.dp)) // Giảm từ 10.dp xuống 8.dp
+                .padding(4.dp) // Giảm từ 6.dp xuống 4.dp
         ) {
-            Column (
-                modifier = Modifier.padding(10.dp)
+            Column(
+                modifier = Modifier.padding(6.dp) // Giảm từ 10.dp xuống 6.dp
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "Tổng tiền hàng", color = Color.Gray)
-                    Text(text = formatCurrency(23900), fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "Tổng tiền hàng",
+                        color = Color.Gray,
+                        fontSize = 12.sp // Giảm từ mặc định xuống 12.sp
+                    )
+                    Text(
+                        text = formatCurrency(23900),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp // Giảm từ mặc định xuống 12.sp
+                    )
                 }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
+                Spacer(modifier = Modifier.height(8.dp)) // Giảm từ 12.dp xuống 8.dp
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "Phí vận chuyển", color = Color.Gray)
-                    Text(text = formatCurrency(5000), fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "Phí vận chuyển",
+                        color = Color.Gray,
+                        fontSize = 12.sp // Giảm từ mặc định xuống 12.sp
+                    )
+                    Text(
+                        text = formatCurrency(5000),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp // Giảm từ mặc định xuống 12.sp
+                    )
                 }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
+                Spacer(modifier = Modifier.height(8.dp)) // Giảm từ 12.dp xuống 8.dp
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "Giảm giá vận chuyển", color = Color.Gray)
-                    Text(text = "-${formatCurrency(5000)}", fontWeight = FontWeight.Bold, color = Color.Red)
+                    Text(
+                        text = "Giảm giá vận chuyển",
+                        color = Color.Gray,
+                        fontSize = 12.sp // Giảm từ mặc định xuống 12.sp
+                    )
+                    Text(
+                        text = "-${formatCurrency(5000)}",
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Red,
+                        fontSize = 12.sp // Giảm từ mặc định xuống 12.sp
+                    )
                 }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
+                Spacer(modifier = Modifier.height(8.dp)) // Giảm từ 12.dp xuống 8.dp
                 Divider()
-
-                Spacer(modifier = Modifier.height(12.dp))
-
+                Spacer(modifier = Modifier.height(8.dp)) // Giảm từ 12.dp xuống 8.dp
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "Tổng cộng", fontWeight = FontWeight.Bold)
-                    Text(text = formatCurrency(22900), fontWeight = FontWeight.Bold, color = Color.Red)
+                    Text(
+                        text = "Tổng cộng",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp // Giảm từ mặc định xuống 14.sp
+                    )
+                    Text(
+                        text = formatCurrency(22900),
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Red,
+                        fontSize = 14.sp // Giảm từ mặc định xuống 14.sp
+                    )
                 }
             }
         }
@@ -268,19 +311,19 @@ fun PaymentScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.White)
-                .padding(15.dp),
+                .padding(10.dp), // Giảm từ 15.dp xuống 10.dp
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
                 Text(
                     text = "Tổng thanh toán",
-                    fontSize = 14.sp,
+                    fontSize = 12.sp, // Giảm từ 14.sp xuống 12.sp
                     color = Color.Gray
                 )
                 Text(
                     text = formatCurrency(22900),
-                    fontSize = 18.sp,
+                    fontSize = 16.sp, // Giảm từ 18.sp xuống 16.sp
                     fontWeight = FontWeight.Bold,
                     color = Color.Red
                 )
@@ -290,12 +333,14 @@ fun PaymentScreen(navController: NavController) {
                     Toast.makeText(contex, "Xác nhận thanh toán!", Toast.LENGTH_SHORT).show()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier
+                    .padding(4.dp) // Giảm từ 8.dp xuống 4.dp
+                    .height(36.dp) // Thu nhỏ chiều cao button
             ) {
                 Text(
                     text = "Đặt hàng",
                     color = Color.White,
-                    fontSize = 16.sp
+                    fontSize = 14.sp // Giảm từ 16.sp xuống 14.sp
                 )
             }
         }
