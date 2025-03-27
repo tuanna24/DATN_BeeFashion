@@ -1,6 +1,5 @@
 package fpl.md19.beefashion.screens.auth
 
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,21 +13,46 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.R
+import fpl.md19.beefashion.viewModels.LoginViewModel
 import kotlinx.coroutines.delay
 
-
 @Composable
-fun WelcomeScreen(navController: NavController) {
-    LaunchedEffect (true) {
-        delay(3000)  // Delay 3 giây (3000 milliseconds)
-        navController.navigate("WelcomeScreen1") // Chuyển đến màn hình khác, thay "nextScreen" bằng tên màn hình bạn muốn
+fun WelcomeScreen(navController: NavController, loginViewModel: LoginViewModel = viewModel()) {
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        // Tải thông tin đăng nhập đã lưu (nếu có)
+        loginViewModel.loadRememberedCredentials(context) {
+            // Callback khi tự động đăng nhập thành công
+            // Không cần delay ở đây vì sẽ delay chung bên dưới
+            navController.navigate("HomeScreen") {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            }
+        }
+
+        // Delay 3 giây một lần duy nhất trước khi điều hướng
+        delay(3000)
+
+        // Kiểm tra trạng thái đăng nhập và điều hướng
+        if (loginViewModel.loginResponse.value?.isSuccessful == true || loginViewModel.isRemembered) {
+            navController.navigate("HomeScreen") {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            }
+        } else {
+            navController.navigate("WelcomeScreen1") {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            }
+        }
     }
+
     Box(
         modifier = Modifier
             .background(Color.White)
@@ -57,5 +81,5 @@ fun WelcomeScreen(navController: NavController) {
 @Composable
 fun WelcomeScreenPreview() {
     val navController = rememberNavController()
-   WelcomeScreen(navController)
+    WelcomeScreen(navController)
 }
