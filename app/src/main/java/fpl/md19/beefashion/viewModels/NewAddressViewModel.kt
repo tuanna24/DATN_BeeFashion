@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fpl.md19.beefashion.api.ApiService
 import fpl.md19.beefashion.api.HttpRequest
+import fpl.md19.beefashion.models.AddressModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,7 +36,6 @@ class NewAddressViewModel() : ViewModel() {
 
     private val _selectedWard = MutableStateFlow<String?>(null)
     val selectedWard: StateFlow<String?> = _selectedWard
-
 
     init {
         fetchProvinces()
@@ -129,6 +129,12 @@ class NewAddressViewModel() : ViewModel() {
                 _isLoading.value = false
             }
         }
+    }
+
+    fun setAddressData(address: AddressModel) {
+        _selectedProvince.value = address.province to address.province
+        _selectedDistrict.value = address.district to address.district
+        _selectedWard.value = address.ward
     }
 
     fun clearError() {
