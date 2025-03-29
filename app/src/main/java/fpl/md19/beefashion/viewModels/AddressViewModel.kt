@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.Address
 
 class AddressViewModel() : ViewModel() {
     private val apiService: ApiService = HttpRequest.getInstance()
@@ -25,8 +26,11 @@ class AddressViewModel() : ViewModel() {
     val deleteStatus: StateFlow<DeleteStatus> = _deleteStatus
     val _createStatus = MutableStateFlow<CreateStatus>(CreateStatus.Idle)
     val createStatus: StateFlow<CreateStatus> = _createStatus
-    private val _updateStatus = MutableStateFlow<UpdateStatus>(UpdateStatus.Idle)
+    val _updateStatus = MutableStateFlow<UpdateStatus>(UpdateStatus.Idle)
     val updateStatus: StateFlow<UpdateStatus> = _updateStatus
+
+    private val _selectedAddress = MutableStateFlow<AddressModel?>(null)
+    val selectedAddress: StateFlow<AddressModel?> = _selectedAddress
 
     init {
         fetchUserIdAndAddresses()
@@ -172,7 +176,7 @@ class AddressViewModel() : ViewModel() {
             }
         }
     }
-    fun updateAddress(addressId: String, addressRequest: AddressRequest) {
+    fun updateAddress(customerId: String,addressId: String, addressRequest: AddressRequest) {
         val userId = UserSesion.currentUser?.id ?: return
 
         viewModelScope.launch {
@@ -185,7 +189,12 @@ class AddressViewModel() : ViewModel() {
                         _addresses.value = _addresses.value.map {
                             if (it.id == addressId) updatedAddress else it
                         }
+                        // Fetch lại dữ liệu từ server để đảm bảo đồng bộ
+                        fetchAddresses(customerId)
+                        // Cập nhật selectedAddress để UpdateScreen nhận dữ liệu mới ngay
+                        //_selectedAddress.value = updatedAddress
                     }
+//                    delay(300)
                     _updateStatus.value = UpdateStatus.Success
                 } else {
                     _updateStatus.value = UpdateStatus.Error("Lỗi khi cập nhật địa chỉ")
@@ -194,6 +203,14 @@ class AddressViewModel() : ViewModel() {
                 _updateStatus.value = UpdateStatus.Error("Lỗi ngoại lệ: ${e.localizedMessage}")
             }
         }
+    }
+
+    fun getAddressById(addressId: String): AddressModel? {
+        return _addresses.value.find { it.id == addressId }
+    }
+
+    fun setSelectedAddress(address: AddressModel) {
+        _selectedAddress.value = address
     }
 
     sealed class CreateStatus {

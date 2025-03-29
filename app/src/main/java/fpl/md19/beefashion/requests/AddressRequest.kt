@@ -4,5 +4,7 @@ data class AddressRequest(
     val province: String,
     val district: String,
     val ward: String,
-    val detail: String
+    val detail: String,
+    val name: String,
+    val phoneNumber: String
 )
