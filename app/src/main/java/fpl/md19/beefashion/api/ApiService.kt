@@ -3,6 +3,8 @@ package fpl.md19.beefashion.api
 import fpl.md19.beefashion.models.AddressModel
 import fpl.md19.beefashion.models.Brand
 import fpl.md19.beefashion.models.Carts
+import fpl.md19.beefashion.models.CartItem
+import fpl.md19.beefashion.models.CartItemSentData
 import fpl.md19.beefashion.models.Categories
 import fpl.md19.beefashion.models.ProductDetails
 import fpl.md19.beefashion.models.Products
@@ -67,6 +69,9 @@ interface ApiService {
     @GET("/products")
     suspend fun getProducts(): Response<List<Products>>
 
+    @GET("/products/{customerID}")
+    suspend fun getProductsWithCustomerID(@Path("customerID") customerID: String): Response<List<Products>>
+
     @GET("/categories")
     suspend fun getCategories() : Response<List<Categories>>
 
@@ -91,13 +96,24 @@ interface ApiService {
         @Part image: MultipartBody.Part?
     ): Response<UserModel>
 
-    @POST("/carts/{userId}/{productId}")
-    suspend fun addProductToCart(
-        @Path("userId") userId: String,
-        @Path("productId") productId: String,
-        @Body carts: Carts
-    ): Response<Unit>
+    @GET("/favorites/{customerID}")
+    suspend fun getFavoriteProducts(@Path("customerID") customerID: String): Response<List<Products>>
 
-    @GET("/carts/{userId}")
-    suspend fun getCart(@Path("userId") userId: String): Response<List<Products>>
+    @POST("/favorites/{customerID}/{productID}")
+    suspend fun addFavoriteProduct(@Path("customerID") customerID: String, @Path("productID") productID: String): Response<Unit>
+
+    @DELETE("/favorites/{customerID}/{productID}")
+    suspend fun removeFavoriteProduct(@Path("customerID") customerID: String, @Path("productID") productID: String): Response<Unit>
+
+    @GET("/carts/{customerID}")
+    suspend fun getCartProducts(@Path("customerID") customerID: String): Response<List<CartItem>>
+
+    @POST("/carts/{customerID}/{productID}")
+    suspend fun addProductToCart(@Path("customerID") customerID: String, @Path("productID") productID: String, @Body newCartItem: CartItemSentData): Response<Unit>
+
+    @PUT("/carts/{customerID}/{productID}")
+    suspend fun changeProductQuantityInCart(@Path("customerID") customerID: String, @Path("productID") productID: String, @Body cartItem: CartItemSentData): Response<CartItem>
+
+    @DELETE("/carts/{customerID}/{productID}/{sizeID}")
+    suspend fun removeProductFromCart(@Path("customerID") customerID: String, @Path("productID") productID: String, @Path("sizeID") sizeID: String): Response<Unit>
 }

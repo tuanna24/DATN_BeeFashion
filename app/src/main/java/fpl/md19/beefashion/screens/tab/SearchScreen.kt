@@ -72,8 +72,6 @@ fun SearchScreen(
                 textAlign = TextAlign.Center
             )
         }
-
-
         Spacer(modifier = Modifier.height(12.dp))
 
         TextField(
@@ -198,7 +196,7 @@ fun ProductItem(product: Products, navController: NavController) {
             .background(Color.White, RoundedCornerShape(6.dp))
             .padding(8.dp) // Giảm từ 12.dp xuống 8.dp
             .clickable {
-                navController.navigate("productScreen/${product.id}")
+                navController.navigate("productScreen/${product.id}/${product.isFavByCurrentUser}")
             },
         verticalAlignment = Alignment.CenterVertically
     ) {

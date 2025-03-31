@@ -229,29 +229,31 @@ fun AddressScreen(
         Spacer(modifier = Modifier.weight(1f))
 
         // Chọn địa chỉ
-        Button(
-            onClick = {
-                Toast.makeText(
-                    context,
-                    "Cập nhật địa chỉ nhận hàng thành công!",
-                    Toast.LENGTH_SHORT
-                ).show()
-//                navController.navigate("paymentScreen")
-                val selectedAddressModel = addresses.find { it.id == selectedAddress }
-                selectedAddressModel?.let {
-                    val encodedAddress =
-                        Uri.encode("${it.name}, ${it.phoneNumber}\n${it.detail}, ${it.ward}, ${it.district}, ${it.province}")
-                    navController.navigate("paymentScreen/$encodedAddress")
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text(text = "Chọn", color = Color.White, fontWeight = FontWeight.Bold)
+        if (addresses.isNotEmpty()) {
+            Button(
+                onClick = {
+                    Toast.makeText(
+                        context,
+                        "Cập nhật địa chỉ nhận hàng thành công!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    val selectedAddressModel = addresses.find { it.id == selectedAddress }
+                    selectedAddressModel?.let {
+                        val encodedAddress =
+                            Uri.encode("${it.name}, ${it.phoneNumber}\n${it.detail}, ${it.ward}, ${it.district}, ${it.province}")
+                        navController.navigate("paymentScreen/$encodedAddress")
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(text = "Chọn", color = Color.White, fontWeight = FontWeight.Bold)
+            }
         }
+
     }
     if (showDeleteDialog) {
         AlertDialog(

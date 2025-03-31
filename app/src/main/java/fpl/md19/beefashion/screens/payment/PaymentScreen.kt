@@ -32,7 +32,7 @@ import java.util.Locale
 
 @Composable
 fun PaymentScreen(navController: NavController, address: String?) {
-    val selectedMethod = remember { mutableStateOf("") }
+    val selectedMethod = remember { mutableStateOf("cod") }
     val contex = LocalContext.current
 
     Column(
@@ -174,15 +174,20 @@ fun PaymentScreen(navController: NavController, address: String?) {
                 )
                 Spacer(modifier = Modifier.height(8.dp)) // Giảm từ 12.dp xuống 8.dp
                 Row(
-                    modifier = Modifier.fillMaxWidth()
-                        .padding(bottom = 10.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp)
+                        .clickable {
+                            selectedMethod.value = "cod"
+                            Toast.makeText(contex, "Bạn đã chọn thanh toán khi nhận hàng!", Toast.LENGTH_SHORT).show()
+                        },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         text = "Thanh toán khi nhận hàng",
                         color = Color.Gray,
-                        fontSize = 12.sp // Giảm từ mặc định xuống 12.sp
+                        fontSize = 12.sp
                     )
                     RadioButton(
                         selected = selectedMethod.value == "cod",
@@ -190,28 +195,35 @@ fun PaymentScreen(navController: NavController, address: String?) {
                             selectedMethod.value = "cod"
                             Toast.makeText(contex, "Bạn đã chọn thanh toán khi nhận hàng!", Toast.LENGTH_SHORT).show()
                         },
-                        modifier = Modifier.size(20.dp) // Thu nhỏ RadioButton
+                        modifier = Modifier.size(20.dp)
                     )
                 }
+
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            selectedMethod.value = "zalopay"
+                            Toast.makeText(contex, "Bạn đã chọn thanh toán bằng ZaloPay!", Toast.LENGTH_SHORT).show()
+                        },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = "Thanh toán bằng ZaloPay",
                         color = Color.Gray,
-                        fontSize = 12.sp // Giảm từ mặc định xuống 12.sp
+                        fontSize = 12.sp
                     )
                     RadioButton(
                         selected = selectedMethod.value == "zalopay",
                         onClick = {
                             selectedMethod.value = "zalopay"
-                            Toast.makeText(contex, "Bạm đã chọn thanh toán bằng ZaloPay!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(contex, "Bạn đã chọn thanh toán bằng ZaloPay!", Toast.LENGTH_SHORT).show()
                         },
-                        modifier = Modifier.size(20.dp) // Thu nhỏ RadioButton
+                        modifier = Modifier.size(20.dp)
                     )
                 }
+
                 Spacer(modifier = Modifier.height(8.dp)) // Giảm từ 12.dp xuống 8.dp
             }
         }
@@ -329,8 +341,11 @@ fun PaymentScreen(navController: NavController, address: String?) {
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),
                 modifier = Modifier
-                    .padding(4.dp) // Giảm từ 8.dp xuống 4.dp
-                    .height(36.dp) // Thu nhỏ chiều cao button
+                    .padding(4.dp)
+                    .height(36.dp)
+                    .clickable {
+                        navController.navigate("successScreen")
+                    }
             ) {
                 Text(
                     text = "Đặt hàng",

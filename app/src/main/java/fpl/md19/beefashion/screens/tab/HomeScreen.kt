@@ -31,6 +31,7 @@ import coil.compose.AsyncImage
 import fpl.md19.beefashion.R
 import fpl.md19.beefashion.models.Products
 import fpl.md19.beefashion.viewModels.CategoriesViewModels
+import fpl.md19.beefashion.viewModels.FavoriteViewModel
 import fpl.md19.beefashion.viewModels.ProductsViewModels
 import java.text.NumberFormat
 import java.util.Locale
@@ -43,6 +44,8 @@ fun HomeScreen(
 ) {
     val categories = listOf("Toàn bộ", "Áo Thun", "Áo sơ mi", "Áo Khoác", "Áo Vest")
     var selectedCategory by remember { mutableStateOf(categories[0]) }
+
+    val favoriteViewModel: FavoriteViewModel = viewModel()
 
     val products by productsViewModels.products
     val loading by productsViewModels.loading
@@ -140,7 +143,7 @@ fun HomeScreen(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .background(if (isSelected) Color.Black else Color.White)
+                        .background(if (isSelected) Color(0xFFFF5722) else Color.White)
                         .border(0.5.dp, Color.Black, RoundedCornerShape(8.dp))
                         .clickable { selectedCategory = category }
                         .padding(horizontal = 14.dp, vertical = 6.dp)
@@ -167,21 +170,21 @@ fun HomeScreen(
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
-            else -> ProductList(products, navController)
+            else -> ProductList(products, favoriteViewModel = favoriteViewModel, navController)
         }
     }
 }
 
 @Composable
-fun ProductList(products: List<Products>, navController: NavController) {
+fun ProductList(products: List<Products>, favoriteViewModel: FavoriteViewModel, navController: NavController) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
-        modifier = Modifier.padding(0.dp),
+        modifier = Modifier.padding(6.dp),
         verticalItemSpacing = 6.dp,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         items(products) { product ->
-            ProductCard(product = product, navController = navController)
+            ProductCard(product = product, favoriteViewModel = favoriteViewModel, navController = navController)
         }
     }
 }
@@ -189,16 +192,23 @@ fun ProductList(products: List<Products>, navController: NavController) {
 @Composable
 fun ProductCard(
     product: Products,
+    favoriteViewModel: FavoriteViewModel,
     modifier: Modifier = Modifier,
     navController: NavController
 ) {
     val totalQuantity = (product.quantities ?: emptyList()).sum()
+    var isFavorite: Boolean by remember { mutableStateOf(product.isFavByCurrentUser) }
 
     Column(
         modifier = modifier
             .padding(4.dp)
             .background(Color.White, shape = RoundedCornerShape(6.dp))
             .clickable { navController.navigate("productScreen/${product.id}") }
+            .padding(8.dp)
+            .background(Color.White, shape = RoundedCornerShape(8.dp))
+            .clickable {
+                navController.navigate("productScreen/${product.id}/${product.isFavByCurrentUser}")
+            }
     ) {
         Box {
             AsyncImage(
@@ -210,18 +220,18 @@ fun ProductCard(
                     .height(140.dp)
                     .clip(RoundedCornerShape(6.dp))
             )
-            Icon(
-                painter = painterResource(id = R.drawable.heart),
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(4.dp)
-                    .size(20.dp)
-                    .background(Color(0xFFE0E0E0), shape = RoundedCornerShape(4.dp))
-                    .clickable { }
-                    .padding(2.dp)
-            )
+//            Icon(
+//                painter = painterResource(id = R.drawable.heart),
+//                contentDescription = null,
+//                tint = Color.White,
+//                modifier = Modifier
+//                    .align(Alignment.BottomEnd)
+//                    .padding(4.dp)
+//                    .size(20.dp)
+//                    .background(Color(0xFFE0E0E0), shape = RoundedCornerShape(4.dp))
+//                    .clickable { }
+//                    .padding(2.dp)
+//            )
         }
         Spacer(modifier = Modifier.height(6.dp))
 

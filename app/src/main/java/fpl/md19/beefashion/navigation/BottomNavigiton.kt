@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -251,19 +252,24 @@ fun NestedBottomTab(
         composable("accountScreen") {
             AccountScreen(navController)
         }
-        composable("productScreen/{productId}") { backStackEntry ->
-            val productId = backStackEntry.arguments?.getString("productId")
+        composable(
+            route = "productScreen/{productID}/{isFav}",
+            arguments = listOf(
+                navArgument("productID") {type = NavType.StringType},
+                navArgument("isFav") {type = NavType.BoolType}
+            )
+        )
+        { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productID")
+            val isFavoriteByCurrentUser = backStackEntry.arguments?.getBoolean("isFav", false)
 
-            if (productId.isNullOrEmpty()) {
+            if (productId.isNullOrEmpty() || isFavoriteByCurrentUser == null) {
                 // Xử lý khi productId không hợp lệ, có thể chuyển hướng hoặc hiển thị thông báo lỗi
                 navController.popBackStack()
             } else {
-                ProductScreen(navController = navController, productId = productId)
+                ProductScreen(navController = navController, productId = productId, isFavoriteByCurrentUser = isFavoriteByCurrentUser)
             }
         }
-//        composable("paymentScreen") {
-//            PaymentScreen(navController)
-//        }
         composable("myOderScreen") {
             MyOderScreen(navController)
         }
@@ -281,7 +287,9 @@ fun TabView(tabBarItems: List<TabItem>, navController: NavController) {
     val navBackStack by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStack?.destination
 
-    val bottomBarDestination = tabBarItems.any { it.screenName == currentDestination?.route }
+    val bottomBarDestination = tabBarItems.any {
+        it.screenName == currentDestination?.route
+    }
 
     if (bottomBarDestination) {
         NavigationBar(containerColor = Color.White) {
@@ -293,13 +301,24 @@ fun TabView(tabBarItems: List<TabItem>, navController: NavController) {
                         selectedTabIndex = index
                     },
                     icon = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
                             TabBarIconView(
-                                icon = if (selectedTabIndex == index) tabBarItem.selectedIcon else tabBarItem.unselectedIcon
+                                icon = if (selectedTabIndex == index) tabBarItem.selectedIcon else tabBarItem.unselectedIcon,
+                                isFocused = selectedTabIndex == index
                             )
                             Text(
-                                text = tabBarItem.screenName.replace("Screen", ""),
-                                color = if (selectedTabIndex == index) Color.Black else Color.Gray
+                                text = when (tabBarItem.screenName) {
+                                    "HomeScreen" -> "Trang chủ"
+                                    "searchScreen" -> "Tìm kiếm"
+                                    "cartScreen" -> "Giỏ hàng"
+                                    "savedScreen" -> "Yêu thích"
+                                    "accountScreen" -> "Tài khoản"
+                                    else -> ""
+                                },
+                                color = if (selectedTabIndex == index) Color(0xFFFF5722) else Color.Gray,
+                                fontSize = 12.sp
                             )
                         }
                     },
@@ -313,16 +332,23 @@ fun TabView(tabBarItems: List<TabItem>, navController: NavController) {
         }
     }
 }
+
 // This component helps to clean up the API call from our TabView above,
 // but could just as easily be added inside the TabView without creating this custom component
 
 @Composable
-fun TabBarIconView(icon: Int) {
-    BadgedBox(badge = { /* Hiển thị badge nếu cần */ }) {
+fun TabBarIconView(
+    icon: Int,
+    badgeAmount: Int? = null,
+    isFocused: Boolean,
+) {
+    BadgedBox(badge = { TabBarBadgeView(badgeAmount) }) {
         Icon(
             painter = painterResource(id = icon),
             contentDescription = null,
-            modifier = Modifier.size(25.dp) // Đảm bảo tất cả icon có cùng kích thước
+            modifier = Modifier
+                .size(25.dp)
+                .offset(y = (-2).dp) // Dịch chuyển nhẹ lên trên để cân đối
         )
     }
 }

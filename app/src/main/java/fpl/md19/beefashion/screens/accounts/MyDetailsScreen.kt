@@ -407,6 +407,7 @@ fun MyDetailsScreen(
                 .align(Alignment.BottomCenter)
                 .padding(16.dp)
                 .height(50.dp)
+                .background(Color(0xFFFF5722))
         ) {
             Text(
                 text = "Lưu",

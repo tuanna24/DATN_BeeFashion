@@ -1,63 +1,100 @@
 package fpl.md19.beefashion.viewModels
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import fpl.md19.beefashion.GlobalVarible.UserSesion
 import fpl.md19.beefashion.api.ApiService
 import fpl.md19.beefashion.api.HttpRequest
-import fpl.md19.beefashion.models.Carts
+import fpl.md19.beefashion.models.CartItem
+import fpl.md19.beefashion.models.CartItemSentData
 import fpl.md19.beefashion.models.Products
 import kotlinx.coroutines.launch
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
-class CartViewModel : ViewModel() {
+class CartViewModel: ViewModel() {
+    private val apiService: ApiService = HttpRequest.getInstance()
 
-    private val _cartItems = MutableStateFlow<List<Products>>(emptyList())
-    val cartItems: StateFlow<List<Products>> = _cartItems
+    private var _cartItems = MutableLiveData<MutableList<CartItem>>()
+    var cartItems: LiveData<MutableList<CartItem>> = _cartItems
 
-    private var _errorMessage = mutableStateOf<String?>(null)
-    val errMessage : State<String?> = _errorMessage
+    private var _cartItem = MutableLiveData<CartItem?>()
+    var cartItem: LiveData<CartItem?> = _cartItem
 
-    private val _loading = mutableStateOf(true)
-    val loading: State<Boolean> = _loading
-
-    fun fetchCart(userId: String) {
+    fun getCartItems(){
         viewModelScope.launch {
-            _loading.value = true
-            try {
-                val apiService = HttpRequest.getInstance()
-                val response = apiService.getCart(userId)
-                if (response.isSuccessful) {
-                    _cartItems.value = response.body() ?: emptyList()
-                } else {
-                    _errorMessage.value = "Lỗi API: ${response.code()} - ${response.message()}"
+            try{
+                val customerID = UserSesion.currentUser?.id
+                if(!customerID.isNullOrBlank()){
+                    val favProductsRes = apiService.getCartProducts(customerID)
+                    if(favProductsRes.code() == 200){
+                        _cartItems.postValue(favProductsRes.body()?.toMutableList())
+                    }else{
+                        _cartItems.postValue(mutableListOf())
+                    }
                 }
-            }catch (e: Exception) {
-                _errorMessage.value = "Lỗi không xác định: ${e.message}"
-            } finally {
-                _loading.value = false
+            }catch (e: Exception){
+                println(e)
             }
         }
     }
 
-    fun addToCart(userId: String, productId: String, carts: Carts) {
+    fun updateCartItems(cartItem: CartItemSentData){
         viewModelScope.launch {
-            try {
-                val apiService = HttpRequest.getInstance()
-                val response = apiService.addProductToCart(userId, productId, carts)
-                if (response.isSuccessful) {
-                    fetchCart(userId)
-                } else {
-                    _errorMessage.value = "Lỗi API: ${response.code()} - ${response.message()}"
+            try{
+                val customerID = UserSesion.currentUser?.id
+                if(!customerID.isNullOrBlank()){
+                    val response = apiService.changeProductQuantityInCart(customerID, cartItem.productId, cartItem)
+                    if(response.isSuccessful && response.code() == 200){
+                        _cartItem.postValue(response.body())
+                        getCartItems()
+//                        _cartItems.value?.replaceAll{
+//                            if ( it.productId == cartItem.productId && it.sizeID == cartItem.sizeID ) response.body()!! else it
+//                        }
+                    }else{
+                        _cartItem.postValue(null)
+                    }
                 }
-            } catch (e: Exception) {
-                _errorMessage.value = "Lỗi không xác định: ${e.message}"
-            } finally {
-                _loading.value = false
+            }catch (e: Exception){
+                println(e)
+            }
+        }
+    }
+
+    fun addProductToCart(cartItem: CartItemSentData){
+        viewModelScope.launch {
+            try{
+                val customerID = UserSesion.currentUser?.id
+                if(!customerID.isNullOrBlank()){
+                    val response = apiService.addProductToCart(customerID, cartItem.productId, cartItem)
+                    if(response.isSuccessful && response.code() == 200){
+                        getCartItems()
+//                        _cartItem.postValue(response.body())
+                    }else{
+//                        _cartItem.postValue(null)
+                    }
+                }
+            }catch (e: Exception){
+                println(e)
+            }
+        }
+    }
+
+    fun removeProductFromCart(productID: String, sizeID: String){
+        viewModelScope.launch {
+            try{
+                val customerID = UserSesion.currentUser?.id
+                if(!customerID.isNullOrBlank()){
+                    val response = apiService.removeProductFromCart(customerID, productID, sizeID)
+                    if(response.isSuccessful && response.code() == 200){
+                        getCartItems()
+//                        _cartItem.postValue(response.body())
+                    }else{
+//                        _cartItem.postValue(null)
+                    }
+                }
+            }catch (e: Exception){
+                println(e)
             }
         }
     }

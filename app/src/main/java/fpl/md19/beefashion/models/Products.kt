@@ -6,5 +6,6 @@ data class Products (
     val price : Int,
     val categoryId : String,
     val image : String,
+    val isFavByCurrentUser: Boolean,
     val quantities : List<Int> = emptyList()
 )

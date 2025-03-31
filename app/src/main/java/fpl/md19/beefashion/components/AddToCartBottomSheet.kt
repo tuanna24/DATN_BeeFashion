@@ -1,5 +1,6 @@
 package fpl.md19.beefashion.components
 
+import ProductDetailViewModel
 import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,7 +22,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,45 +37,49 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 
 import coil.compose.AsyncImage
+import fpl.md19.beefashion.models.CartItemSentData
 import fpl.md19.beefashion.screens.payment.formatCurrency
+import fpl.md19.beefashion.viewModels.CartViewModel
 import fpl.md19.beefashion.viewModels.ProductsViewModels
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddToCartBottomSheet (
-    productsViewModels: ProductsViewModels = viewModel(),
-    viewModel: ProductDetailViewModel = viewModel(),
+    productsViewModels: ProductsViewModels,
+    productDetailViewModel: ProductDetailViewModel,
     productId: String,
     onDismiss: () -> Unit,
     navController: NavController
 ) {
-    val product by viewModel.productDetail.observeAsState()
-    val errorMessage by viewModel.errorMessage.observeAsState()
+
+    val cartViewModel: CartViewModel = viewModel()
+    val product by productDetailViewModel.productDetail.observeAsState()
+    val errorMessage by productDetailViewModel.errorMessage.observeAsState()
     LaunchedEffect(productId) {
-        viewModel.fetchProductDetails(productId)
+        productDetailViewModel.fetchProductDetails(productId)
     }
 
+    val context = LocalContext.current
 
     val products by productsViewModels.products
     val sizes = product?.sizes ?: listOf()
     val quantities = product?.quantities ?: listOf()
-    val totalQuantity = (product?.quantities ?: emptyList()).sum()
+    var stock = (product?.quantities ?: emptyList()).sum()
 
     var selectedSize by remember { mutableStateOf("") }
-    var selectedQuantity by remember { mutableStateOf(0) }
+    var selectedQuantity by remember { mutableIntStateOf(1) }
+
     var isFavorite by remember { mutableStateOf(false) }
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
@@ -112,7 +116,7 @@ fun AddToCartBottomSheet (
                         color = Color.Red
                     )
                     Text(
-                        text = "Kho: $totalQuantity",
+                        text = "Kho: $stock",
                         fontSize = 14.sp,
                         color = Color.Gray
                     )
@@ -177,8 +181,9 @@ fun AddToCartBottomSheet (
                                     RoundedCornerShape(8.dp)
                                 )
                                 .clickable {
-                                    selectedSize = sizeObj.name
-                                    selectedQuantity = quantity
+                                    selectedSize = sizeObj.id
+                                    stock = quantity
+                                    selectedQuantity = 1
                                 }
                                 .padding(8.dp),
                             contentAlignment = Alignment.Center
@@ -205,9 +210,6 @@ fun AddToCartBottomSheet (
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
-            var quantity by remember { mutableStateOf(1) } // ✅ Trạng thái số lượng
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -226,34 +228,36 @@ fun AddToCartBottomSheet (
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
-                        onClick = { if (quantity > 1) quantity-- },
+                        onClick = { if (selectedQuantity > 1) selectedQuantity-- },
+                        enabled = selectedSize.isNotEmpty(),
                         modifier = Modifier
                             .size(36.dp) // Tăng kích thước nút
-                            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)) // ✅ Thêm viền
+                            .border(1.dp, if(selectedSize.isEmpty()) Color.LightGray else Color.Black, RoundedCornerShape(8.dp)) // ✅ Thêm viền
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Remove,
                             contentDescription = "Giảm",
-                            tint = Color.Black // Màu icon
+                            tint = if(selectedSize.isEmpty()) Color.LightGray else Color.Black // Màu icon
                         )
                     }
 
                     Text(
-                        text = quantity.toString(),
+                        text = selectedQuantity.toString(),
                         fontSize = 18.sp,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
 
                     IconButton(
-                        onClick = { quantity++ },
+                        onClick = { if(selectedQuantity < stock) selectedQuantity++ },
+                        enabled = selectedSize.isNotEmpty(),
                         modifier = Modifier
                             .size(36.dp) // Tăng kích thước nút
-                            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)) // ✅ Thêm viền
+                            .border(1.dp, if(selectedSize.isEmpty()) Color.LightGray else Color.Black, RoundedCornerShape(8.dp)) // ✅ Thêm viền
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Add,
                             contentDescription = "Tăng",
-                            tint = Color.Black
+                            tint = if(selectedSize.isEmpty()) Color.LightGray else Color.Black
                         )
                     }
                 }
@@ -261,18 +265,13 @@ fun AddToCartBottomSheet (
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            val context = LocalContext.current
-            var isAddedToCart by remember { mutableStateOf(false) }
-
             Button(
                 onClick = {
-                    if (isAddedToCart) {
-                        Toast.makeText(context, "Sản phẩm đã có trong giỏ hàng!", Toast.LENGTH_SHORT).show()
-                    } else {
-                        isAddedToCart = true
-                        Toast.makeText(context, "Thêm vào giỏ hàng thành công!", Toast.LENGTH_SHORT).show()
-                    }
+                    cartViewModel.addProductToCart(CartItemSentData(selectedSize, productId, selectedQuantity))
+                    Toast.makeText(context, "Thêm sản phẩm ${selectedProduct?.name ?: ""} vào giỏ hàng thành công!",
+                        Toast.LENGTH_SHORT).show()
                 },
+                enabled = selectedSize.isNotEmpty(),
                 colors = ButtonDefaults.buttonColors(Color.Red),
                 modifier = Modifier.fillMaxWidth().height(50.dp)
             ) {

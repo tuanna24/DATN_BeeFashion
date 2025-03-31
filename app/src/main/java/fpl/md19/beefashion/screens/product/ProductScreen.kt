@@ -22,9 +22,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -34,6 +31,8 @@ import fpl.md19.beefashion.components.AddToCartBottomSheet
 import fpl.md19.beefashion.components.BuyNowBottomSheet
 import fpl.md19.beefashion.screens.payment.formatCurrency
 import fpl.md19.beefashion.viewModels.BrandViewModel
+import fpl.md19.beefashion.viewModels.CartViewModel
+import fpl.md19.beefashion.viewModels.FavoriteViewModel
 import fpl.md19.beefashion.viewModels.LoginViewModel
 import fpl.md19.beefashion.viewModels.ProductsViewModels
 import java.text.NumberFormat
@@ -42,24 +41,30 @@ import java.util.Locale
 @Composable
 fun ProductScreen(
     productId: String,
+    isFavoriteByCurrentUser: Boolean,
     navController: NavController,
-    viewModel: ProductDetailViewModel = viewModel(),
+    favoriteViewModel: FavoriteViewModel = viewModel(),
+    productDetailViewModel: ProductDetailViewModel = viewModel(),
     brandsViewModel: BrandViewModel = viewModel(),
     productsViewModels: ProductsViewModels = viewModel(),
-    loginViewModel: LoginViewModel = viewModel()
+    loginViewModel: LoginViewModel = viewModel(),
 ) {
     var selectedSize by remember { mutableStateOf("") }
     var selectedQuantity by remember { mutableStateOf(0) }
-    var isFavorite by remember { mutableStateOf(false) }
+    var isFavorite by remember { mutableStateOf(isFavoriteByCurrentUser) }
     var showLoginDialog by remember { mutableStateOf(false) }
     val isLoggedIn = UserSesion.currentUser != null
 
+    val context = LocalContext.current
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var showAddBottomSheet by remember { mutableStateOf(false) }
+
     LaunchedEffect(productId) {
-        viewModel.fetchProductDetails(productId)
+        productDetailViewModel.fetchProductDetails(productId)
     }
 
-    val product by viewModel.productDetail.observeAsState()
-    val errorMessage by viewModel.errorMessage.observeAsState()
+    val product by productDetailViewModel.productDetail.observeAsState()
+    val errorMessage by productDetailViewModel.errorMessage.observeAsState()
 
     val brands by brandsViewModel.brand
     val products by productsViewModels.products
@@ -73,6 +78,12 @@ fun ProductScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        loginViewModel.loadRememberedCredentials(context) {
+
+        }
+    }
+
     if (showLoginDialog) {
         LoginDialog(
             onDismiss = { showLoginDialog = false },
@@ -83,7 +94,9 @@ fun ProductScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(15.dp)
+            .padding(15.dp),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -94,7 +107,7 @@ fun ProductScreen(
                 painter = painterResource(id = R.drawable.ic_arrow_back),
                 contentDescription = "Back",
                 modifier = Modifier
-                    .size(20.dp)
+                    .size(24.dp)
                     .clickable { navController.popBackStack() }
             )
             Text(
@@ -105,7 +118,7 @@ fun ProductScreen(
             Icon(
                 painter = painterResource(id = R.drawable.bell),
                 contentDescription = "Notifications",
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(24.dp)
             )
         }
 
@@ -142,7 +155,16 @@ fun ProductScreen(
                         .size(42.dp)
                         .border(0.1.dp, Color.Black, RoundedCornerShape(10.dp))
                         .background(Color.White)
-                        .clickable { isFavorite = !isFavorite },
+                        .clickable {
+                            isFavorite = !isFavorite;
+                            if (isFavorite) {
+                                favoriteViewModel.addFavoriteProducts(productId)
+                                Toast.makeText(context, "Đã thêm sản phẩm '${selectedProduct?.name ?: ""} vào mục yêu thích!", Toast.LENGTH_SHORT).show()
+                            } else {
+                                favoriteViewModel.removeFavoriteProducts(productId)
+                                Toast.makeText(context, "Đã hủy sản phẩm '${selectedProduct?.name ?: ""} khỏi mục yêu thích!", Toast.LENGTH_SHORT).show()
+                            }
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -247,10 +269,6 @@ fun ProductScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    val context = LocalContext.current
-                    var showBottomSheet by remember { mutableStateOf(false) }
-
-                    var showAddBottomSheet by remember { mutableStateOf(false) }
 
                     IconButton(
                         onClick = {
@@ -258,7 +276,7 @@ fun ProductScreen(
                                 if (isLoggedIn) {
                                     showAddBottomSheet = true
                                 } else {
-                                    showAddBottomSheet = true
+                                    showLoginDialog = true
                                 }
                             }
                         },
@@ -288,14 +306,12 @@ fun ProductScreen(
 //                            }
 
                             // Kiểm tra trạng thái đăng nhập sau khi tải thông tin
-                            if (UserSesion.currentUser != null) {
-                                // Người dùng đã đăng nhập, hiển thị bottom sheet mua hàng
-                                loginViewModel.loadRememberedCredentials(context) {
-                                    if (isLoggedIn) {
-                                        showBottomSheet = true
-                                    } else {
-                                        showLoginDialog = true
-                                    }
+                            // Người dùng đã đăng nhập, hiển thị bottom sheet mua hàng
+                            loginViewModel.loadRememberedCredentials(context) {
+                                if (isLoggedIn) {
+                                    showBottomSheet = true
+                                } else {
+                                    showLoginDialog = true
                                 }
                             }
                         },
@@ -312,7 +328,7 @@ fun ProductScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    val productDetailViewModel: ProductDetailViewModel = viewModel()
+
                     if (showBottomSheet) {
                         BuyNowBottomSheet(
                             productsViewModels = productsViewModels,
@@ -325,9 +341,9 @@ fun ProductScreen(
                     if (showAddBottomSheet) {
                         AddToCartBottomSheet(
                             productsViewModels = productsViewModels,
-                            viewModel = productDetailViewModel,
+                            productDetailViewModel = productDetailViewModel,
                             productId = productId,
-                            onDismiss = {showAddBottomSheet = false },
+                            onDismiss = { showAddBottomSheet = false },
                             navController
                         )
                     }
@@ -340,7 +356,7 @@ fun ProductScreen(
 @Composable
 fun LoginDialog(
     onDismiss: () -> Unit,
-    onLogin: () -> Unit
+    onLogin: () -> Unit,
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Card(

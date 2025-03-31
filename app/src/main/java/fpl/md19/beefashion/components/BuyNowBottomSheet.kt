@@ -263,7 +263,7 @@ fun BuyNowBottomSheet(
 
             Button(
                 onClick = {
-                    navController.navigate("paymentScreen")
+                    navController.navigate("paymentScreen/{address}")
                 },
                 colors = ButtonDefaults.buttonColors(Color.Red),
                 modifier = Modifier.fillMaxWidth().height(50.dp)

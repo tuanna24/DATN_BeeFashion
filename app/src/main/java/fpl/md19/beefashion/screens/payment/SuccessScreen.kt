@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.R
+import fpl.md19.beefashion.screens.tab.HomeScreen
 
 @Composable
 fun SuccessScreen(navController: NavController) {

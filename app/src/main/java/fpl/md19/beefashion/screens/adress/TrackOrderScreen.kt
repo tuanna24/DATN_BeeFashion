@@ -79,7 +79,8 @@ fun BottomSheetOrderStatus(modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 200.dp),
+            .defaultMinSize(minHeight = 200.dp)
+            .background(Color(0xFFFF5722)),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
         shadowElevation = 8.dp
     ) {

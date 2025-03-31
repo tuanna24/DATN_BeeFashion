@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,33 +22,35 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import fpl.md19.beefashion.R
+import fpl.md19.beefashion.models.Products
 import fpl.md19.beefashion.models.Saved
+import fpl.md19.beefashion.viewModels.FavoriteViewModel
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun SavedScreen(navController: NavController) {
-    val savedList = remember {
-        mutableStateListOf(
-            Saved("Áo phông", "189000", R.drawable.ao_phong),
-            Saved("Áo sơ mi", "250000", R.drawable.ao_phong),
-            Saved("Áo sơ mi", "250000", R.drawable.ao_phong),
-            Saved("Áo sơ mi", "250000", R.drawable.ao_phong),
-            Saved("Áo sơ mi", "250000", R.drawable.ao_phong),
-            Saved("Áo sơ mi", "250000", R.drawable.ao_phong),
-            Saved("Áo sơ mi", "250000", R.drawable.ao_phong),
-        )
+    val favoriteViewModel: FavoriteViewModel = viewModel()
+    val savedList by favoriteViewModel.products.observeAsState()
+
+    LaunchedEffect(Unit) {
+        favoriteViewModel.getFavoriteProducts()
     }
 
-    var itemToDelete by remember { mutableStateOf<Saved?>(null) }
+    var itemToDelete by remember { mutableStateOf<Products?>(null) }
     val context = LocalContext.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(15.dp),
-        verticalArrangement = Arrangement.Top
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -62,10 +65,10 @@ fun SavedScreen(navController: NavController) {
             )
         }
 
-        if (savedList.isEmpty()) {
+        if (savedList == null || savedList!!.isEmpty()) {
             EmptySavedScreen()
         } else {
-            SaveList(savedList, { item -> itemToDelete = item }, navController)
+            SaveList(savedList!!, { item -> itemToDelete = item }, navController)
         }
     }
 
@@ -74,13 +77,14 @@ fun SavedScreen(navController: NavController) {
         ConfirmDeleteDialog(
             item = item,
             onConfirm = {
-                savedList.remove(item)
+                favoriteViewModel.removeFavoriteProducts(item.id)
                 Toast.makeText(
                     context,
-                    "Bạn đã xóa sản phẩm ${item.titile} khỏi danh sách yêu thích.",
+                    "Bạn đã xóa sản phẩm ${item.name} khỏi danh sách yêu thích.",
                     Toast.LENGTH_SHORT
                 ).show()
                 itemToDelete = null
+                favoriteViewModel.getFavoriteProducts()
             },
             onDismiss = { itemToDelete = null }
         )
@@ -88,7 +92,7 @@ fun SavedScreen(navController: NavController) {
 }
 
 @Composable
-fun SaveList(saver: List<Saved>, onRemoveRequest: (Saved) -> Unit, navController: NavController) {
+fun SaveList(saver: List<Products>, onRemoveRequest: (Products) -> Unit, navController: NavController) {
     val state = rememberLazyStaggeredGridState()
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
@@ -101,18 +105,18 @@ fun SaveList(saver: List<Saved>, onRemoveRequest: (Saved) -> Unit, navController
 }
 
 @Composable
-fun MySaveCard(saved: Saved, onRemoveRequest: (Saved) -> Unit, navController: NavController) {
+fun MySaveCard(saved: Products, onRemoveRequest: (Products) -> Unit, navController: NavController) {
     Column(
         modifier = Modifier
             .padding(8.dp, top = 20.dp)
             .background(Color.White, shape = RoundedCornerShape(8.dp))
     ) {
         Box {
-            Image(
-                painter = painterResource(id = saved.imageRes),
-                contentDescription = null,
+            AsyncImage(
+                model = saved.image,
+                contentDescription = "Product",
                 contentScale = ContentScale.Fit,
-                modifier = Modifier.clip(RoundedCornerShape(10.dp)).clickable{navController.navigate("productScreen")}
+                modifier = Modifier.clip(RoundedCornerShape(10.dp)).clickable{navController.navigate("productScreen/${saved.id}/${true}")}
             )
             Icon(
                 painter = painterResource(R.drawable.hear_red),
@@ -129,7 +133,7 @@ fun MySaveCard(saved: Saved, onRemoveRequest: (Saved) -> Unit, navController: Na
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = saved.titile,
+            text = saved.name,
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
             modifier = Modifier
@@ -138,7 +142,7 @@ fun MySaveCard(saved: Saved, onRemoveRequest: (Saved) -> Unit, navController: Na
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = saved.price.toString(),
+            text = formatCurrency(saved.price),
             color = Color.Gray,
             fontSize = 14.sp,
             modifier = Modifier.padding(horizontal = 8.dp)
@@ -147,11 +151,11 @@ fun MySaveCard(saved: Saved, onRemoveRequest: (Saved) -> Unit, navController: Na
 }
 
 @Composable
-fun ConfirmDeleteDialog(item: Saved, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+fun ConfirmDeleteDialog(item: Products, onConfirm: () -> Unit, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Xác nhận xóa") },
-        text = { Text("Bạn có chắc muốn xóa sản phẩm \"${item.titile}\" khỏi danh sách yêu thích?") },
+        text = { Text("Bạn có chắc muốn xóa sản phẩm \"${item.name}\" khỏi danh sách yêu thích?") },
         confirmButton = {
             TextButton(onClick = onConfirm) {
                 Text("Yes", color = Color.Red, fontWeight = FontWeight.Bold)
@@ -189,7 +193,7 @@ fun EmptySavedScreen() {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Hãy thử một từ khóa khác hoặc tìm kiếm thêm sản phẩm",
+                text = "Hãy thêm một sản phẩm yêu thích trước",
                 fontSize = 14.sp,
                 color = Color.Gray,
                 fontWeight = FontWeight.Medium,
@@ -197,6 +201,15 @@ fun EmptySavedScreen() {
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp)
             )
         }
+    }
+}
+
+fun formatCurrency2(price: Any?): String {
+    val formatter = NumberFormat.getInstance(Locale("vi", "VN"))
+    return when (price) {
+        is Number -> formatter.format(price.toLong()) + " ₫"
+        is String -> price.toLongOrNull()?.let { formatter.format(it) + " ₫" } ?: "0 ₫"
+        else -> "0 ₫"
     }
 }
 

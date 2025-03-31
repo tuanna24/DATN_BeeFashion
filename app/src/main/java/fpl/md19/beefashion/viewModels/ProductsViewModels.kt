@@ -8,11 +8,13 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import fpl.md19.beefashion.GlobalVarible.UserSesion
 import fpl.md19.beefashion.api.HttpRequest
 import fpl.md19.beefashion.models.Products
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import okhttp3.Response
 import java.io.IOException
 
 class ProductsViewModels : ViewModel() {
@@ -39,7 +41,13 @@ class ProductsViewModels : ViewModel() {
             _errorMessage.value = null
             try {
                 val apiService = HttpRequest.getInstance()
-                val response = apiService.getProducts()
+                val customerID = UserSesion.currentUser?.id
+                var response = apiService.getProducts()
+
+                if(!customerID.isNullOrBlank()){
+                    response = apiService.getProductsWithCustomerID(customerID)
+                }
+
                 if (response.isSuccessful) {
                     _products.value = (response.body() ?: emptyList())
                     Log.d("data", _products.value.toString())
