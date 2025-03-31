@@ -1,4 +1,4 @@
-package fpl.md19.beefashion
+package fpl.md19.beefashion.screens.adress
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -22,22 +22,40 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import fpl.md19.beefashion.R
+import fpl.md19.beefashion.models.AddressModel
 import fpl.md19.beefashion.requests.AddressRequest
 import fpl.md19.beefashion.viewModels.AddressViewModel
 import fpl.md19.beefashion.viewModels.NewAddressViewModel
 import java.text.Normalizer
-import java.util.regex.Pattern
 
 @Composable
-fun NewAddressScreen(
+fun UpdateScreen(
     navController: NavController,
     addressViewModel: AddressViewModel,
     newAddressViewModel: NewAddressViewModel,
     customerId: String,
-
 ) {
     val isLoading by newAddressViewModel.isLoading.collectAsState()
     val error by newAddressViewModel.error.collectAsState()
+
+    // Lấy danh sách địa chỉ từ ViewModel
+    val addresses by addressViewModel.addresses.collectAsState()
+
+    // Tìm địa chỉ cần chỉnh sửa
+    val selectedAddress = addresses.find { it.id == customerId }
+
+    // Khi màn hình được mở, cập nhật dữ liệu vào NewAddressViewModel
+    LaunchedEffect(selectedAddress) {
+        selectedAddress?.let {
+            newAddressViewModel.setProvince(it.province, it.province)
+            newAddressViewModel.setDistrict(it.district, it.district)
+            newAddressViewModel.setWard(it.ward)
+
+            // Cập nhật dữ liệu vào AddressViewModel
+            addressViewModel.setSelectedAddress(it)
+        }
+    }
 
     LaunchedEffect(error) {
         error?.let { errorMessage ->
@@ -73,10 +91,6 @@ fun NewAddressScreen(
             )
         }
 
-//        Box(modifier = Modifier.fillMaxHeight(0.4f)) {
-//            MapScreen()
-//        }
-
         if (isLoading) {
             Box(
                 modifier = Modifier
@@ -91,7 +105,8 @@ fun NewAddressScreen(
                 navController = navController,
                 addressViewModel = addressViewModel,
                 newAddressViewModel = newAddressViewModel,
-                customerId = customerId
+                customerId = customerId,
+                address = selectedAddress // Truyền dữ liệu xuống AddressForm
             )
         }
     }
@@ -102,7 +117,9 @@ fun AddressForm(
     navController: NavController,
     addressViewModel: AddressViewModel,
     newAddressViewModel: NewAddressViewModel,
-    customerId: String
+    customerId: String,
+    address: AddressModel?, // Nhận dữ liệu từ UpdateScreen
+
 ) {
     val context = LocalContext.current
 
@@ -112,29 +129,24 @@ fun AddressForm(
     val provinces by newAddressViewModel.provinces.collectAsState()
     val districts by newAddressViewModel.districts.collectAsState()
     val wards by newAddressViewModel.wards.collectAsState()
-    val createStatus by addressViewModel.createStatus.collectAsState()
 
     var expandedProvince by remember { mutableStateOf(false) }
     var expandedDistrict by remember { mutableStateOf(false) }
     var expandedWard by remember { mutableStateOf(false) }
-    var detail by rememberSaveable { mutableStateOf("") }
-    var name by rememberSaveable { mutableStateOf("") }
-    var phoneNumber by rememberSaveable { mutableStateOf("") }
+    val selectedAddress by addressViewModel.selectedAddress.collectAsState()
+    var detail by rememberSaveable { mutableStateOf(selectedAddress?.detail ?: "") }
+    var name by rememberSaveable { mutableStateOf(selectedAddress?.name ?: "") }
+    var phoneNumber by rememberSaveable { mutableStateOf(selectedAddress?.phoneNumber ?: "") }
     var showSuccessDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     val addresses by addressViewModel.addresses.collectAsState()
+    val updateStatus by addressViewModel.updateStatus.collectAsState()
 
-    LaunchedEffect(createStatus) {
-        when (createStatus) {
-            is AddressViewModel.CreateStatus.Success -> {
-                showSuccessDialog = true
-            }
-
-            is AddressViewModel.CreateStatus.Error -> {
-                Toast.makeText(context, "Lỗi khi tạo địa chỉ", Toast.LENGTH_SHORT).show()
-            }
-
-            else -> {}
+    LaunchedEffect(selectedAddress) {
+        if (selectedAddress != null) {
+            detail = selectedAddress!!.detail
+            name = selectedAddress!!.name
+            phoneNumber = selectedAddress!!.phoneNumber
         }
     }
 
@@ -218,7 +230,8 @@ fun AddressForm(
             onClick = {
                 if (isFormValid) {
                     if (!phoneNumber.matches(phoneRegex)) {
-                        errorMessage = "Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam hợp lệ."
+                        errorMessage =
+                            "Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam hợp lệ."
                         return@Button
                     }
                     val newAddress =
@@ -230,15 +243,24 @@ fun AddressForm(
                     if (isDuplicate) {
                         errorMessage = "Địa chỉ đã tồn tại. Vui lòng nhập địa chỉ khác."
                     } else {
-                        val addressRequest = AddressRequest(
-                            province = selectedProvince?.first.orEmpty(),
-                            district = selectedDistrict?.first.orEmpty(),
-                            ward = selectedWard.orEmpty(),
-                            detail = detail,
-                            name = name,
-                            phoneNumber = phoneNumber
-                        )
-                        addressViewModel.createAddress(addressRequest)
+                        address?.id?.let { addressId ->
+                            // gui len viewmodel
+                            addressViewModel.updateAddress(
+                                customerId = customerId,
+                                addressId = addressId,
+                                addressRequest = AddressRequest(
+                                    selectedProvince?.first.orEmpty(),
+                                    selectedDistrict?.first.orEmpty(),
+                                    selectedWard.orEmpty(),
+                                    detail,
+                                    name,
+                                    phoneNumber
+                                )
+                            );
+                        }
+
+//                        navController.popBackStack()
+                        showSuccessDialog = true
                     }
                 }
             },
@@ -249,8 +271,26 @@ fun AddressForm(
             shape = RoundedCornerShape(12.dp),
             enabled = isFormValid
         ) {
-            Text("Thêm địa chỉ")
+            Text("Sửa địa chỉ")
         }
+
+        // Update the LaunchedEffect to watch for update status changes
+        LaunchedEffect(updateStatus) {
+            when (updateStatus) {
+                is AddressViewModel.UpdateStatus.Success -> {
+                    // Address updated successfully, show success dialog
+                    showSuccessDialog = true
+                }
+
+                is AddressViewModel.UpdateStatus.Error -> {
+                    // Show error message
+                    errorMessage = (updateStatus as AddressViewModel.UpdateStatus.Error).message
+                }
+
+                else -> {}
+            }
+        }
+
         if (errorMessage.isNotEmpty()) {
             Text(
                 text = errorMessage,
@@ -261,7 +301,10 @@ fun AddressForm(
 
         if (showSuccessDialog) {
             SuccessDialog(
-                onDismiss = { showSuccessDialog = false },
+                onDismiss = {
+                    showSuccessDialog = false
+                    navController.popBackStack()
+                },
                 navController = navController
             )
         }
@@ -359,7 +402,7 @@ fun SuccessDialog(onDismiss: () -> Unit, navController: NavController) {
                 onClick = {
                     onDismiss()
 //                     navController.navigate("AddressScreen")
-                    Toast.makeText(context, "Bạn đã thêm một địa chỉ mới", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "Bạn đã sửa một địa chỉ", Toast.LENGTH_SHORT)
                         .show()
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -382,7 +425,7 @@ fun SuccessDialog(onDismiss: () -> Unit, navController: NavController) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(text = "Chúc mừng!", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Text(
-                    text = "Địa chỉ mới của bạn đã được thêm.",
+                    text = "Địa chỉ của bạn đã được sửa.",
                     fontSize = 14.sp,
                     color = Color.Gray
                 )
@@ -396,12 +439,12 @@ fun SuccessDialog(onDismiss: () -> Unit, navController: NavController) {
 
 @Preview(showBackground = true)
 @Composable
-fun NewAddressPreview() {
+fun UpdateScreenPreview() {
     val navController = rememberNavController()
     val addressViewModel = viewModel<AddressViewModel>()
     val newAddressViewModel = viewModel<NewAddressViewModel>() // Thêm ViewModel này
 
-    NewAddressScreen(
+    UpdateScreen(
         navController,
         addressViewModel,
         newAddressViewModel,

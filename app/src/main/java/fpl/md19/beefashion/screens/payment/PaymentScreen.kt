@@ -31,7 +31,7 @@ import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
-fun PaymentScreen(navController: NavController) {
+fun PaymentScreen(navController: NavController, address: String?) {
     val selectedMethod = remember { mutableStateOf("") }
     val contex = LocalContext.current
 
@@ -87,17 +87,11 @@ fun PaymentScreen(navController: NavController) {
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(
-                        text = "Tún Nè (0966347311)",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp // Giảm từ mặc định xuống 14.sp
-                    )
-                    Spacer(modifier = Modifier.height(2.dp)) // Giảm từ 5.dp xuống 2.dp
-                    Text(
-                        text = "Số Nhà 34, Ngõ 143/1 Đường Xuân Phương, Phường Phương Canh, Quận Nam Từ Liêm, Hà Nội",
-                        fontSize = 12.sp, // Giảm từ 14.sp xuống 12.sp
-                        color = Color.Gray
-                    )
+                    if (!address.isNullOrEmpty()) {
+                        Text(text = address, fontSize = 14.sp)
+                    } else {
+                        Text(text = "Chưa có địa chỉ", fontSize = 14.sp, color = Color.Gray)
+                    }
                 }
                 Icon(
                     painter = painterResource(R.drawable.ic_arrow_right),
@@ -361,6 +355,6 @@ fun formatCurrency(price: Any?): String {
 @Composable
 fun PreviewPaymentScreen() {
     val navController = rememberNavController()
-    PaymentScreen(navController)
+    PaymentScreen(navController, address = null)
 }
 

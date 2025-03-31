@@ -45,6 +45,7 @@ import fpl.md19.beefashion.R
 import fpl.md19.beefashion.TrackOrderScreen
 import fpl.md19.beefashion.screens.accounts.MyDetailsScreen
 import fpl.md19.beefashion.screens.accounts.NotificationsScreen
+import fpl.md19.beefashion.screens.adress.UpdateScreen
 import fpl.md19.beefashion.screens.auth.ForgotPasswordScreen
 import fpl.md19.beefashion.screens.auth.LoginScreen
 import fpl.md19.beefashion.screens.auth.SignUpScreen
@@ -184,8 +185,32 @@ fun NestedBottomTab(
             )
         }
 
-        composable("paymentScreen") {
-            PaymentScreen(navController)
+        composable(
+            route = "updateScreen/{customerId}",
+            arguments = listOf(navArgument("customerId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val customerId = backStackEntry.arguments?.getString("customerId") ?: ""
+
+            // Get the same ViewModel instance from the parent
+            val addressViewModel: AddressViewModel = viewModel()
+
+            // Lấy ViewModel trực tiếp
+            val newAddressViewModel: NewAddressViewModel = viewModel()
+
+            UpdateScreen(
+                navController = navController,
+                addressViewModel = addressViewModel,
+                newAddressViewModel = newAddressViewModel,
+                customerId = customerId
+            )
+        }
+
+        composable(
+            "paymentScreen/{address}",
+            arguments = listOf(navArgument("address") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val address = backStackEntry.arguments?.getString("address")
+            PaymentScreen(navController, address)
         }
 
         composable("myOderScreen") {
@@ -236,9 +261,9 @@ fun NestedBottomTab(
                 ProductScreen(navController = navController, productId = productId)
             }
         }
-        composable("paymentScreen") {
-            PaymentScreen(navController)
-        }
+//        composable("paymentScreen") {
+//            PaymentScreen(navController)
+//        }
         composable("myOderScreen") {
             MyOderScreen(navController)
         }
