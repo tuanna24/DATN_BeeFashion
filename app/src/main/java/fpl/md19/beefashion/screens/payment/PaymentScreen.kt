@@ -33,7 +33,7 @@ import java.util.Locale
 @Composable
 fun PaymentScreen(navController: NavController, address: String?) {
     val selectedMethod = remember { mutableStateOf("cod") }
-    val contex = LocalContext.current
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -179,7 +179,7 @@ fun PaymentScreen(navController: NavController, address: String?) {
                         .padding(bottom = 10.dp)
                         .clickable {
                             selectedMethod.value = "cod"
-                            Toast.makeText(contex, "Bạn đã chọn thanh toán khi nhận hàng!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Bạn đã chọn thanh toán khi nhận hàng!", Toast.LENGTH_SHORT).show()
                         },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
@@ -193,7 +193,7 @@ fun PaymentScreen(navController: NavController, address: String?) {
                         selected = selectedMethod.value == "cod",
                         onClick = {
                             selectedMethod.value = "cod"
-                            Toast.makeText(contex, "Bạn đã chọn thanh toán khi nhận hàng!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Bạn đã chọn thanh toán khi nhận hàng!", Toast.LENGTH_SHORT).show()
                         },
                         modifier = Modifier.size(20.dp)
                     )
@@ -204,7 +204,7 @@ fun PaymentScreen(navController: NavController, address: String?) {
                         .fillMaxWidth()
                         .clickable {
                             selectedMethod.value = "zalopay"
-                            Toast.makeText(contex, "Bạn đã chọn thanh toán bằng ZaloPay!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Bạn đã chọn thanh toán bằng ZaloPay!", Toast.LENGTH_SHORT).show()
                         },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -218,7 +218,7 @@ fun PaymentScreen(navController: NavController, address: String?) {
                         selected = selectedMethod.value == "zalopay",
                         onClick = {
                             selectedMethod.value = "zalopay"
-                            Toast.makeText(contex, "Bạn đã chọn thanh toán bằng ZaloPay!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Bạn đã chọn thanh toán bằng ZaloPay!", Toast.LENGTH_SHORT).show()
                         },
                         modifier = Modifier.size(20.dp)
                     )
@@ -336,7 +336,7 @@ fun PaymentScreen(navController: NavController, address: String?) {
             }
             Button(
                 onClick = {
-                    Toast.makeText(contex, "Bạn đã đặt hàng thành công!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Bạn đã đặt hàng thành công!", Toast.LENGTH_SHORT).show()
                     navController.navigate("successScreen")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),

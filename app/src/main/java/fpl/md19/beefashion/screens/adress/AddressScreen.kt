@@ -237,12 +237,12 @@ fun AddressScreen(
                         "Cập nhật địa chỉ nhận hàng thành công!",
                         Toast.LENGTH_SHORT
                     ).show()
-                    val selectedAddressModel = addresses.find { it.id == selectedAddress }
-                    selectedAddressModel?.let {
-                        val encodedAddress =
-                            Uri.encode("${it.name}, ${it.phoneNumber}\n${it.detail}, ${it.ward}, ${it.district}, ${it.province}")
-                        navController.navigate("paymentScreen/$encodedAddress")
-                    }
+//                    val selectedAddressModel = addresses.find { it.id == selectedAddress }
+//                    selectedAddressModel?.let {
+//                        val encodedAddress =
+//                            Uri.encode("${it.name}, ${it.phoneNumber}\n${it.detail}, ${it.ward}, ${it.district}, ${it.province}")
+//                        navController.navigate("paymentScreen/$encodedAddress")
+//                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()

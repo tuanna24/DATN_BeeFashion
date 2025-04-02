@@ -207,11 +207,11 @@ fun NestedBottomTab(
         }
 
         composable(
-            "paymentScreen/{address}",
-            arguments = listOf(navArgument("address") { type = NavType.StringType })
+            "paymentScreen/{fullAddress}",
+            arguments = listOf(navArgument("fullAddress") { type = NavType.StringType })
         ) { backStackEntry ->
-            val address = backStackEntry.arguments?.getString("address")
-            PaymentScreen(navController, address)
+            val fullAddress = backStackEntry.arguments?.getString("fullAddress")
+            PaymentScreen(navController, fullAddress)
         }
 
         composable("myOderScreen") {

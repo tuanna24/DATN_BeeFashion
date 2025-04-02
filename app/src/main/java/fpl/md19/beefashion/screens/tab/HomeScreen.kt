@@ -42,14 +42,31 @@ fun HomeScreen(
     productsViewModels: ProductsViewModels = viewModel(),
     categoriesViewModels: CategoriesViewModels = viewModel()
 ) {
-    val categories = listOf("Toàn bộ", "Áo Thun", "Áo sơ mi", "Áo Khoác", "Áo Vest")
-    var selectedCategory by remember { mutableStateOf(categories[0]) }
 
     val favoriteViewModel: FavoriteViewModel = viewModel()
 
     val products by productsViewModels.products
     val loading by productsViewModels.loading
     val errorMessage by productsViewModels.errMessage
+
+
+    val categoryList by categoriesViewModels.categories // Lấy danh sách danh mục từ ViewModel
+
+    // Tạo ánh xạ categoryId -> categoryName
+    val categoryMap = categoryList.associate { it.id to it.name }
+
+    // Lấy danh mục từ sản phẩm và ánh xạ sang tên
+    val uniqueCategories = products.mapNotNull { categoryMap[it.categoryId] }.distinct()
+    val categories = listOf("Toàn bộ") + uniqueCategories
+
+    var selectedCategory by remember { mutableStateOf("Toàn bộ") }
+
+    // Lọc sản phẩm theo danh mục đã chọn
+    val filteredProducts = if (selectedCategory == "Toàn bộ") {
+        products
+    } else {
+        products.filter { categoryMap[it.categoryId] == selectedCategory }
+    }
 
     Column(
         modifier = Modifier
@@ -170,7 +187,7 @@ fun HomeScreen(
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
-            else -> ProductList(products, favoriteViewModel = favoriteViewModel, navController)
+            else -> ProductList(filteredProducts, favoriteViewModel = favoriteViewModel, navController)
         }
     }
 }
