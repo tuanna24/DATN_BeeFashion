@@ -1,5 +1,8 @@
 package fpl.md19.beefashion.components
 
+import ProductDetailViewModel
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,9 +47,11 @@ import androidx.compose.material3.IconButton
 
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 
 import coil.compose.AsyncImage
+import fpl.md19.beefashion.models.AddressModel
 import fpl.md19.beefashion.screens.payment.formatCurrency
 
 import fpl.md19.beefashion.viewModels.ProductsViewModels
@@ -59,14 +64,15 @@ fun BuyNowBottomSheet(
     viewModel: ProductDetailViewModel = viewModel(),
     productId: String,
     onDismiss: () -> Unit,
-    navController: NavController
+    navController: NavController,
+    selectedAddress: String,  // Nhận địa chỉ được chọn
+    addresses: List<AddressModel>,
 ) {
     val product by viewModel.productDetail.observeAsState()
     val errorMessage by viewModel.errorMessage.observeAsState()
     LaunchedEffect(productId) {
         viewModel.fetchProductDetails(productId)
     }
-
 
     val products by productsViewModels.products
     val sizes = product?.sizes ?: listOf()
@@ -76,126 +82,138 @@ fun BuyNowBottomSheet(
     var selectedSize by remember { mutableStateOf("") }
     var selectedQuantity by remember { mutableStateOf(0) }
     var isFavorite by remember { mutableStateOf(false) }
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-        containerColor = Color.White
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+
+    val selectedAddressModel = addresses.find { it.id == selectedAddress }
+    selectedAddressModel?.let {
+        val fullAddress =
+            "${it.name}, ${it.phoneNumber}\n${it.detail}, ${it.ward}, ${it.district}, ${it.province}"
+        val encodedAddress = Uri.encode(fullAddress)
+
+        ModalBottomSheet(
+            onDismissRequest = onDismiss,
+            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+            containerColor = Color.White
         ) {
-            val selectedProduct = products.find { it.id == productId }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
             ) {
-                AsyncImage(
-                    model = selectedProduct?.image,
-                    contentDescription = "Product Image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.size(80.dp)
-                )
-                Column(
-                    modifier = Modifier.weight(1f).padding(start = 12.dp)
+                val selectedProduct = products.find { it.id == productId }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(
-                        text = selectedProduct?.name ?: "",
-                        fontSize = 25.sp,
-                        fontWeight = FontWeight.Bold
+                    AsyncImage(
+                        model = selectedProduct?.image,
+                        contentDescription = "Product Image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.size(80.dp)
                     )
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 12.dp)
+                    ) {
+                        Text(
+                            text = selectedProduct?.name ?: "",
+                            fontSize = 25.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = formatCurrency(product?.price),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Red
+                        )
+                        Text(
+                            text = "Kho: $totalQuantity",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable { onDismiss() }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // ✅ Chọn màu sắc
+                Text(
+                    text = "Màu Sắc",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    product?.color?.forEach { color ->
+                        Button(
+                            onClick = { /* Xử lý chọn màu */ },
+                            colors = ButtonDefaults.buttonColors(Color.LightGray),
+                            modifier = Modifier.weight(1f)
+                        ) {
+//                        Text(text = color)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // ✅ Chọn Size
+                Text(
+                    text = "Size",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                if (sizes.isEmpty()) {
                     Text(
-                        text = formatCurrency(product?.price),
-                        fontSize = 20.sp,
+                        text = "Không có size của áo này",
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Red
                     )
-                    Text(
-                        text = "Kho: $totalQuantity",
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
-                }
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Close",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable { onDismiss() }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // ✅ Chọn màu sắc
-            Text(
-                text = "Màu Sắc",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                product?.color?.forEach { color ->
-                    Button(
-                        onClick = { /* Xử lý chọn màu */ },
-                        colors = ButtonDefaults.buttonColors(Color.LightGray),
-                        modifier = Modifier.weight(1f)
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
-//                        Text(text = color)
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // ✅ Chọn Size
-            Text(
-                text = "Size",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            if (sizes.isEmpty()) {
-                Text(
-                    text = "Không có size của áo này",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Red
-                )
-            } else {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
-                    sizes.forEachIndexed { index, sizeObj ->
-                        val quantity = quantities.getOrNull(index) ?: 0
-                        Box(
-                            modifier = Modifier
-                                .size(60.dp)
-                                .border(
-                                    2.dp,
-                                    if (sizeObj.name == selectedSize) Color.Black else Color.Gray,
-                                    RoundedCornerShape(8.dp)
-                                )
-                                .clickable {
-                                    selectedSize = sizeObj.name
-                                    selectedQuantity = quantity
+                        sizes.forEachIndexed { index, sizeObj ->
+                            val quantity = quantities.getOrNull(index) ?: 0
+                            Box(
+                                modifier = Modifier
+                                    .size(60.dp)
+                                    .border(
+                                        2.dp,
+                                        if (sizeObj.name == selectedSize) Color.Black else Color.Gray,
+                                        RoundedCornerShape(8.dp)
+                                    )
+                                    .clickable {
+                                        selectedSize = sizeObj.name
+                                        selectedQuantity = quantity
+                                    }
+                                    .padding(8.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(
+                                        text = sizeObj.name.trim(),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
-                                .padding(8.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
-                                    text = sizeObj.name.trim(),
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
                             }
                         }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
 //            Text(
 //                text = "Số lượng: $selectedQuantity",
@@ -203,80 +221,83 @@ fun BuyNowBottomSheet(
 //                fontWeight = FontWeight.Bold
 //            )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
 
-            var quantity by remember { mutableStateOf(1) } // ✅ Trạng thái số lượng
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp), // Thêm khoảng cách
-                horizontalArrangement = Arrangement.SpaceBetween, // Cách đều các phần tử
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // ✅ Chọn số lượng
-                Text(
-                    text = "Số lượng",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                var quantity by remember { mutableStateOf(1) } // ✅ Trạng thái số lượng
 
                 Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp), // Thêm khoảng cách
+                    horizontalArrangement = Arrangement.SpaceBetween, // Cách đều các phần tử
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(
-                        onClick = { if (quantity > 1) quantity-- },
-                        modifier = Modifier
-                            .size(36.dp) // Tăng kích thước nút
-                            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)) // ✅ Thêm viền
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Remove,
-                            contentDescription = "Giảm",
-                            tint = Color.Black // Màu icon
-                        )
-                    }
-
+                    // ✅ Chọn số lượng
                     Text(
-                        text = quantity.toString(),
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        text = "Số lượng",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
                     )
 
-                    IconButton(
-                        onClick = { quantity++ },
-                        modifier = Modifier
-                            .size(36.dp) // Tăng kích thước nút
-                            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)) // ✅ Thêm viền
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.Add,
-                            contentDescription = "Tăng",
-                            tint = Color.Black
+                        IconButton(
+                            onClick = { if (quantity > 1) quantity-- },
+                            modifier = Modifier
+                                .size(36.dp) // Tăng kích thước nút
+                                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)) // ✅ Thêm viền
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Remove,
+                                contentDescription = "Giảm",
+                                tint = Color.Black // Màu icon
+                            )
+                        }
+
+                        Text(
+                            text = quantity.toString(),
+                            fontSize = 18.sp,
+                            modifier = Modifier.padding(horizontal = 16.dp)
                         )
+
+                        IconButton(
+                            onClick = { quantity++ },
+                            modifier = Modifier
+                                .size(36.dp) // Tăng kích thước nút
+                                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)) // ✅ Thêm viền
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Add,
+                                contentDescription = "Tăng",
+                                tint = Color.Black
+                            )
+                        }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                            navController.navigate("paymentScreen/$encodedAddress")
+                    },
+                    colors = ButtonDefaults.buttonColors(Color.Red),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                ) {
+                    Text(
+                        text = "Mua ngay",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    navController.navigate("paymentScreen/{address}")
-                },
-                colors = ButtonDefaults.buttonColors(Color.Red),
-                modifier = Modifier.fillMaxWidth().height(50.dp)
-            ) {
-                Text(
-                    text = "Mua ngay",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }

@@ -29,7 +29,9 @@ import fpl.md19.beefashion.R
 import fpl.md19.beefashion.GlobalVarible.UserSesion
 import fpl.md19.beefashion.components.AddToCartBottomSheet
 import fpl.md19.beefashion.components.BuyNowBottomSheet
+import fpl.md19.beefashion.screens.adress.AddressPreferenceManager
 import fpl.md19.beefashion.screens.payment.formatCurrency
+import fpl.md19.beefashion.viewModels.AddressViewModel
 import fpl.md19.beefashion.viewModels.BrandViewModel
 import fpl.md19.beefashion.viewModels.CartViewModel
 import fpl.md19.beefashion.viewModels.FavoriteViewModel
@@ -70,6 +72,14 @@ fun ProductScreen(
     val products by productsViewModels.products
     val sizes = product?.sizes ?: listOf()
     val quantities = product?.quantities ?: listOf()
+
+    val addressPreferenceManager = remember { AddressPreferenceManager(context) }
+    val addressViewModel: AddressViewModel = viewModel()
+    val addresses by addressViewModel.addresses.collectAsState()
+
+    val selectedAddress by remember { mutableStateOf(addressPreferenceManager.getSelectedAddress()) }
+
+    val selectedAddressModel = addresses.find { it.id == selectedAddress }
 
     LaunchedEffect(product) {
         if (sizes.isNotEmpty() && quantities.isNotEmpty()) {
@@ -295,6 +305,9 @@ fun ProductScreen(
 
                     Button(
                         onClick = {
+                            if (selectedAddressModel == null) {
+                                Toast.makeText(context, "Vui lòng thêm địa chỉ trước khi mua!", Toast.LENGTH_SHORT).show()
+                            }
                             // Kiểm tra lại trạng thái đăng nhập trước khi thực hiện hành động mua hàng
 //                            loginViewModel.loadRememberedCredentials(context) {
 //                                // Callback khi đăng nhập tự động thành công (nếu có thông tin đăng nhập đã lưu)
@@ -330,13 +343,17 @@ fun ProductScreen(
                     }
 
                     if (showBottomSheet) {
-                        BuyNowBottomSheet(
-                            productsViewModels = productsViewModels,
-                            viewModel = productDetailViewModel,
-                            productId = productId,
-                            onDismiss = { showBottomSheet = false },
-                            navController
-                        )
+                        selectedAddress?.let {
+                            BuyNowBottomSheet(
+                                productsViewModels = productsViewModels,
+                                viewModel = productDetailViewModel,
+                                productId = productId,
+                                onDismiss = { showBottomSheet = false },
+                                navController = navController,
+                                selectedAddress = it,
+                                addresses = addresses
+                            )
+                        }
                     }
                     if (showAddBottomSheet) {
                         AddToCartBottomSheet(
