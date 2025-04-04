@@ -1,6 +1,8 @@
 package fpl.md19.beefashion.viewModels
 
 import android.util.Log
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fpl.md19.beefashion.GlobalVarible.UserSesion
@@ -31,6 +33,9 @@ class AddressViewModel() : ViewModel() {
 
     private val _selectedAddress = MutableStateFlow<AddressModel?>(null)
     val selectedAddress: StateFlow<AddressModel?> = _selectedAddress
+
+    private val _selectedAddress1 = mutableStateOf<String?>("")
+    val selectedAddress1: State<String?> = _selectedAddress1
 
     init {
         fetchUserIdAndAddresses()
@@ -212,7 +217,9 @@ class AddressViewModel() : ViewModel() {
     fun setSelectedAddress(address: AddressModel) {
         _selectedAddress.value = address
     }
-
+    fun setSelectedAddress1(address: String) {
+        _selectedAddress1.value = address
+    }
     sealed class CreateStatus {
         object Idle : CreateStatus()
         object Loading : CreateStatus()

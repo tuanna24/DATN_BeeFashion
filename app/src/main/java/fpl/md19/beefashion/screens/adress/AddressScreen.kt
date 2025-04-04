@@ -62,7 +62,6 @@ fun AddressScreen(
     var addressToDelete by remember { mutableStateOf<AddressModel?>(null) }
     val createStatus by viewModel.createStatus.collectAsState()
     val updateStatus by viewModel.updateStatus.collectAsState()
-
     val addressPreferenceManager = remember { AddressPreferenceManager(context) }
 
     // Đọc giá trị được lưu trong SharedPreferences khi khởi chạy màn hình
@@ -85,19 +84,6 @@ fun AddressScreen(
             else -> {}
         }
     }
-
-//    LaunchedEffect(addresses) {
-//        if (addresses.isNotEmpty() && selectedAddress.isBlank()) {
-//            selectedAddress = addresses.first().id // Giữ nguyên thứ tự, chỉ chọn mặc định lần đầu
-//        }
-//    }
-//    LaunchedEffect(addresses) {
-//        Log.d("AddressScreen", "Danh sách địa chỉ sau khi cập nhật: ${addresses.size}")
-//
-//        if (addresses.isNotEmpty() && selectedAddress.isBlank()) {
-//            selectedAddress = addresses.first().id
-//        }
-//    }
 
     Column(
         modifier = Modifier
@@ -171,21 +157,29 @@ fun AddressScreen(
                     append("${addressModel.detail}, ${addressModel.ward}, ${addressModel.district}, ${addressModel.province}")
                 }
                 AddressItem(
-                    context,
+                    context = LocalContext.current,
                     address = fullAddress.toString(),
                     selected = selectedAddress == addressModel.id,
                     onSelect = {
                         selectedAddress = addressModel.id
                         addressPreferenceManager.saveSelectedAddress(addressModel.id) // Lưu vào SharedPreferences
+                        viewModel.setSelectedAddress1(fullAddress.toString())
+                        //navController.popBackStack()
+                        // Điều hướng và truyền dữ liệu mà không tạo lại màn hình Payment
+//                        navController.navigate("paymentScreen/${fullAddress.toString()}") {
+//                           // Thêm flag launchSingleTop để không tạo màn hình mới nếu màn hình đã tồn tại
+//                           launchSingleTop = true
+//                        }
                     },
                     onDelete = {
                         Log.d("UI", "Preparing to delete: ${addressModel.id}")
                         addressToDelete = addressModel
                         showDeleteDialog = true
                     },
-                    navController= navController,
-                    customerId,
-                    addressModel
+                    navController = navController,
+                    customerId = customerId,
+                    addressModel =addressModel
+
                 )
             }
         }
@@ -319,7 +313,8 @@ fun AddressItem(
         val newOffset = (offsetX + delta).coerceIn(-deleteThreshold, 0f)
         offsetX = newOffset
     }
-
+    val fullAddress =
+        "${addressModel.name},${addressModel.phoneNumber}\n${addressModel.detail}, ${addressModel.ward}, ${addressModel.district}, ${addressModel.province}"
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -335,7 +330,7 @@ fun AddressItem(
             contentAlignment = Alignment.CenterEnd
 
         ) {
-            Row(){
+            Row() {
                 Box(
                     modifier = Modifier
                         .size(40.dp)
@@ -409,12 +404,15 @@ fun AddressItem(
                 }
                 RadioButton(
                     selected = selected,
-                    onClick = { onSelect(address) },
+                    onClick = {
+                        onSelect(address)
+                    },
                     colors = RadioButtonDefaults.colors(
                         selectedColor = Color.Black,
                         unselectedColor = Color.Gray
                     )
                 )
+
             }
         }
     }
