@@ -191,10 +191,10 @@ fun ProductItem(product: Products, navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp) // Giảm từ 8.dp xuống 4.dp
-            .border(1.dp, Color.LightGray, RoundedCornerShape(6.dp)) // Giảm từ 8.dp xuống 6.dp
+            .padding(vertical = 4.dp)
+            .border(1.dp, Color.LightGray, RoundedCornerShape(6.dp))
             .background(Color.White, RoundedCornerShape(6.dp))
-            .padding(8.dp) // Giảm từ 12.dp xuống 8.dp
+            .padding(8.dp)
             .clickable {
                 navController.navigate("productScreen/${product.id}/${product.isFavByCurrentUser}")
             },
@@ -204,30 +204,30 @@ fun ProductItem(product: Products, navController: NavController) {
             model = product.image,
             contentDescription = product.name,
             modifier = Modifier
-                .size(40.dp) // Giảm từ 50.dp xuống 40.dp
-                .border(0.2.dp, Color.Black, RoundedCornerShape(6.dp)) // Giảm từ 8.dp xuống 6.dp
-                .padding(1.dp), // Giảm từ 2.dp xuống 1.dp
+                .size(40.dp)
+                .border(0.2.dp, Color.Black, RoundedCornerShape(6.dp))
+                .padding(1.dp),
             contentScale = ContentScale.Crop
         )
 
-        Spacer(modifier = Modifier.width(8.dp)) // Giảm từ 12.dp xuống 8.dp
+        Spacer(modifier = Modifier.width(8.dp))
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = product.name,
                 fontWeight = FontWeight.Bold,
-                fontSize = 14.sp // Giảm từ 16.sp xuống 14.sp
+                fontSize = 14.sp
             )
             Text(
                 text = "SL: $totalQuantity",
-                fontSize = 12.sp, // Giảm từ 14.sp xuống 12.sp
+                fontSize = 12.sp,
                 color = Color.Gray
             )
             Text(
                 text = "Giá: ${formatCurrency1(product.price)}",
                 color = Color.Gray,
-                fontSize = 12.sp, // Giảm từ 14.sp xuống 12.sp
-                modifier = Modifier.padding(horizontal = 4.dp) // Giảm từ 8.dp xuống 4.dp
+                fontSize = 12.sp,
+                modifier = Modifier.padding(horizontal = 4.dp)
             )
         }
 
@@ -238,7 +238,7 @@ fun ProductItem(product: Products, navController: NavController) {
                 .clickable {
                     navController.navigate("productScreen/${product.id}")
                 }
-                .size(24.dp) // Giảm từ 30.dp xuống 24.dp
+                .size(24.dp)
         )
     }
 }

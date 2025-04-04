@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
@@ -120,46 +121,26 @@ fun PaymentScreen(navController: NavController, viewModel: AddressViewModel, ful
                 .background(Color.White, RoundedCornerShape(8.dp)) // Giảm từ 10.dp xuống 8.dp
                 .padding(10.dp) // Giảm từ 15.dp xuống 10.dp
         ) {
-            Column {
-                Text(
-                    text = "Sản phẩm",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp // Giảm từ 16.sp xuống 14.sp
-                )
-                Spacer(modifier = Modifier.height(6.dp)) // Giảm từ 10.dp xuống 6.dp
-                Row {
-                    Image(
-                        painterResource(R.drawable.ao_phong),
-                        contentDescription = null,
-                        modifier = Modifier.size(50.dp) // Giảm từ 60.dp xuống 50.dp
-                    )
-                    Spacer(modifier = Modifier.width(8.dp)) // Giảm từ 10.dp xuống 8.dp
-                    Column {
-                        Text(
-                            text = "⚡ Giá Sốc ⚡",
-                            fontSize = 14.sp, // Giảm từ 16.sp xuống 14.sp
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(2.dp)) // Giảm từ 3.dp xuống 2.dp
-                        Text(
-                            text = "Size: ",
-                            fontSize = 12.sp, // Giảm từ 14.sp xuống 12.sp
-                            color = Color.Gray
-                        )
-                        Spacer(modifier = Modifier.height(6.dp)) // Giảm từ 10.dp xuống 6.dp
-                        Text(
-                            text = formatCurrency(23900),
-                            fontSize = 14.sp, // Giảm từ 16.sp xuống 14.sp
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Red
-                        )
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
+            LazyColumn {
+                item {
                     Text(
-                        text = "Số lượng: x1",
-                        fontSize = 12.sp, // Giảm từ 14.sp xuống 12.sp
-                        color = Color.Gray
+                        text = "Sản phẩm",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
                     )
+                    Spacer(modifier = Modifier.height(6.dp))
+                }
+
+                val paymentProductList = listOf("Sản phẩm 1", "Sản phẩm 2", "Sản phẩm 3")
+                items(paymentProductList.size) { index ->
+                    PaymentItem(
+                        name = paymentProductList[index],
+                        imageRes = R.drawable.ao_phong,
+                        size = "M", // size mẫu, có thể truyền từ data
+                        quantity = 1,
+                        price = 22900
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }
@@ -379,6 +360,56 @@ fun PaymentScreen(navController: NavController, viewModel: AddressViewModel, ful
                     fontSize = 14.sp // Giảm từ 16.sp xuống 14.sp
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun PaymentItem(
+    name: String,
+    imageRes: Int,
+    size: String,
+    quantity: Int,
+    price: Int
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource(imageRes),
+            contentDescription = null,
+            modifier = Modifier.size(50.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = name,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = "Size: $size",
+                fontSize = 12.sp,
+                color = Color.Gray
+            )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Column(horizontalAlignment = Alignment.End) {
+            Text(
+                text = "SL: x$quantity",
+                fontSize = 12.sp,
+                color = Color.Gray
+            )
+            Text(
+                text = formatCurrency(price),
+                fontWeight = FontWeight.Bold,
+                color = Color.Red,
+                fontSize = 14.sp
+            )
         }
     }
 }

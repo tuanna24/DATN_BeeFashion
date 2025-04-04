@@ -19,9 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import fpl.md19.beefashion.screens.data.orderStatusList
 import fpl.md19.beefashion.screens.adress.CancelOrderBottomSheet
 import fpl.md19.beefashion.screens.adress.OrderStatusStep
+import fpl.md19.beefashion.screens.data.orderStatusList
 
 @Composable
 fun TrackOrderScreen(navController: NavController) {
@@ -151,9 +151,9 @@ fun BottomSheetOrderStatus(modifier: Modifier = Modifier, currentStatus: String)
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun TrackOrderPreview() {
+fun PreviewTrackOder () {
     val navController = rememberNavController()
     TrackOrderScreen(navController)
 }

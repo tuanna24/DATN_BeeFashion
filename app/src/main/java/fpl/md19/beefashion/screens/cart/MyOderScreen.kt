@@ -99,7 +99,7 @@ fun MyOderCart(myOder: MyOder, navController : NavController) {
             .fillMaxWidth()
             .padding(5.dp)
             .clickable{
-                navController.navigate("TrackOrderScreen")
+                navController.navigate("trackOrderScreen")
             },
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)

@@ -62,7 +62,7 @@ fun CartScreen(navController: NavController) {
 
     val subTotal = selectedItems.sumOf { it.product.price * it.quantity }
     val vatAmount = subTotal * vatPercent / 100
-    val total = subTotal + vatAmount + shippingFee
+    val total = subTotal + vatAmount
 
     LaunchedEffect(Unit) {
         cartViewModel.getCartItems()
@@ -158,9 +158,13 @@ fun CartScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                SummaryRow("Tạm tính", subTotal)
+                SummaryRow("VAT ($vatPercent%)", vatAmount)
+                Divider()
+                SummaryRow("Tổng cộng", total, isBold = true)
                 Button(
                     onClick = {
-                        navController. navigate("paymentScreen")
+                        navController. navigate("paymentScreen/{fullAddress}")
                     },
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(if (selectedItems.isNotEmpty()) Color(0xFFFF5722) else Color.Gray),
@@ -209,7 +213,7 @@ fun CartItemView(
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = item.product.name, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(3.dp))
-                Text(text = item.size.name, fontSize = 12.sp, color = Color.Gray)
+                Text(text = "Size: ${item.size.name}", fontSize = 12.sp, color = Color.Gray)
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(text = formatCurrency(item.product.price * quantity), fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }

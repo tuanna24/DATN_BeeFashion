@@ -21,7 +21,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -33,7 +32,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -232,14 +230,14 @@ fun NestedBottomTab(
         composable("NotificationsScreen") {
             NotificationsScreen(navController)
         }
-        composable("TrackOrderScreen") {
-            TrackOrderScreen(navController)
-        }
         composable("HelpScreen") {
             HelpScreen(navController)
         }
         composable("ForgotPasswordScreen") {
             ForgotPasswordScreen(navController)
+        }
+        composable("trackOrderScreen") {
+            TrackOrderScreen(navController)
         }
         composable("HomeScreen") {
             HomeScreen(navController)
