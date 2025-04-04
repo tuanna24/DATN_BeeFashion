@@ -21,6 +21,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -32,6 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -154,6 +156,7 @@ fun NestedBottomTab(
             }
             AddressScreen(navController, viewModel, customerId)
         }
+
         composable(
             route = "AddressScreen/{customerId}",
             arguments = listOf(navArgument("customerId")
@@ -191,11 +194,7 @@ fun NestedBottomTab(
             arguments = listOf(navArgument("customerId") { type = NavType.StringType })
         ) { backStackEntry ->
             val customerId = backStackEntry.arguments?.getString("customerId") ?: ""
-
-            // Get the same ViewModel instance from the parent
             val addressViewModel: AddressViewModel = viewModel()
-
-            // Lấy ViewModel trực tiếp
             val newAddressViewModel: NewAddressViewModel = viewModel()
 
             UpdateScreen(
@@ -211,7 +210,12 @@ fun NestedBottomTab(
             arguments = listOf(navArgument("fullAddress") { type = NavType.StringType })
         ) { backStackEntry ->
             val fullAddress = backStackEntry.arguments?.getString("fullAddress")
-            PaymentScreen(navController, fullAddress)
+            val viewModel: AddressViewModel = viewModel()
+            PaymentScreen(
+                navController = navController,
+                viewModel = viewModel,
+               fullAddress = fullAddress
+            )
         }
 
         composable("myOderScreen") {
