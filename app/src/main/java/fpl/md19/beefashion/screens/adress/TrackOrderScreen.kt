@@ -2,10 +2,7 @@ package fpl.md19.beefashion
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -21,6 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import fpl.md19.beefashion.screens.data.orderStatusList
+import fpl.md19.beefashion.screens.adress.CancelOrderBottomSheet
+import fpl.md19.beefashion.screens.adress.OrderStatusStep
 
 @Composable
 fun TrackOrderScreen(navController: NavController) {
@@ -62,79 +63,50 @@ fun TrackOrderScreen(navController: NavController) {
                 )
             }
 
-//            Box() {
-//                MapScreen()
-//            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.map_placeholder),
+                    contentDescription = "Map",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
         }
 
         BottomSheetOrderStatus(
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier.align(Alignment.BottomCenter),
+            currentStatus = "Đã lấy hàng"
         )
     }
 }
 
-
 @Composable
-fun BottomSheetOrderStatus(modifier: Modifier = Modifier) {
+fun BottomSheetOrderStatus(modifier: Modifier = Modifier, currentStatus: String) {
+    val cancellableStatuses = listOf("Đang chờ xác nhận", "Đã xác nhận đơn hàng", "Đã lấy hàng")
+    val receivableStatuses = listOf("Đang vận chuyển", "Đã giao hàng")
+    var showCancelDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 200.dp)
-            .background(Color(0xFFFF5722)),
+            .padding(horizontal = 16.dp)
+            .clip(RoundedCornerShape(24.dp))
+            .defaultMinSize(minHeight = 300.dp),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
         shadowElevation = 8.dp
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(20.dp),
         ) {
-            // Header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    "Trạng thái",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                IconButton(
-                    onClick = {},
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Close,
-                        contentDescription = "Close",
-                        tint = Color.Gray
-                    )
-                }
-            }
-
-            // Status Steps
-            OrderStatusStep(
-                status = "Đã xác nhận đơn hàng",
-                address = "2336 Van Thang, Ba bi, Ha noi",
-                completed = true
-            )
-            OrderStatusStep(
-                status = "Đã lấy hàng",
-                address = "2417 Hoan Kiem, Ba Dinh, Ha noi",
-                completed = true
-            )
-            OrderStatusStep(
-                status = "Đang vận chuyển",
-                address = "16 Nhon, Xuan Phuong, Ha noi",
-                completed = true
-            )
-            OrderStatusStep(
-                status = "Đã giao hàng",
-                address = "925 Nhon, Ha Noi",
-                completed = false
-            )
+            Text("Trạng thái", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            orderStatusList.forEach { step -> OrderStatusStep(step = step) }
 
             Divider(
                 modifier = Modifier.padding(vertical = 16.dp),
@@ -142,66 +114,40 @@ fun BottomSheetOrderStatus(modifier: Modifier = Modifier) {
                 color = Color(0xFFEEEEEE)
             )
 
+           // if (currentStatus in listOf("Đang vận chuyển", "Đã giao hàng")) {
+                Button(
+                    onClick = { /* Xử lý nhận hàng */ },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
+                    enabled = currentStatus in receivableStatuses
+                    // enabled = false
+                ) {
+                    Text(text = "Đã nhận hàng", color = Color.White, fontWeight = FontWeight.Bold)
+                }
+       //}
+
+            Spacer(modifier = Modifier.height(8.dp))
             Button(
-                onClick = {  },
+                onClick = { showCancelDialog = true },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                 shape = RoundedCornerShape(12.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
+                enabled = currentStatus in cancellableStatuses
             ) {
-                Text(text = "Đã nhận hàng", color = Color.White, fontWeight = FontWeight.Bold)
+                Text(text = "Hủy", color = Color.White, fontWeight = FontWeight.Bold)
             }
         }
     }
-}
 
-@Composable
-fun OrderStatusStep(
-    status: String,
-    address: String,
-    completed: Boolean,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier.padding(vertical = 8.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(32.dp)
-                .background(
-                    if (completed) Color(0xFFE8F5E9) else Color(0xFFF5F5F5),
-                    CircleShape
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.CheckCircle,
-                contentDescription = "Status",
-                tint = if (completed) Color(0xFF4CAF50) else Color(0xFFBDBDBD),
-                modifier = Modifier.size(20.dp)
-            )
-        }
-
-        Column(
-            modifier = Modifier
-                .padding(start = 12.dp)
-                .weight(1f)
-        ) {
-            Text(
-                text = status,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp
-            )
-            Text(
-                text = address,
-                fontSize = 14.sp,
-                color = Color.Gray,
-                modifier = Modifier.padding(top = 2.dp)
-            )
-        }
+    if (showCancelDialog) {
+        CancelOrderBottomSheet(onDismiss = { showCancelDialog = false })
     }
 }
 
