@@ -245,7 +245,16 @@ fun HomeScreen(
                         onValueChange = { minPrice = it.filter { char -> char.isDigit() } },
                         label = { Text("Giá tối thiểu") },
                         modifier = Modifier.fillMaxWidth(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        supportingText = {
+                            if (minPrice.isNotEmpty() && (minPrice.toLongOrNull() ?: 0) < 1000) {
+                                Text(
+                                    text = "Giá tối thiểu phải từ 1.000 trở lên",
+                                    color = Color.Red,
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -255,10 +264,25 @@ fun HomeScreen(
                         onValueChange = { maxPrice = it.filter { char -> char.isDigit() } },
                         label = { Text("Giá tối đa") },
                         modifier = Modifier.fillMaxWidth(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        supportingText = {
+                            if (maxPrice.isNotEmpty() && (maxPrice.toLongOrNull() ?: 0) < 1000) {
+                                Text(
+                                    text = "Giá tối đa phải từ 1.000 trở lên",
+                                    color = Color.Red,
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
+
+                    // Kiểm tra điều kiện để enable/disable nút Áp dụng
+                    val min = minPrice.toFloatOrNull() ?: 0f
+                    val max = maxPrice.toFloatOrNull() ?: Float.MAX_VALUE
+                    val isApplyEnabled = (minPrice.isEmpty() || min >= 1000) &&
+                            (maxPrice.isEmpty() || max >= 1000)
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -267,11 +291,10 @@ fun HomeScreen(
                         Button(
                             onClick = {
                                 productsViewModels.resetProducts()
-                                val min = minPrice.toFloatOrNull() ?: 0f
-                                val max = maxPrice.toFloatOrNull() ?: Float.MAX_VALUE
                                 productsViewModels.filterProductsByPrice(min..max)
                                 showBottomSheet = false
                             },
+                            enabled = isApplyEnabled,
                             colors = ButtonDefaults.buttonColors(Color.Red),
                             modifier = Modifier
                                 .weight(1f)
