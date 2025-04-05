@@ -13,6 +13,9 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,13 +44,13 @@ import java.text.NumberFormat
 import java.util.Locale
 import java.util.regex.Pattern
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
     productsViewModels: ProductsViewModels = viewModel(),
     categoriesViewModels: CategoriesViewModels = viewModel()
 ) {
-
     val favoriteViewModel: FavoriteViewModel = viewModel()
 
     val products by productsViewModels.products
@@ -56,6 +60,11 @@ fun HomeScreen(
     // Thêm state cho tìm kiếm
     var searchText by remember { mutableStateOf("") }
     var isSearchActive by remember { mutableStateOf(false) }
+
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var minPrice by remember { mutableStateOf("") }
+    var maxPrice by remember { mutableStateOf("") }
 
     val categoryList by categoriesViewModels.categories // Lấy danh sách danh mục từ ViewModel
 
@@ -182,7 +191,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.width(6.dp))
 
             Button(
-                onClick = { /* Thêm xử lý tìm kiếm */ },
+                onClick = { showBottomSheet = true },
                 modifier = Modifier.size(48.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(Color.Black),
@@ -196,6 +205,115 @@ fun HomeScreen(
                 )
             }
         }
+
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showBottomSheet = false },
+                sheetState = sheetState,
+                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                containerColor = Color.White
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Tìm kiếm theo giá",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Close",
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clickable { showBottomSheet = false }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+
+                    OutlinedTextField(
+                        value = minPrice,
+                        onValueChange = { minPrice = it.filter { char -> char.isDigit() } },
+                        label = { Text("Giá tối thiểu") },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = maxPrice,
+                        onValueChange = { maxPrice = it.filter { char -> char.isDigit() } },
+                        label = { Text("Giá tối đa") },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Button(
+                            onClick = {
+                                productsViewModels.resetProducts()
+                                val min = minPrice.toFloatOrNull() ?: 0f
+                                val max = maxPrice.toFloatOrNull() ?: Float.MAX_VALUE
+                                productsViewModels.filterProductsByPrice(min..max)
+                                showBottomSheet = false
+                            },
+                            colors = ButtonDefaults.buttonColors(Color.Red),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(50.dp)
+                        ) {
+                            Text(
+                                text = "Áp dụng",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+
+                        Button(
+                            onClick = {
+                                productsViewModels.resetProducts()
+                                minPrice = ""
+                                maxPrice = ""
+                                showBottomSheet = false
+                            },
+                            colors = ButtonDefaults.buttonColors(Color.Black),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(50.dp)
+                        ) {
+                            Text(
+                                text = "Đặt lại",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+            }
+        }
+
 
         // Hiển thị gợi ý tìm kiếm
         if (isSearchActive && suggestions.isNotEmpty()) {
@@ -310,7 +428,6 @@ fun HomeScreen(
         }
     }
 }
-
 
 // Các hàm khác giữ nguyên
 @Composable
