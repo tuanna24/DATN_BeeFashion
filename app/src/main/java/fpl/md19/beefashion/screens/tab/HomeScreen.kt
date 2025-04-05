@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -21,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,8 +35,10 @@ import fpl.md19.beefashion.models.Products
 import fpl.md19.beefashion.viewModels.CategoriesViewModels
 import fpl.md19.beefashion.viewModels.FavoriteViewModel
 import fpl.md19.beefashion.viewModels.ProductsViewModels
+import java.text.Normalizer
 import java.text.NumberFormat
 import java.util.Locale
+import java.util.regex.Pattern
 
 @Composable
 fun HomeScreen(
@@ -49,6 +53,9 @@ fun HomeScreen(
     val loading by productsViewModels.loading
     val errorMessage by productsViewModels.errMessage
 
+    // Thêm state cho tìm kiếm
+    var searchText by remember { mutableStateOf("") }
+    var isSearchActive by remember { mutableStateOf(false) }
 
     val categoryList by categoriesViewModels.categories // Lấy danh sách danh mục từ ViewModel
 
@@ -61,11 +68,38 @@ fun HomeScreen(
 
     var selectedCategory by remember { mutableStateOf("Toàn bộ") }
 
-    // Lọc sản phẩm theo danh mục đã chọn
-    val filteredProducts = if (selectedCategory == "Toàn bộ") {
-        products
+    // Lọc sản phẩm theo danh mục đã chọn và từ khóa tìm kiếm
+    val normalizedSearchWords = if (searchText.isNotEmpty()) {
+        removeDiacritics(searchText.trim())
+            .lowercase()
+            .split("\\s+".toRegex())
     } else {
-        products.filter { categoryMap[it.categoryId] == selectedCategory }
+        emptyList()
+    }
+
+    val filteredProducts = if (searchText.isEmpty()) {
+        if (selectedCategory == "Toàn bộ") {
+            products
+        } else {
+            products.filter { categoryMap[it.categoryId] == selectedCategory }
+        }
+    } else {
+        products.filter { product ->
+            val normalizedTitle = removeDiacritics(product.name).lowercase()
+            val matchesSearch = normalizedSearchWords.all { word -> normalizedTitle.contains(word) }
+            matchesSearch && (selectedCategory == "Toàn bộ" || categoryMap[product.categoryId] == selectedCategory)
+        }
+    }
+
+    // Tìm kiếm gợi ý
+    val normalizedSearchText = removeDiacritics(searchText.trim()).lowercase()
+    val suggestions = if (searchText.isNotEmpty()) {
+        products.filter { product ->
+            val normalizedName = removeDiacritics(product.name).lowercase()
+            product.name.contains(searchText, ignoreCase = true) || normalizedName.contains(normalizedSearchText)
+        }.take(3)
+    } else {
+        emptyList()
     }
 
     Column(
@@ -101,12 +135,15 @@ fun HomeScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextField(
-                value = "",
-                onValueChange = {},
+                value = searchText,
+                onValueChange = {
+                    searchText = it
+                    isSearchActive = it.isNotEmpty()
+                },
                 placeholder = { Text("Tìm kiếm áo nam...", color = Color.Gray, fontSize = 14.sp) },
                 modifier = Modifier
                     .weight(1f)
-                    .height(48.dp) // Tăng nhẹ chiều cao để đảm bảo hiển thị
+                    .height(48.dp)
                     .border(0.5.dp, Color.Black, RoundedCornerShape(8.dp)),
                 shape = RoundedCornerShape(8.dp),
                 colors = TextFieldDefaults.colors(
@@ -116,7 +153,7 @@ fun HomeScreen(
                     cursorColor = Color.Black,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
-                    focusedPlaceholderColor = Color.Gray, // Đảm bảo placeholder hiển thị
+                    focusedPlaceholderColor = Color.Gray,
                     unfocusedPlaceholderColor = Color.Gray
                 ),
                 leadingIcon = {
@@ -127,14 +164,26 @@ fun HomeScreen(
                         modifier = Modifier.size(20.dp)
                     )
                 },
-                singleLine = true // Đảm bảo nội dung không bị cắt
+                trailingIcon = {
+                    if (searchText.isNotEmpty()) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.search), // Thay bằng icon clear thích hợp
+                            contentDescription = "Clear",
+                            tint = Color.Gray,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clickable { searchText = "" }
+                        )
+                    }
+                },
+                singleLine = true
             )
 
             Spacer(modifier = Modifier.width(6.dp))
 
             Button(
                 onClick = { /* Thêm xử lý tìm kiếm */ },
-                modifier = Modifier.size(48.dp), // Đồng bộ chiều cao với TextField
+                modifier = Modifier.size(48.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(Color.Black),
                 contentPadding = PaddingValues(0.dp)
@@ -145,6 +194,39 @@ fun HomeScreen(
                     modifier = Modifier.size(20.dp),
                     contentScale = ContentScale.Fit
                 )
+            }
+        }
+
+        // Hiển thị gợi ý tìm kiếm
+        if (isSearchActive && suggestions.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
+                    .clip(RoundedCornerShape(8.dp))
+                    .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(suggestions) { suggestion ->
+                        Text(
+                            text = suggestion.name,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    searchText = suggestion.name
+                                    isSearchActive = false
+                                }
+                                .padding(12.dp),
+                            fontSize = 14.sp
+                        )
+                        if (suggestions.indexOf(suggestion) < suggestions.size - 1) {
+                            Divider(color = Color.LightGray, thickness = 0.5.dp)
+                        }
+                    }
+                }
             }
         }
 
@@ -187,11 +269,50 @@ fun HomeScreen(
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
+            filteredProducts.isEmpty() -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.search),
+                            contentDescription = "No results",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(64.dp)
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "Không tìm thấy kết quả",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Hãy thử một từ tương tự hoặc một cái gì đó chung chung hơn",
+                            fontSize = 14.sp,
+                            color = Color.Gray,
+                            fontWeight = FontWeight.Medium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 30.dp, end = 30.dp)
+                        )
+                    }
+                }
+            }
             else -> ProductList(filteredProducts, favoriteViewModel = favoriteViewModel, navController)
         }
     }
 }
 
+
+// Các hàm khác giữ nguyên
 @Composable
 fun ProductList(products: List<Products>, favoriteViewModel: FavoriteViewModel, navController: NavController) {
     LazyVerticalStaggeredGrid(
@@ -237,18 +358,6 @@ fun ProductCard(
                     .height(140.dp)
                     .clip(RoundedCornerShape(6.dp))
             )
-//            Icon(
-//                painter = painterResource(id = R.drawable.heart),
-//                contentDescription = null,
-//                tint = Color.White,
-//                modifier = Modifier
-//                    .align(Alignment.BottomEnd)
-//                    .padding(4.dp)
-//                    .size(20.dp)
-//                    .background(Color(0xFFE0E0E0), shape = RoundedCornerShape(4.dp))
-//                    .clickable { }
-//                    .padding(2.dp)
-//            )
         }
         Spacer(modifier = Modifier.height(6.dp))
 
