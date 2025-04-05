@@ -20,69 +20,70 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.screens.adress.CancelOrderBottomSheet
+import fpl.md19.beefashion.screens.adress.NotificationUtils
 import fpl.md19.beefashion.screens.adress.OrderStatusStep
 import fpl.md19.beefashion.screens.data.orderStatusList
 
-@Composable
-fun TrackOrderScreen(navController: NavController) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)
-                .padding(15.dp)
-        ) {
-            // Header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_back),
-                    contentDescription = "Back Icon",
-                    modifier = Modifier
-                        .size(20.dp)
-                        .clickable { navController.popBackStack() }
-                )
-                Text(
-                    text = "Tình trạng đơn hàng",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f)
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.ic_notifications),
-                    contentDescription = "Notification Icon",
-                    modifier = Modifier
-                        .size(20.dp)
-                        .clickable { }
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.map_placeholder),
-                    contentDescription = "Map",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            }
-        }
-
-        BottomSheetOrderStatus(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            currentStatus = "Đã lấy hàng"
-        )
-    }
-}
+//@Composable
+//fun TrackOrderScreen(navController: NavController) {
+//    Box(modifier = Modifier.fillMaxSize()) {
+//        Column(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .background(Color.White)
+//                .padding(15.dp)
+//        ) {
+//            // Header
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(vertical = 8.dp),
+//                horizontalArrangement = Arrangement.SpaceBetween,
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                Image(
+//                    painter = painterResource(id = R.drawable.ic_back),
+//                    contentDescription = "Back Icon",
+//                    modifier = Modifier
+//                        .size(20.dp)
+//                        .clickable { navController.popBackStack() }
+//                )
+//                Text(
+//                    text = "Tình trạng đơn hàng",
+//                    fontSize = 20.sp,
+//                    fontWeight = FontWeight.Bold,
+//                    textAlign = TextAlign.Center,
+//                    modifier = Modifier.weight(1f)
+//                )
+//                Image(
+//                    painter = painterResource(id = R.drawable.ic_notifications),
+//                    contentDescription = "Notification Icon",
+//                    modifier = Modifier
+//                        .size(20.dp)
+//                        .clickable { }
+//                )
+//            }
+//
+////            Box(
+////                modifier = Modifier
+////                    .fillMaxWidth()
+////                    .height(200.dp)
+////            ) {
+////                Image(
+////                    painter = painterResource(id = R.drawable.map_placeholder),
+////                    contentDescription = "Map",
+////                    modifier = Modifier.fillMaxSize(),
+////                    contentScale = ContentScale.Crop
+////                )
+////            }
+//        }
+//
+////        BottomSheetOrderStatus(
+////            modifier = Modifier.align(Alignment.BottomCenter),
+////            currentStatus = "Đã lấy hàng"
+////        )
+//    }
+//}
 
 @Composable
 fun BottomSheetOrderStatus(modifier: Modifier = Modifier, currentStatus: String) {
@@ -94,7 +95,7 @@ fun BottomSheetOrderStatus(modifier: Modifier = Modifier, currentStatus: String)
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+//            .padding(horizontal = 16.dp)
             .clip(RoundedCornerShape(24.dp))
             .defaultMinSize(minHeight = 300.dp),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
@@ -106,43 +107,59 @@ fun BottomSheetOrderStatus(modifier: Modifier = Modifier, currentStatus: String)
                 .padding(20.dp),
         ) {
             Text("Trạng thái", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            orderStatusList.forEach { step -> OrderStatusStep(step = step) }
-
+            OrderStatusStep(steps = orderStatusList)
             Divider(
                 modifier = Modifier.padding(vertical = 16.dp),
                 thickness = 1.dp,
                 color = Color(0xFFEEEEEE)
             )
 
-           // if (currentStatus in listOf("Đang vận chuyển", "Đã giao hàng")) {
-                Button(
-                    onClick = { /* Xử lý nhận hàng */ },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-                    shape = RoundedCornerShape(12.dp),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
-                    enabled = currentStatus in receivableStatuses
-                    // enabled = false
-                ) {
-                    Text(text = "Đã nhận hàng", color = Color.White, fontWeight = FontWeight.Bold)
+            when {
+                currentStatus in receivableStatuses -> {
+                    Button(
+                        onClick = {
+                            NotificationUtils.showOrderSuccessNotification(
+                                context = context,
+                                message = "Bạn đã nhận hàng thành công!"
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                        shape = RoundedCornerShape(12.dp),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+                    ) {
+                        Text(
+                            text = "Đã nhận hàng",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
-       //}
 
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                onClick = { showCancelDialog = true },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-                shape = RoundedCornerShape(12.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
-                enabled = currentStatus in cancellableStatuses
-            ) {
-                Text(text = "Hủy", color = Color.White, fontWeight = FontWeight.Bold)
+                currentStatus in cancellableStatuses -> {
+                    Button(
+                        onClick = {
+                            showCancelDialog = true
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                        shape = RoundedCornerShape(12.dp),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+                    ) {
+                        Text(text = "Hủy", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                // Nếu muốn có trạng thái mặc định không hiện nút nào thì bỏ else, hoặc có thể:
+                else -> {
+                    // Không hiện gì
+                }
             }
+
         }
     }
 
@@ -151,9 +168,9 @@ fun BottomSheetOrderStatus(modifier: Modifier = Modifier, currentStatus: String)
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PreviewTrackOder () {
-    val navController = rememberNavController()
-    TrackOrderScreen(navController)
-}
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun PreviewTrackOder () {
+//    val navController = rememberNavController()
+//    TrackOrderScreen(navController)
+//}

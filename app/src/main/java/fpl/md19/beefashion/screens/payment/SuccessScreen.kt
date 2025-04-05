@@ -18,10 +18,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.R
+import fpl.md19.beefashion.models.MyOder
+import fpl.md19.beefashion.screens.cart.OrderStatus
 import fpl.md19.beefashion.screens.tab.HomeScreen
 
 @Composable
-fun SuccessScreen(navController: NavController) {
+fun SuccessScreen(navController: NavController, myOder: MyOder) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -108,7 +110,7 @@ fun SuccessScreen(navController: NavController) {
 
                     Button(
                         onClick = {
-                            navController.navigate("TrackOrderScreen")
+                            navController.navigate("trackOrderScreen/${myOder.status.name}")
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),
                         modifier = Modifier
@@ -131,5 +133,14 @@ fun SuccessScreen(navController: NavController) {
 @Composable
 fun PreviewSuccessScreen() {
     val navController = rememberNavController()
-    SuccessScreen(navController)
+    SuccessScreen(
+        navController = navController,
+        myOder = MyOder(
+            title = "Áo ngắn",
+            size = "Size M",
+            price = "189000",
+            imageRes = R.drawable.ao_phong,
+            status = OrderStatus.CONFIRMED
+        )
+    )
 }
