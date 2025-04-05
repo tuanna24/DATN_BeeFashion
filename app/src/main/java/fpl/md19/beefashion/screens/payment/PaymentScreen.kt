@@ -1,5 +1,6 @@
 package fpl.md19.beefashion.screens.payment
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,7 +32,10 @@ import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
-fun PaymentScreen(navController: NavController, viewModel: AddressViewModel, fullAddress: String?) {
+fun PaymentScreen(
+    navController: NavController,
+    viewModel: AddressViewModel,
+    fullAddress: String?) {
 
     val selectedMethod = remember { mutableStateOf("cod") }
     val context = LocalContext.current
@@ -344,7 +348,10 @@ fun PaymentScreen(navController: NavController, viewModel: AddressViewModel, ful
                 onClick = {
                     Toast.makeText(context, "Bạn đã đặt hàng thành công!", Toast.LENGTH_SHORT)
                         .show()
+
                     navController.navigate("successScreen")
+                  NotificationUtils.showOrderSuccessNotification(context)
+
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),
                 modifier = Modifier

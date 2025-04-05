@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,6 +33,8 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun CancelOrderBottomSheet(onDismiss: () -> Unit) {
     var showBottomSheet by remember { mutableStateOf(true) }
+    val context = LocalContext.current
+
     val reasons = listOf(
         "Thay đổi ý định",
         "Tìm thấy giá rẻ hơn",
@@ -91,6 +94,10 @@ fun CancelOrderBottomSheet(onDismiss: () -> Unit) {
                     onClick = {
                         showBottomSheet = false
                         onDismiss()
+                        NotificationUtils.showOrderSuccessNotification(
+                            context = context,
+                            message = "Bạn đã hủy đơn hàng này!"
+                        )
                     },
                     modifier = Modifier
                         .fillMaxWidth()
