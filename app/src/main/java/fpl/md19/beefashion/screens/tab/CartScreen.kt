@@ -129,7 +129,8 @@ fun CartScreen(
                     Text(
                         text = "Không có sản phẩm trong giỏ hàng",
                         fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(

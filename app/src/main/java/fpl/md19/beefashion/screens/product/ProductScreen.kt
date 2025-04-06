@@ -306,7 +306,8 @@ fun ProductScreen(
                     Button(
                         onClick = {
                             if (selectedAddressModel == null) {
-                                Toast.makeText(context, "Vui lòng thêm địa chỉ trước khi mua!", Toast.LENGTH_SHORT).show()
+                                navController.navigate("LoginScreen")
+                                Toast.makeText(context, "Vui lòng đăng nhập trước khi mua!", Toast.LENGTH_SHORT).show()
                             }
                             // Kiểm tra lại trạng thái đăng nhập trước khi thực hiện hành động mua hàng
 //                            loginViewModel.loadRememberedCredentials(context) {

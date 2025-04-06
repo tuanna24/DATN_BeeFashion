@@ -93,7 +93,6 @@ fun AddressScreen(
 
             is AddressViewModel.UpdateStatus.Error -> {
             }
-
             else -> {}
         }
     }
@@ -115,9 +114,7 @@ fun AddressScreen(
                 contentDescription = "Back",
                 modifier = Modifier
                     .size(20.dp)
-                    .clickable {
-                        navController.popBackStack()
-                    }
+                    .clickable { navController.popBackStack() }
             )
             Text(
                 text = "Địa chỉ",
@@ -137,8 +134,8 @@ fun AddressScreen(
         Text(text = "Địa chỉ đã lưu", fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
 
-        //if (isLoading)
-        if (loading) {
+        val isLoading = false
+        if (isLoading) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -180,6 +177,12 @@ fun AddressScreen(
                         selectedAddress = addressModel.id
                         addressPreferenceManager.saveSelectedAddress(addressModel.id) // Lưu vào SharedPreferences
                         viewModel.setSelectedAddress1(fullAddress.toString())
+                        //navController.popBackStack()
+                        // Điều hướng và truyền dữ liệu mà không tạo lại màn hình Payment
+//                        navController.navigate("paymentScreen/${fullAddress.toString()}") {
+//                           // Thêm flag launchSingleTop để không tạo màn hình mới nếu màn hình đã tồn tại
+//                           launchSingleTop = true
+//                        }
                     },
                     onDelete = {
                         Log.d("UI", "Preparing to delete: ${addressModel.id}")
@@ -188,7 +191,7 @@ fun AddressScreen(
                     },
                     navController = navController,
                     customerId = customerId,
-                    addressModel = addressModel
+                    addressModel =addressModel
 
                 )
             }

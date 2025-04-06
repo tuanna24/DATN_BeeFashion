@@ -34,7 +34,6 @@ fun TrackOrderTakenScreen(navController: NavController) {
                     currentStatus = "Đã giao hàng"
                 )
             }
-
         }
     }
 }

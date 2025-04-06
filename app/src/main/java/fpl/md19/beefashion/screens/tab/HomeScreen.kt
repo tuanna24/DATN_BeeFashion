@@ -376,7 +376,7 @@ fun HomeScreen(
         // Danh mục
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             items(categories) { category ->
                 val isSelected = category == selectedCategory

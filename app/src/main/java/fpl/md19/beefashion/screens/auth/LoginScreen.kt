@@ -85,12 +85,21 @@ fun LoginScreen(
             .padding(horizontal = 24.dp)
             .padding(top = 40.dp)
     ) {
-        Text(
-            text = "Đăng nhập vào tài khoản",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
-        )
+        Row {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_arrow_back),
+                contentDescription = "Back",
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable { navController.popBackStack() }
+            )
+            Text(
+                text = "Đăng nhập vào tài khoản",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+        }
 
         Text(
             text = "Rất vui khi được gặp lại bạn.",
