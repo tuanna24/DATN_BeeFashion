@@ -17,7 +17,10 @@ import fpl.md19.beefashion.BottomSheetOrderStatus
 import fpl.md19.beefashion.components.Header
 
 @Composable
-fun TrackOrderDefaultScreen(navController: NavController) {
+fun TrackOrderDefaultScreen(
+    navController: NavController,
+    fullAddress: String?
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -28,7 +31,16 @@ fun TrackOrderDefaultScreen(navController: NavController) {
             // Header
             Header(navController)
 
-            Box(modifier = Modifier.fillMaxSize()) {
+            ItemTrackOrder(
+                navController = navController,
+                fullAddress = fullAddress,
+                modifier = Modifier.weight(1f)
+            )
+
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .weight(2f)
+            ) {
                 BottomSheetOrderStatus(
                     modifier = Modifier.align(Alignment.BottomCenter),
                     currentStatus = "Đang chờ xác nhận"
@@ -41,5 +53,5 @@ fun TrackOrderDefaultScreen(navController: NavController) {
 @Composable
 fun PreviewTrackOder () {
     val navController = rememberNavController()
-    TrackOrderDefaultScreen(navController)
+    TrackOrderDefaultScreen(navController, fullAddress = "")
 }

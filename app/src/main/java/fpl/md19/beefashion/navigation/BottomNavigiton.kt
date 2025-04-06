@@ -1,5 +1,6 @@
 package fpl.md19.beefashion.navigation
 
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -299,7 +300,7 @@ fun NestedBottomTab(
         }
 
         composable("myOderScreen") {
-            MyOderScreen(navController)
+            MyOderScreen(navController, addressViewModel = AddressViewModel())
         }
         composable("MyDetailsScreen") {
             MyDetailsScreen(
@@ -324,12 +325,27 @@ fun NestedBottomTab(
         composable("trackOrderScreen/{status}") { backStackEntry ->
             val statusName = backStackEntry.arguments?.getString("status") ?: "WAITING_CONFIRM"
             val status = OrderStatus.fromName(statusName)
+            val addressEncoded = backStackEntry.arguments?.getString("address")
+            val fullAddress = addressEncoded?.let { Uri.decode(it) }
             when (status) {
-                OrderStatus.PICKED_UP -> TrackOrderTakenScreen(navController)
-                OrderStatus.SHIPPING -> TrackOrderShippingScreen(navController)
-                else -> TrackOrderDefaultScreen(navController)
+                OrderStatus.DELIVERED -> TrackOrderTakenScreen(navController, fullAddress)
+                OrderStatus.SHIPPING -> TrackOrderShippingScreen(navController, fullAddress)
+                else -> TrackOrderDefaultScreen(navController, fullAddress)
             }
         }
+        composable("trackOrderScreen/{status}?address={address}") { backStackEntry ->
+            val statusName = backStackEntry.arguments?.getString("status") ?: "WAITING_CONFIRM"
+            val addressEncoded = backStackEntry.arguments?.getString("address")
+            val fullAddress = addressEncoded?.let { Uri.decode(it) }
+
+            val status = OrderStatus.fromName(statusName)
+            when (status) {
+                OrderStatus.DELIVERED -> TrackOrderTakenScreen(navController, fullAddress)
+                OrderStatus.SHIPPING -> TrackOrderShippingScreen(navController, fullAddress)
+                else -> TrackOrderDefaultScreen(navController, fullAddress)
+            }
+        }
+
         composable("HomeScreen") {
             HomeScreen(navController)
         }
@@ -392,7 +408,7 @@ fun NestedBottomTab(
         }
 
         composable("myOderScreen") {
-            MyOderScreen(navController)
+            MyOderScreen(navController,addressViewModel = AddressViewModel())
         }
         composable("successScreen") {backStackEntry ->
             val status = OrderStatus.valueOf(backStackEntry.arguments?.getString("status") ?: "WAITING_CONFIRM")

@@ -17,7 +17,10 @@ import fpl.md19.beefashion.BottomSheetOrderStatus
 import fpl.md19.beefashion.components.Header
 
 @Composable
-fun TrackOrderTakenScreen(navController: NavController) {
+fun TrackOrderTakenScreen(
+    navController: NavController,
+    fullAddress: String?
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -28,13 +31,20 @@ fun TrackOrderTakenScreen(navController: NavController) {
             // Header
             Header(navController)
 
-            Box(modifier = Modifier.fillMaxSize()) {
+            ItemTrackOrder(
+                navController = navController,
+                fullAddress = fullAddress,
+                modifier = Modifier.weight(1f)
+            )
+
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .weight(2f)) {
                 BottomSheetOrderStatus(
                     modifier = Modifier.align(Alignment.BottomCenter),
                     currentStatus = "Đã giao hàng"
                 )
             }
-
         }
     }
 }
@@ -42,5 +52,5 @@ fun TrackOrderTakenScreen(navController: NavController) {
 @Composable
 fun TrackOrderTakenScreenPreview () {
     val navController = rememberNavController()
-    TrackOrderTakenScreen(navController)
+    TrackOrderTakenScreen(navController, fullAddress = "")
 }

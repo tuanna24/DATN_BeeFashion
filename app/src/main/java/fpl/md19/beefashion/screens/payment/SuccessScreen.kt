@@ -140,7 +140,7 @@ fun PreviewSuccessScreen() {
             size = "Size M",
             price = "189000",
             imageRes = R.drawable.ao_phong,
-            status = OrderStatus.CONFIRMED
+            status = OrderStatus.DELIVERED
         )
     )
 }
