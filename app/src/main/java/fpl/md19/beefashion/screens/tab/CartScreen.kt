@@ -207,7 +207,12 @@ fun CartScreen(
                                         "${selectedAddressModel.detail}, ${selectedAddressModel.ward}, " +
                                         "${selectedAddressModel.district}, ${selectedAddressModel.province}"
                             )
-                            navController.navigate("paymentScreen/$encodedAddress")
+                            navController.navigate("paymentScreen/$encodedAddress"){
+                                popUpTo("addressScreen") {
+                                    inclusive = true
+                                }
+                            }
+
                         } else {
                             Toast.makeText(
                                 context,

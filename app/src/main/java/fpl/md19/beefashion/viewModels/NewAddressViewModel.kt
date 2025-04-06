@@ -1,6 +1,8 @@
 package fpl.md19.beefashion.viewModels
 
 import android.util.Log
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fpl.md19.beefashion.api.ApiService
@@ -22,8 +24,8 @@ class NewAddressViewModel() : ViewModel() {
     private val _wards = MutableStateFlow<List<Ward>>(emptyList())
     val wards: StateFlow<List<Ward>> = _wards.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    private val _loading = mutableStateOf(true)
+    val loading: State<Boolean> = _loading
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
@@ -63,7 +65,7 @@ class NewAddressViewModel() : ViewModel() {
     fun fetchProvinces() {
         viewModelScope.launch {
             try {
-                _isLoading.value = true
+                _loading.value = true
                 val response = apiService?.getProvinces()
                 if (response != null) {
                     if (response.isSuccessful) {
@@ -79,7 +81,8 @@ class NewAddressViewModel() : ViewModel() {
                 _error.value = "Lỗi khi tải danh sách tỉnh/thành phố: ${e.message}"
                 Log.e("NewAddressViewModel", "Error fetching provinces", e)
             } finally {
-                _isLoading.value = false
+               // _isLoading.value = false
+                _loading.value = false
             }
         }
     }
@@ -87,7 +90,7 @@ class NewAddressViewModel() : ViewModel() {
     fun fetchDistricts(provinceCode: String) {
         viewModelScope.launch {
             try {
-                _isLoading.value = true
+                _loading.value = true
                 val response = apiService?.getDistricts(provinceCode)
                 if (response != null) {
                     if (response.isSuccessful) {
@@ -101,7 +104,7 @@ class NewAddressViewModel() : ViewModel() {
             } catch (e: Exception) {
                 Log.e("NewAddressViewModel", "Error fetching districts", e)
             } finally {
-                _isLoading.value = false
+                _loading.value = false
             }
         }
     }
@@ -110,7 +113,7 @@ class NewAddressViewModel() : ViewModel() {
     fun fetchWards(districtCode: String) {
         viewModelScope.launch {
             try {
-                _isLoading.value = true
+                _loading.value = true
                 val response = apiService?.getWards(districtCode)
                 if (response != null) {
                     if (response.isSuccessful) {
@@ -126,7 +129,7 @@ class NewAddressViewModel() : ViewModel() {
                 _error.value = "Lỗi khi tải danh sách phường/xã: ${e.message}"
                 Log.e("NewAddressViewModel", "Error fetching wards", e)
             } finally {
-                _isLoading.value = false
+                _loading.value = false
             }
         }
     }

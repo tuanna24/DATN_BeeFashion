@@ -16,25 +16,28 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import okhttp3.Address
 
 class AddressViewModel() : ViewModel() {
     private val apiService: ApiService = HttpRequest.getInstance()
     private val _addresses = MutableStateFlow<List<AddressModel>>(emptyList())
     val addresses: StateFlow<List<AddressModel>> = _addresses.asStateFlow()
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _loading = mutableStateOf(true)
+    val loading: State<Boolean> = _loading
+
     private val _deleteStatus = MutableStateFlow<DeleteStatus>(DeleteStatus.Idle)
     val deleteStatus: StateFlow<DeleteStatus> = _deleteStatus
+
     val _createStatus = MutableStateFlow<CreateStatus>(CreateStatus.Idle)
     val createStatus: StateFlow<CreateStatus> = _createStatus
+
     val _updateStatus = MutableStateFlow<UpdateStatus>(UpdateStatus.Idle)
     val updateStatus: StateFlow<UpdateStatus> = _updateStatus
 
-    private val _selectedAddress = MutableStateFlow<AddressModel?>(null)
+    val _selectedAddress = MutableStateFlow<AddressModel?>(null)
     val selectedAddress: StateFlow<AddressModel?> = _selectedAddress
 
-    private val _selectedAddress1 = mutableStateOf<String?>("")
+    val _selectedAddress1 = mutableStateOf<String?>(null)
     val selectedAddress1: State<String?> = _selectedAddress1
 
     init {
@@ -64,12 +67,9 @@ class AddressViewModel() : ViewModel() {
             Log.e("AddressViewModel", "User ID is blank, skipping API call")
             return
         }
-
-        if (_isLoading.value) return
-
         viewModelScope.launch {
             try {
-                _isLoading.value = true
+                _loading.value = true
                 Log.d("AddressViewModel", "Fetching addresses for userId: $customerId")
 
                 val useFakeData = false
@@ -86,7 +86,6 @@ class AddressViewModel() : ViewModel() {
 
                         val response = service.getAllAddresses(customerId)
                         Log.d("AddressViewModel", "Response Code: ${response.code()}")
-                        Log.d("AddressViewModel", "Response Body: ${response.body()}")
 
                         if (response.isSuccessful) {
                             response.body()?.let { addresses ->
@@ -107,7 +106,8 @@ class AddressViewModel() : ViewModel() {
             } catch (e: Exception) {
                 Log.e("AddressViewModel", "Error fetching addresses", e)
             } finally {
-                _isLoading.value = false
+               // _isLoading.value = false
+                _loading.value = false
             }
         }
     }
@@ -157,6 +157,7 @@ class AddressViewModel() : ViewModel() {
             }
         }
     }
+
     fun createAddress(addressRequest: AddressRequest) {
         val userId = UserSesion.currentUser?.id
         if (userId.isNullOrBlank()) return
@@ -181,7 +182,8 @@ class AddressViewModel() : ViewModel() {
             }
         }
     }
-    fun updateAddress(customerId: String,addressId: String, addressRequest: AddressRequest) {
+
+    fun updateAddress(customerId: String, addressId: String, addressRequest: AddressRequest) {
         val userId = UserSesion.currentUser?.id ?: return
 
         viewModelScope.launch {
@@ -217,9 +219,11 @@ class AddressViewModel() : ViewModel() {
     fun setSelectedAddress(address: AddressModel) {
         _selectedAddress.value = address
     }
+
     fun setSelectedAddress1(address: String) {
         _selectedAddress1.value = address
     }
+
     sealed class CreateStatus {
         object Idle : CreateStatus()
         object Loading : CreateStatus()
@@ -233,6 +237,7 @@ class AddressViewModel() : ViewModel() {
         object Success : DeleteStatus()
         data class Error(val message: String) : DeleteStatus()
     }
+
     sealed class UpdateStatus {
         object Idle : UpdateStatus()
         object Loading : UpdateStatus()

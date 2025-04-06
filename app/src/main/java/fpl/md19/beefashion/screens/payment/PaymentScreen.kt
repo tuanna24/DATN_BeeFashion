@@ -1,5 +1,6 @@
 package fpl.md19.beefashion.screens.payment
 
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -12,6 +13,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,10 +39,18 @@ import java.util.Locale
 fun PaymentScreen(
     navController: NavController,
     viewModel: AddressViewModel,
-    fullAddress: String?) {
+    fullAddress: String? = null,
+    customerId: String
+) {
 
     val selectedMethod = remember { mutableStateOf("cod") }
     val context = LocalContext.current
+    val selectedAddress by viewModel.selectedAddress1
+
+    LaunchedEffect(Unit) {
+        // Trigger khi màn hình xuất hiện lại
+        Log.d("PaymentScreen", "Selected address: ${viewModel.selectedAddress1.value}")
+    }
 
     Column(
         modifier = Modifier
@@ -82,8 +94,12 @@ fun PaymentScreen(
                 .background(Color.White, RoundedCornerShape(8.dp)) // Giảm từ 10.dp xuống 8.dp
                 .padding(10.dp) // Giảm từ 15.dp xuống 10.dp
                 .clickable {
-                    navController.navigate("addressScreen")
-
+                    // When navigating to address screen, include the returnToPayment flag
+                //    val navigateToAddressScreen = {
+                //        navController.navigate("addressScreen/${customerId}/true")
+                //    }
+                    //navController.navigate("addressScreen")
+                    navController.navigate("AddressScreen/${customerId}/true")
                 }
         ) {
             Row(
@@ -100,9 +116,10 @@ fun PaymentScreen(
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
-                    if (fullAddress != null) {
-                        Text(text = "Địa chỉ: $fullAddress", fontSize = 14.sp)
-                          //viewModel.setSelectedAddress1(fullAddress)
+                    val displayAddress = fullAddress ?: selectedAddress
+
+                    if (!displayAddress.isNullOrEmpty()) {
+                        Text(text = "Địa chỉ: ${Uri.decode(displayAddress)}", fontSize = 14.sp)
                     } else {
                         Text(text = "Chưa có địa chỉ", fontSize = 14.sp, color = Color.Gray)
                     }
@@ -350,7 +367,7 @@ fun PaymentScreen(
                         .show()
 
                     navController.navigate("successScreen")
-                  NotificationUtils.showOrderSuccessNotification(context)
+                    NotificationUtils.showOrderSuccessNotification(context)
 
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),
@@ -434,6 +451,11 @@ fun formatCurrency(price: Any?): String {
 @Composable
 fun PreviewPaymentScreen() {
     val navController = rememberNavController()
-    PaymentScreen(navController = navController, viewModel = AddressViewModel(), fullAddress = "")
+    PaymentScreen(
+        navController = navController,
+        viewModel = AddressViewModel(),
+        fullAddress = "",
+        customerId = ""
+    )
 }
 
