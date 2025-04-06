@@ -37,20 +37,33 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 
+enum class OrderStatus(val label: String) {
+    WAITING_CONFIRM("Đang chờ xác nhận"),
+    CONFIRMED("Đã xác nhận đơn hàng"),
+    PICKED_UP("Đã lấy hàng"),
+    SHIPPING("Đang vận chuyển"),
+    DELIVERED("Đã giao hàng");
+
+    companion object {
+        fun fromName(name: String): OrderStatus {
+            return values().firstOrNull { it.name == name } ?: WAITING_CONFIRM
+        }
+    }
+}
 
 @Composable
-fun MyOderScreen (navController : NavController) {
+fun MyOderScreen(navController: NavController) {
 
     val myOderList: List<MyOder> = listOf(
-        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong),
-        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong),
-        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong),
-        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong),
-        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong),
-        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong),
-        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong),
+        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.SHIPPING),
+        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.CONFIRMED),
+        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.PICKED_UP),
+        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.WAITING_CONFIRM),
+        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.SHIPPING),
+        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.DELIVERED),
+        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.PICKED_UP),
     )
-    Column (
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(15.dp),
@@ -93,13 +106,15 @@ fun MyOderScreen (navController : NavController) {
 }
 
 @Composable
-fun MyOderCart(myOder: MyOder, navController : NavController) {
+fun MyOderCart(myOder: MyOder, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(5.dp)
-            .clickable{
-                navController.navigate("trackOrderScreen")
+            .clickable {
+                val route = "trackOrderScreen/${myOder.status.name}"
+                // navController.navigate("trackOrderScreen")
+                navController.navigate(route)
             },
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -156,7 +171,10 @@ fun MyOderCart(myOder: MyOder, navController : NavController) {
 //                }
 
                 Button(
-                    onClick = { navController.navigate("TrackOrderScreen")},
+                    onClick = {
+                        // navController.navigate("trackOrderScreen/Đã lấy hàng")
+                        navController.navigate("trackOrderScreen/${myOder.status.name}")
+                    },
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                     modifier = Modifier
@@ -164,7 +182,7 @@ fun MyOderCart(myOder: MyOder, navController : NavController) {
                         .height(40.dp)
                 ) {
                     Text(
-                        text = "Theo dõi",
+                        text = myOder.status.label,
                         color = Color.White,
                         fontSize = 12.sp
                     )
@@ -174,9 +192,9 @@ fun MyOderCart(myOder: MyOder, navController : NavController) {
     }
 }
 
-@Preview (showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun PreviewMyOderScreen () {
+fun PreviewMyOderScreen() {
     val navController = rememberNavController()
     MyOderScreen(navController)
 }

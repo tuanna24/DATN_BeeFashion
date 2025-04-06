@@ -35,8 +35,8 @@ fun NewAddressScreen(
     newAddressViewModel: NewAddressViewModel,
     customerId: String,
 
-) {
-    val isLoading by newAddressViewModel.isLoading.collectAsState()
+    ) {
+    val loading by newAddressViewModel.loading
     val error by newAddressViewModel.error.collectAsState()
 
     LaunchedEffect(error) {
@@ -61,7 +61,9 @@ fun NewAddressScreen(
                 contentDescription = "Back",
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable { navController.popBackStack() }
+                    .clickable {
+                        navController.popBackStack()
+                    }
             )
             Text(text = "Địa chỉ mới", fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Image(
@@ -77,7 +79,7 @@ fun NewAddressScreen(
 //            MapScreen()
 //        }
 
-        if (isLoading) {
+        if (loading) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -218,7 +220,8 @@ fun AddressForm(
             onClick = {
                 if (isFormValid) {
                     if (!phoneNumber.matches(phoneRegex)) {
-                        errorMessage = "Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam hợp lệ."
+                        errorMessage =
+                            "Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam hợp lệ."
                         return@Button
                     }
                     val newAddress =
@@ -261,7 +264,9 @@ fun AddressForm(
 
         if (showSuccessDialog) {
             SuccessDialog(
-                onDismiss = { showSuccessDialog = false },
+                onDismiss = {
+                    showSuccessDialog = false
+                },
                 navController = navController
             )
         }
@@ -349,18 +354,29 @@ fun DropdownField(
 }
 
 @Composable
-fun SuccessDialog(onDismiss: () -> Unit, navController: NavController) {
+fun SuccessDialog(
+    onDismiss: () -> Unit,
+    navController: NavController
+) {
     val context = LocalContext.current
 
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = {
+            // Không gọi onDismiss(), tức là không cho dismiss bằng cách nhấn ra ngoài hoặc nhấn nút back
+        },
         confirmButton = {
             Button(
                 onClick = {
                     onDismiss()
-//                     navController.navigate("AddressScreen")
                     Toast.makeText(context, "Bạn đã thêm một địa chỉ mới", Toast.LENGTH_SHORT)
                         .show()
+                    navController.navigate("addressScreen") {
+                        popUpTo("accountScreen") {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
+                    //navController.popBackStack()
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black)

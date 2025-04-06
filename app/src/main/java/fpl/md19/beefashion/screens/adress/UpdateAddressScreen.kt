@@ -36,10 +36,10 @@ fun UpdateScreen(
     newAddressViewModel: NewAddressViewModel,
     customerId: String,
 ) {
-    val isLoading by newAddressViewModel.isLoading.collectAsState()
+
+    val loading by newAddressViewModel.loading
     val error by newAddressViewModel.error.collectAsState()
 
-    // Lấy danh sách địa chỉ từ ViewModel
     val addresses by addressViewModel.addresses.collectAsState()
 
     // Tìm địa chỉ cần chỉnh sửa
@@ -79,7 +79,9 @@ fun UpdateScreen(
                 contentDescription = "Back",
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable { navController.popBackStack() }
+                    .clickable {
+                        navController.popBackStack()
+                    }
             )
             Text(text = "Địa chỉ mới", fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Image(
@@ -91,7 +93,7 @@ fun UpdateScreen(
             )
         }
 
-        if (isLoading) {
+        if (loading) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -258,8 +260,6 @@ fun AddressForm(
                                 )
                             );
                         }
-
-//                        navController.popBackStack()
                         showSuccessDialog = true
                     }
                 }
@@ -303,7 +303,6 @@ fun AddressForm(
             SuccessDialog(
                 onDismiss = {
                     showSuccessDialog = false
-                    navController.popBackStack()
                 },
                 navController = navController
             )
@@ -396,19 +395,27 @@ fun SuccessDialog(onDismiss: () -> Unit, navController: NavController) {
     val context = LocalContext.current
 
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = {
+            // Không gọi onDismiss(), tức là không cho dismiss bằng cách nhấn ra ngoài hoặc nhấn nút back
+        },
         confirmButton = {
             Button(
                 onClick = {
                     onDismiss()
-//                     navController.navigate("AddressScreen")
                     Toast.makeText(context, "Bạn đã sửa một địa chỉ", Toast.LENGTH_SHORT)
                         .show()
+                    navController.navigate("addressScreen") {
+                        popUpTo("accountScreen") {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
             ) {
                 Text("Thanks", color = Color.White)
+
             }
         },
         title = {

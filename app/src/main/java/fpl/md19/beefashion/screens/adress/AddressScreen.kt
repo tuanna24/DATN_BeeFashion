@@ -51,11 +51,13 @@ import kotlin.math.roundToInt
 fun AddressScreen(
     navController: NavController,
     viewModel: AddressViewModel,
-    customerId: String
+    customerId: String,
+    returnToPayment: Boolean = false  // Default is false
 ) {
-    //var selectedAddress by remember { mutableStateOf("") }
+
     val addresses by viewModel.addresses.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    //  val isLoading by viewModel.isLoading.collectAsState()
+    val loading by viewModel.loading
     val context = LocalContext.current
     val deleteStatus by viewModel.deleteStatus.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -72,6 +74,15 @@ fun AddressScreen(
             viewModel.fetchAddresses(customerId)
         }
     }
+    LaunchedEffect(createStatus) {
+        when (createStatus) {
+            is AddressViewModel.CreateStatus.Success -> {
+                viewModel.fetchAddresses(customerId) // Cập nhật lại sau khi thêm
+            }
+
+            else -> {}
+        }
+    }
 
     LaunchedEffect(updateStatus) {
         when (updateStatus) {
@@ -79,8 +90,10 @@ fun AddressScreen(
                 viewModel.fetchAddresses(customerId)
                 Toast.makeText(context, "Cập nhật thành công!", Toast.LENGTH_SHORT).show()
             }
+
             is AddressViewModel.UpdateStatus.Error -> {
             }
+
             else -> {}
         }
     }
@@ -102,7 +115,9 @@ fun AddressScreen(
                 contentDescription = "Back",
                 modifier = Modifier
                     .size(20.dp)
-                    .clickable { navController.popBackStack() }
+                    .clickable {
+                        navController.popBackStack()
+                    }
             )
             Text(
                 text = "Địa chỉ",
@@ -122,7 +137,8 @@ fun AddressScreen(
         Text(text = "Địa chỉ đã lưu", fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (isLoading) {
+        //if (isLoading)
+        if (loading) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -164,12 +180,6 @@ fun AddressScreen(
                         selectedAddress = addressModel.id
                         addressPreferenceManager.saveSelectedAddress(addressModel.id) // Lưu vào SharedPreferences
                         viewModel.setSelectedAddress1(fullAddress.toString())
-                        //navController.popBackStack()
-                        // Điều hướng và truyền dữ liệu mà không tạo lại màn hình Payment
-//                        navController.navigate("paymentScreen/${fullAddress.toString()}") {
-//                           // Thêm flag launchSingleTop để không tạo màn hình mới nếu màn hình đã tồn tại
-//                           launchSingleTop = true
-//                        }
                     },
                     onDelete = {
                         Log.d("UI", "Preparing to delete: ${addressModel.id}")
@@ -178,7 +188,7 @@ fun AddressScreen(
                     },
                     navController = navController,
                     customerId = customerId,
-                    addressModel =addressModel
+                    addressModel = addressModel
 
                 )
             }
@@ -226,17 +236,31 @@ fun AddressScreen(
         if (addresses.isNotEmpty()) {
             Button(
                 onClick = {
-                    Toast.makeText(
-                        context,
-                        "Cập nhật địa chỉ nhận hàng thành công!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-//                    val selectedAddressModel = addresses.find { it.id == selectedAddress }
-//                    selectedAddressModel?.let {
-//                        val encodedAddress =
-//                            Uri.encode("${it.name}, ${it.phoneNumber}\n${it.detail}, ${it.ward}, ${it.district}, ${it.province}")
-//                        navController.navigate("paymentScreen/$encodedAddress")
-//                    }
+                    val selectedAddressModel = addresses.find { it.id == selectedAddress }
+                    if (selectedAddressModel != null) {
+                        val fullAddress = Uri.encode(
+                            "${selectedAddressModel.name}, ${selectedAddressModel.phoneNumber}\n" +
+                                    "${selectedAddressModel.detail}, ${selectedAddressModel.ward}, " +
+                                    "${selectedAddressModel.district}, ${selectedAddressModel.province}"
+                        )
+                        Log.d("AddressScreen", "Set selected address: $fullAddress")
+
+                        viewModel._selectedAddress1.value = fullAddress
+                        // Quay lại màn hình trước đó (PaymentScreen)
+                        if (returnToPayment) {
+                            navController.navigate("paymentScreen/$fullAddress") {
+                                popUpTo("productScreen/{productID}/{isFav}") { inclusive = true }
+                            }
+                        } else {
+                            // Just set the value in the ViewModel for other use cases
+                            viewModel._selectedAddress1.value = fullAddress
+                            Toast.makeText(
+                                context,
+                                "Cập nhật địa chỉ nhận hàng thành công!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -313,8 +337,7 @@ fun AddressItem(
         val newOffset = (offsetX + delta).coerceIn(-deleteThreshold, 0f)
         offsetX = newOffset
     }
-    val fullAddress =
-        "${addressModel.name},${addressModel.phoneNumber}\n${addressModel.detail}, ${addressModel.ward}, ${addressModel.district}, ${addressModel.province}"
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
