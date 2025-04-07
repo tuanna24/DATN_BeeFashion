@@ -86,7 +86,10 @@ import fpl.md19.beefashion.screens.data.orderStatusList
 //}
 
 @Composable
-fun BottomSheetOrderStatus(modifier: Modifier = Modifier, currentStatus: String) {
+fun BottomSheetOrderStatus(
+    modifier: Modifier = Modifier,
+    currentStatus: String
+) {
     val cancellableStatuses = listOf("Đang chờ xác nhận", "Đã xác nhận đơn hàng", "Đã lấy hàng")
     val receivableStatuses = listOf("Đang vận chuyển", "Đã giao hàng")
     var showCancelDialog by remember { mutableStateOf(false) }

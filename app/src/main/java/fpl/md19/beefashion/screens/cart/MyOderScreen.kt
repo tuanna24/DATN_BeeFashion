@@ -1,18 +1,23 @@
 package fpl.md19.beefashion.screens.cart
 
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -34,13 +39,22 @@ import fpl.md19.beefashion.models.MyOder
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import fpl.md19.beefashion.screens.adress.AddressPreferenceManager
+import fpl.md19.beefashion.viewModels.AddressViewModel
 
 enum class OrderStatus(val label: String) {
     WAITING_CONFIRM("Đang chờ xác nhận"),
-    CONFIRMED("Đã xác nhận đơn hàng"),
-    PICKED_UP("Đã lấy hàng"),
+
+    //    CONFIRMED("Đã xác nhận đơn hàng"),
+//    PICKED_UP("Đã lấy hàng"),
     SHIPPING("Đang vận chuyển"),
     DELIVERED("Đã giao hàng");
 
@@ -51,18 +65,34 @@ enum class OrderStatus(val label: String) {
     }
 }
 
+fun getButtonColorByStatus(status: OrderStatus): Color {
+    return when (status) {
+        OrderStatus.WAITING_CONFIRM -> Color.Red
+//        OrderStatus.CONFIRMED,
+//        OrderStatus.PICKED_UP -> Color.Red
+
+        OrderStatus.SHIPPING -> Color(0xFF4CAF50) // Xanh lá
+
+        OrderStatus.DELIVERED -> Color.Gray
+    }
+}
+
 @Composable
-fun MyOderScreen(navController: NavController) {
+fun MyOderScreen(
+    navController: NavController,
+    addressViewModel: AddressViewModel
+) {
 
     val myOderList: List<MyOder> = listOf(
         MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.SHIPPING),
-        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.CONFIRMED),
-        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.PICKED_UP),
+        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.DELIVERED),
+        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.WAITING_CONFIRM),
         MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.WAITING_CONFIRM),
         MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.SHIPPING),
         MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.DELIVERED),
-        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.PICKED_UP),
+        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.SHIPPING),
     )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -99,22 +129,33 @@ fun MyOderScreen(navController: NavController) {
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(myOderList) { myOder ->
-                MyOderCart(myOder, navController)
+                MyOderCart(myOder, navController, addressViewModel)
             }
         }
     }
 }
 
 @Composable
-fun MyOderCart(myOder: MyOder, navController: NavController) {
+fun MyOderCart(
+    myOder: MyOder,
+    navController: NavController,
+    addressViewModel: AddressViewModel
+) {
+    val context = LocalContext.current
+    val addresses by addressViewModel.addresses.collectAsState()
+    val addressPreferenceManager = remember { AddressPreferenceManager(context) }
+    // đọc giá trị từ pre
+    var selectedAddress by remember { mutableStateOf(addressPreferenceManager.getSelectedAddress()) }
+    val selectedAddressModel = addresses.find { it.id == selectedAddress }
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(5.dp)
             .clickable {
-                val route = "trackOrderScreen/${myOder.status.name}"
-                // navController.navigate("trackOrderScreen")
-                navController.navigate(route)
+//                val route = "trackOrderScreen/${myOder.status.name}"
+//                // navController.navigate("trackOrderScreen")
+//
+//                navController.navigate(route)
             },
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -155,36 +196,37 @@ fun MyOderCart(myOder: MyOder, navController: NavController) {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-//                Button(
-//                    onClick = { /* Xử lý trạng thái đơn hàng */ },
-//                    shape = RoundedCornerShape(8.dp),
-//                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .height(40.dp)
-//                ) {
-//                    Text(
-//                        text = "In Transit",
-//                        color = Color.Black,
-//                        fontSize = 14.sp
-//                    )
-//                }
-
+                val buttonColor = getButtonColorByStatus(myOder.status)
                 Button(
                     onClick = {
-                        // navController.navigate("trackOrderScreen/Đã lấy hàng")
-                        navController.navigate("trackOrderScreen/${myOder.status.name}")
+                        if (selectedAddressModel != null) {
+                            val encodedAddress = Uri.encode(
+                                "${selectedAddressModel.name}, ${selectedAddressModel.phoneNumber}\n" +
+                                        "${selectedAddressModel.detail}, ${selectedAddressModel.ward}, " +
+                                        "${selectedAddressModel.district}, ${selectedAddressModel.province}"
+                            )
+                            navController.navigate("trackOrderScreen/${myOder.status.name}?address=$encodedAddress")
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Không có địa chỉ được chọn",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     },
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                    colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(40.dp)
+                        .height(40.dp),
+                    contentPadding = PaddingValues(horizontal = 8.dp)
                 ) {
                     Text(
                         text = myOder.status.label,
                         color = Color.White,
-                        fontSize = 12.sp
+                        fontSize = 12.sp,
+                        maxLines = 1,  // Chỉ hiển thị 1 dòng
+                        modifier = Modifier.padding(horizontal = 12.dp) // tránh văn bản bị quá sát biên
                     )
                 }
             }
@@ -196,5 +238,5 @@ fun MyOderCart(myOder: MyOder, navController: NavController) {
 @Composable
 fun PreviewMyOderScreen() {
     val navController = rememberNavController()
-    MyOderScreen(navController)
+    MyOderScreen(navController, addressViewModel = AddressViewModel())
 }
