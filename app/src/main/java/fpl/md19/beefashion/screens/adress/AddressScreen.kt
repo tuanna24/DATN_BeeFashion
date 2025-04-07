@@ -241,22 +241,14 @@ fun AddressScreen(
                 onClick = {
                     val selectedAddressModel = addresses.find { it.id == selectedAddress }
                     if (selectedAddressModel != null) {
-                        val fullAddress = Uri.encode(
-                            "${selectedAddressModel.name}, ${selectedAddressModel.phoneNumber}\n" +
-                                    "${selectedAddressModel.detail}, ${selectedAddressModel.ward}, " +
-                                    "${selectedAddressModel.district}, ${selectedAddressModel.province}"
-                        )
-                        Log.d("AddressScreen", "Set selected address: $fullAddress")
-
-                        viewModel._selectedAddress1.value = fullAddress
+                        UserSesion.userSelectedAddress = selectedAddressModel
                         // Quay lại màn hình trước đó (PaymentScreen)
                         if (returnToPayment) {
-                            navController.navigate("paymentScreen/$fullAddress") {
+                            navController.navigate("paymentScreen") {
                                 popUpTo("productScreen/{productID}/{isFav}") { inclusive = true }
                             }
                         } else {
                             // Just set the value in the ViewModel for other use cases
-                            viewModel._selectedAddress1.value = fullAddress
                             Toast.makeText(
                                 context,
                                 "Cập nhật địa chỉ nhận hàng thành công!",
@@ -438,7 +430,6 @@ fun AddressItem(
                         unselectedColor = Color.Gray
                     )
                 )
-
             }
         }
     }

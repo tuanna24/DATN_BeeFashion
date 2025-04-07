@@ -33,7 +33,6 @@ import fpl.md19.beefashion.screens.adress.AddressPreferenceManager
 import fpl.md19.beefashion.screens.payment.formatCurrency
 import fpl.md19.beefashion.viewModels.AddressViewModel
 import fpl.md19.beefashion.viewModels.BrandViewModel
-import fpl.md19.beefashion.viewModels.CartViewModel
 import fpl.md19.beefashion.viewModels.FavoriteViewModel
 import fpl.md19.beefashion.viewModels.LoginViewModel
 import fpl.md19.beefashion.viewModels.ProductsViewModels
@@ -52,10 +51,10 @@ fun ProductScreen(
     loginViewModel: LoginViewModel = viewModel(),
 ) {
     var selectedSize by remember { mutableStateOf("") }
-    var selectedQuantity by remember { mutableStateOf(0) }
+    var selectedQuantity by remember { mutableIntStateOf(0) }
     var isFavorite by remember { mutableStateOf(isFavoriteByCurrentUser) }
     var showLoginDialog by remember { mutableStateOf(false) }
-    val isLoggedIn = UserSesion.currentUser != null
+    val isLoggedIn = UserSesion.currentUser
 
     val context = LocalContext.current
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -73,14 +72,6 @@ fun ProductScreen(
     val sizes = product?.sizes ?: listOf()
     val quantities = product?.quantities ?: listOf()
 
-    val addressPreferenceManager = remember { AddressPreferenceManager(context) }
-    val addressViewModel: AddressViewModel = viewModel()
-    val addresses by addressViewModel.addresses.collectAsState()
-
-    val selectedAddress by remember { mutableStateOf(addressPreferenceManager.getSelectedAddress()) }
-
-    val selectedAddressModel = addresses.find { it.id == selectedAddress }
-
     LaunchedEffect(product) {
         if (sizes.isNotEmpty() && quantities.isNotEmpty()) {
             selectedSize = sizes.first().name
@@ -88,11 +79,11 @@ fun ProductScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        loginViewModel.loadRememberedCredentials(context) {
-
-        }
-    }
+//    LaunchedEffect(Unit) {
+//        loginViewModel.loadRememberedCredentials(context) {
+//
+//        }
+//    }
 
     if (showLoginDialog) {
         LoginDialog(
@@ -282,13 +273,13 @@ fun ProductScreen(
 
                     IconButton(
                         onClick = {
-                            loginViewModel.loadRememberedCredentials(context) {
-                                if (isLoggedIn) {
-                                    showAddBottomSheet = true
-                                } else {
-                                    showLoginDialog = true
-                                }
+//                            loginViewModel.loadRememberedCredentials(context) {
+                            if (isLoggedIn != null) {
+                                showAddBottomSheet = true
+                            } else {
+                                showLoginDialog = true
                             }
+//                            }
                         },
                         modifier = Modifier
                             .size(48.dp)
@@ -305,10 +296,9 @@ fun ProductScreen(
 
                     Button(
                         onClick = {
-                            if (selectedAddressModel == null) {
-                                navController.navigate("LoginScreen")
-                                Toast.makeText(context, "Vui lòng đăng nhập trước khi mua!", Toast.LENGTH_SHORT).show()
-                            }
+//                            if (selectedAddressModel == null) {
+//                                Toast.makeText(context, "Vui lòng thêm địa chỉ trước khi mua!", Toast.LENGTH_SHORT).show()
+//                            }
                             // Kiểm tra lại trạng thái đăng nhập trước khi thực hiện hành động mua hàng
 //                            loginViewModel.loadRememberedCredentials(context) {
 //                                // Callback khi đăng nhập tự động thành công (nếu có thông tin đăng nhập đã lưu)
@@ -321,13 +311,14 @@ fun ProductScreen(
 
                             // Kiểm tra trạng thái đăng nhập sau khi tải thông tin
                             // Người dùng đã đăng nhập, hiển thị bottom sheet mua hàng
-                            loginViewModel.loadRememberedCredentials(context) {
-                                if (isLoggedIn) {
-                                    showBottomSheet = true
-                                } else {
-                                    showLoginDialog = true
-                                }
+//                            loginViewModel.loadRememberedCredentials(context) {
+                            if (isLoggedIn != null) {
+                                showBottomSheet = true
+                            } else {
+                                println("not logged in")
+                                showLoginDialog = true
                             }
+//                            }
                         },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(Color.Red),
@@ -344,17 +335,13 @@ fun ProductScreen(
                     }
 
                     if (showBottomSheet) {
-                        selectedAddress?.let {
-                            BuyNowBottomSheet(
-                                productsViewModels = productsViewModels,
-                                viewModel = productDetailViewModel,
-                                productId = productId,
-                                onDismiss = { showBottomSheet = false },
-                                navController = navController,
-                                selectedAddress = it,
-                                addresses = addresses
-                            )
-                        }
+                        BuyNowBottomSheet(
+                            productsViewModels = productsViewModels,
+                            productDetailViewModel = productDetailViewModel,
+                            productId = productId,
+                            onDismiss = { showBottomSheet = false },
+                            navController = navController
+                        )
                     }
                     if (showAddBottomSheet) {
                         AddToCartBottomSheet(

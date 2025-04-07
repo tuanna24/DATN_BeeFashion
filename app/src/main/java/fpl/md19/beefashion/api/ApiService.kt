@@ -6,6 +6,7 @@ import fpl.md19.beefashion.models.Carts
 import fpl.md19.beefashion.models.CartItem
 import fpl.md19.beefashion.models.CartItemSentData
 import fpl.md19.beefashion.models.Categories
+import fpl.md19.beefashion.models.MyOder
 import fpl.md19.beefashion.models.ProductDetails
 import fpl.md19.beefashion.models.Products
 import fpl.md19.beefashion.models.Sizes
@@ -116,4 +117,13 @@ interface ApiService {
 
     @DELETE("/carts/{customerID}/{productID}/{sizeID}")
     suspend fun removeProductFromCart(@Path("customerID") customerID: String, @Path("productID") productID: String, @Path("sizeID") sizeID: String): Response<Unit>
+
+    @GET("/invoices/{customerID}")
+    suspend fun getInvoices(@Path("customerID") customerID: String): Response<List<MyOder>>
+
+    @POST("/invoices")
+    suspend fun makeAnInvoice(@Body invoiceDTO: MyOder): Response<Unit>
+
+    @DELETE("/invoices/{customerID}/{invoiceID}")
+    suspend fun cancelInvoice(@Path("customerID") customerID: String, @Path("invoiceID") invoiceID: String): Response<Unit>
 }

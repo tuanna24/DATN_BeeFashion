@@ -3,9 +3,24 @@ package fpl.md19.beefashion.models
 import fpl.md19.beefashion.screens.cart.OrderStatus
 
 data class MyOder(
-    val title : String,
-    val size : String,
-    val price : String,
-    val imageRes : Int,
-    val status: OrderStatus
+    var id: String? = null,
+    var customerID: String,
+    val addressID: String,
+    val paidStatus: Boolean,
+    val invoiceItemDTOs: List<OrderItem>,
+    val paymentMethod: String,
+    val total: Int? = null,
+    val status: String? = null
+)
+
+data class OrderItem(
+    val productID: String,
+    val sizeID: String,
+    val quantity: Int,
+    val sizeName: String,
+    val productName: String,
+    val productImage: String,
+    val productPrice: Int,
+    val product: Products? = null,
+    val size: Sizes? = null
 )

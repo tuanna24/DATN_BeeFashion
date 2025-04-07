@@ -1,5 +1,6 @@
 package fpl.md19.beefashion.navigation
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Build
 import android.util.Log
@@ -42,6 +43,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import fpl.md19.beefashion.AddressScreen
+import fpl.md19.beefashion.GlobalVarible.UserSesion
 import fpl.md19.beefashion.NewAddressScreen
 import fpl.md19.beefashion.R
 //import fpl.md19.beefashion.TrackOrderScreen
@@ -95,13 +97,7 @@ val tabItems = listOf(
     TabItem(
         unselectedIcon = R.drawable.cart_icon,
         selectedIcon = R.drawable.cart_icon_dack,
-        content = { navController ->
-            val addressViewModel: AddressViewModel = viewModel()
-            CartScreen(
-                navController = navController,
-                addressViewModel = addressViewModel
-            )
-        },
+        content = { navController -> CartScreen(navController) },
         screenName = "cartScreen"
     ),
     TabItem(
@@ -159,7 +155,8 @@ fun NestedBottomTab(
         composable("SignUpScreen") {
             SignUpScreen(navController)
         }
-        composable("addressScreen") { backStackEntry ->
+        composable("addressScreen") {
+                backStackEntry ->
             val customerId = backStackEntry.arguments?.getString("customerId") ?: ""
             val viewModel: AddressViewModel = viewModel {
                 AddressViewModel()
@@ -177,7 +174,7 @@ fun NestedBottomTab(
                 }
             ),
 
-        ) { backStackEntry ->
+            ) { backStackEntry ->
             val customerId = backStackEntry.arguments?.getString("customerId") ?: ""
             val viewModel: AddressViewModel = viewModel {
                 AddressViewModel()
@@ -263,44 +260,38 @@ fun NestedBottomTab(
             )
         }
 
+//        composable(
+//            "paymentScreen/{fullAddress}/{customerId}",
+//            arguments = listOf(
+//                navArgument("fullAddress") { type = NavType.StringType },
+//                navArgument("customerId") {
+//                    type = NavType.StringType
+//                }
+//            )
+//        ) { backStackEntry ->
+//            val fullAddress = backStackEntry.arguments?.getString("fullAddress")
+//            val viewModel: AddressViewModel = viewModel()
+//            val customerId = backStackEntry.arguments?.getString("customerId") ?: ""
+//            PaymentScreen(
+//                navController = navController,
+//                viewModel = viewModel,
+//                fullAddress = fullAddress,
+//                customerId = customerId
+//            )
+//        }
+
         composable(
-            "paymentScreen/{fullAddress}/{customerId}",
-            arguments = listOf(
-                navArgument("fullAddress") { type = NavType.StringType },
-                navArgument("customerId") {
-                    type = NavType.StringType
-                }
-            )
-        ) { backStackEntry ->
-            val fullAddress = backStackEntry.arguments?.getString("fullAddress")
-            val viewModel: AddressViewModel = viewModel()
-            val customerId = backStackEntry.arguments?.getString("customerId") ?: ""
+            "paymentScreen",
+        ) {
+            val orderItems = UserSesion.userOrderItems
             PaymentScreen(
                 navController = navController,
-                viewModel = viewModel,
-                fullAddress = fullAddress,
-                customerId = customerId
-            )
-        }
-        composable(
-            "paymentScreen/{fullAddress}",
-            arguments = listOf(
-                navArgument("fullAddress") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val fullAddress = backStackEntry.arguments?.getString("fullAddress")
-            val viewModel: AddressViewModel = viewModel()
-            val customerId = backStackEntry.arguments?.getString("customerId") ?: ""
-            PaymentScreen(
-                navController = navController,
-                viewModel = viewModel,
-                fullAddress = fullAddress,
-                customerId = customerId
+                orderItems = orderItems
             )
         }
 
         composable("myOderScreen") {
-            MyOderScreen(navController, addressViewModel = AddressViewModel())
+            MyOderScreen(navController)
         }
         composable("MyDetailsScreen") {
             MyDetailsScreen(
@@ -322,17 +313,6 @@ fun NestedBottomTab(
 //        composable("trackOrderScreen") {
 //            TrackOrderScreen(navController)
 //        }
-        composable("trackOrderScreen/{status}") { backStackEntry ->
-            val statusName = backStackEntry.arguments?.getString("status") ?: "WAITING_CONFIRM"
-            val status = OrderStatus.fromName(statusName)
-            val addressEncoded = backStackEntry.arguments?.getString("address")
-            val fullAddress = addressEncoded?.let { Uri.decode(it) }
-            when (status) {
-                OrderStatus.DELIVERED -> TrackOrderTakenScreen(navController, fullAddress)
-                OrderStatus.SHIPPING -> TrackOrderShippingScreen(navController, fullAddress)
-                else -> TrackOrderDefaultScreen(navController, fullAddress)
-            }
-        }
         composable("trackOrderScreen/{status}?address={address}") { backStackEntry ->
             val statusName = backStackEntry.arguments?.getString("status") ?: "WAITING_CONFIRM"
             val addressEncoded = backStackEntry.arguments?.getString("address")
@@ -345,7 +325,6 @@ fun NestedBottomTab(
                 else -> TrackOrderDefaultScreen(navController, fullAddress)
             }
         }
-
         composable("HomeScreen") {
             HomeScreen(navController)
         }
@@ -355,8 +334,7 @@ fun NestedBottomTab(
         composable("cartScreen") { backStackEntry ->
             val addressViewModel: AddressViewModel = viewModel()
             CartScreen(
-                navController = navController,
-                addressViewModel = addressViewModel
+                navController = navController
             )
         }
 
@@ -408,30 +386,22 @@ fun NestedBottomTab(
         }
 
         composable("myOderScreen") {
-            MyOderScreen(navController,addressViewModel = AddressViewModel())
+            MyOderScreen(navController)
         }
-        composable("successScreen") {backStackEntry ->
+//        composable("successScreen") {backStackEntry ->
+//            val status = OrderStatus.valueOf(backStackEntry.arguments?.getString("status") ?: "WAITING_CONFIRM")
+//            SuccessScreen(navController, myOder = MyOder(
+//                title = "",
+//                size = "",
+//                price = "",
+//                imageRes = R.drawable.ao_phong,
+//                status = status
+//            ) )
+//        }
+        composable("successScreen") { backStackEntry ->
             val status = OrderStatus.valueOf(backStackEntry.arguments?.getString("status") ?: "WAITING_CONFIRM")
-            SuccessScreen(navController, myOder = MyOder(
-                title = "",
-                size = "",
-                price = "",
-                imageRes = R.drawable.ao_phong,
-                status = status
-            ) )
-        }
-        composable("successScreen/{status}") { backStackEntry ->
-            val status = OrderStatus.valueOf(backStackEntry.arguments?.getString("status") ?: "WAITING_CONFIRM")
-
             SuccessScreen(
-                navController = navController,
-                myOder = MyOder(
-                    title = "", // có thể để trống nếu không cần
-                    size = "", // có thể để trống nếu không cần
-                    price = "", // có thể để trống nếu không cần
-                    imageRes = R.drawable.ao_phong, // hoặc ảnh mặc định
-                    status = status
-                )
+                navController = navController
             )
         }
     }

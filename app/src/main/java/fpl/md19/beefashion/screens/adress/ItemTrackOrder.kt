@@ -51,13 +51,13 @@ fun ItemTrackOrder(
         }
 
         items(paymentProductList) { productName ->
-            PaymentItem(
-                name = productName,
-                imageRes = R.drawable.ao_phong,
-                size = "M",
-                quantity = 1,
-                price = 22900
-            )
+//            PaymentItem(
+//                name = productName,
+//                imageRes = R.drawable.ao_phong,
+//                size = "M",
+//                quantity = 1,
+//                price = 22900
+//            )
             Spacer(modifier = Modifier.height(8.dp))
         }
     }

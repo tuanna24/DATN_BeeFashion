@@ -22,7 +22,7 @@ import fpl.md19.beefashion.models.OrderStatusStepModel
 @Composable
 fun OrderStatusStep(steps: List<OrderStatusStepModel>) {
     Column(
-        modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
+        modifier = Modifier.padding(5.dp)
     ) {
         steps.forEachIndexed { index, step ->
             Row(

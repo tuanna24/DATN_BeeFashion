@@ -6,10 +6,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
+import fpl.md19.beefashion.GlobalVarible.UserSesion
 import fpl.md19.beefashion.api.HttpRequest
 import fpl.md19.beefashion.models.UserModel
 import fpl.md19.beefashion.requests.LoginRequest
-import fpl.md19.beefashion.GlobalVarible.UserSesion
 import fpl.md19.beefashion.requests.RegisterRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

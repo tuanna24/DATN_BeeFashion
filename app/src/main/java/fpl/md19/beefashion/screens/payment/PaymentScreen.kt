@@ -13,11 +13,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,29 +30,41 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
+import fpl.md19.beefashion.GlobalVarible.UserSesion
 import fpl.md19.beefashion.R
+import fpl.md19.beefashion.models.MyOder
+import fpl.md19.beefashion.models.OrderItem
 import fpl.md19.beefashion.viewModels.AddressViewModel
+import fpl.md19.beefashion.viewModels.InvoiceViewModel
 import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
 fun PaymentScreen(
     navController: NavController,
-    viewModel: AddressViewModel,
-    fullAddress: String? = null,
-    customerId: String
+    addressViewModel: AddressViewModel = viewModel(),
+    invoiceViewModel: InvoiceViewModel = viewModel(),
+    orderItems: List<OrderItem>
 ) {
-
-    val selectedMethod = remember { mutableStateOf("cod") }
+    val selectedAddress = UserSesion.userSelectedAddress
+    var selectedMethod by remember { mutableStateOf("cod") }
     val context = LocalContext.current
-    val selectedAddress by viewModel.selectedAddress1
+//    val selectedAddress by viewModel.selectedAddress1
 
-    LaunchedEffect(Unit) {
-        // Trigger khi màn hình xuất hiện lại
-        Log.d("PaymentScreen", "Selected address: ${viewModel.selectedAddress1.value}")
-    }
+//    LaunchedEffect(Unit) {
+//        // Trigger khi màn hình xuất hiện lại
+//        Log.d("PaymentScreen", "Selected address: ${viewModel.selectedAddress1.value}")
+//    }
+
+    val vatPercent = 0
+    val shippingFee = 3000
+    val subTotal = orderItems.sumOf { it.productPrice * it.quantity }
+
+    val total = subTotal
 
     Column(
         modifier = Modifier
@@ -94,12 +108,7 @@ fun PaymentScreen(
                 .background(Color.White, RoundedCornerShape(8.dp)) // Giảm từ 10.dp xuống 8.dp
                 .padding(10.dp) // Giảm từ 15.dp xuống 10.dp
                 .clickable {
-                    // When navigating to address screen, include the returnToPayment flag
-                //    val navigateToAddressScreen = {
-                //        navController.navigate("addressScreen/${customerId}/true")
-                //    }
-                    //navController.navigate("addressScreen")
-                    navController.navigate("AddressScreen/${customerId}/true")
+                    navController.navigate("AddressScreen/${UserSesion.currentUser!!.id}/true")
                 }
         ) {
             Row(
@@ -116,13 +125,7 @@ fun PaymentScreen(
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
-                    val displayAddress = fullAddress ?: selectedAddress
-
-                    if (!displayAddress.isNullOrEmpty()) {
-                        Text(text = "Địa chỉ: ${Uri.decode(displayAddress)}", fontSize = 14.sp)
-                    } else {
-                        Text(text = "Chưa có địa chỉ", fontSize = 14.sp, color = Color.Gray)
-                    }
+                    Text(text = selectedAddress?.detail ?: "Chưa có địa chỉ", fontSize = 14.sp, color = Color.Gray)
                 }
                 Icon(
                     painter = painterResource(R.drawable.ic_arrow_right),
@@ -152,14 +155,13 @@ fun PaymentScreen(
                     Spacer(modifier = Modifier.height(6.dp))
                 }
 
-                val paymentProductList = listOf("Sản phẩm 1", "Sản phẩm 2", "Sản phẩm 3")
-                items(paymentProductList.size) { index ->
+                items(orderItems.size) { index ->
                     PaymentItem(
-                        name = paymentProductList[index],
-                        imageRes = R.drawable.ao_phong,
-                        size = "M", // size mẫu, có thể truyền từ data
-                        quantity = 1,
-                        price = 22900
+                        name = orderItems[index].productName,
+                        imageLink = orderItems[index].productImage,
+                        size = orderItems[index].sizeName,
+                        quantity = orderItems[index].quantity,
+                        price = orderItems[index].productPrice
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -189,7 +191,7 @@ fun PaymentScreen(
                         .fillMaxWidth()
                         .padding(bottom = 10.dp)
                         .clickable {
-                            selectedMethod.value = "cod"
+                            selectedMethod = "cod"
                             Toast.makeText(
                                 context,
                                 "Bạn đã chọn thanh toán khi nhận hàng!",
@@ -205,9 +207,9 @@ fun PaymentScreen(
                         fontSize = 12.sp
                     )
                     RadioButton(
-                        selected = selectedMethod.value == "cod",
+                        selected = selectedMethod == "cod",
                         onClick = {
-                            selectedMethod.value = "cod"
+                            selectedMethod = "cod"
                             Toast.makeText(
                                 context,
                                 "Bạn đã chọn thanh toán khi nhận hàng!",
@@ -222,7 +224,7 @@ fun PaymentScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            selectedMethod.value = "zalopay"
+                            selectedMethod = "zalopay"
                             Toast.makeText(
                                 context,
                                 "Bạn đã chọn thanh toán bằng ZaloPay!",
@@ -238,9 +240,9 @@ fun PaymentScreen(
                         fontSize = 12.sp
                     )
                     RadioButton(
-                        selected = selectedMethod.value == "zalopay",
+                        selected = selectedMethod == "zalopay",
                         onClick = {
-                            selectedMethod.value = "zalopay"
+                            selectedMethod = "zalopay"
                             Toast.makeText(
                                 context,
                                 "Bạn đã chọn thanh toán bằng ZaloPay!",
@@ -277,7 +279,7 @@ fun PaymentScreen(
                         fontSize = 12.sp // Giảm từ mặc định xuống 12.sp
                     )
                     Text(
-                        text = formatCurrency(23900),
+                        text = formatCurrency(subTotal),
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp // Giảm từ mặc định xuống 12.sp
                     )
@@ -293,7 +295,7 @@ fun PaymentScreen(
                         fontSize = 12.sp // Giảm từ mặc định xuống 12.sp
                     )
                     Text(
-                        text = formatCurrency(5000),
+                        text = formatCurrency(shippingFee),
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp // Giảm từ mặc định xuống 12.sp
                     )
@@ -309,7 +311,7 @@ fun PaymentScreen(
                         fontSize = 12.sp // Giảm từ mặc định xuống 12.sp
                     )
                     Text(
-                        text = "-${formatCurrency(5000)}",
+                        text = "-${formatCurrency(shippingFee)}",
                         fontWeight = FontWeight.Bold,
                         color = Color.Red,
                         fontSize = 12.sp // Giảm từ mặc định xuống 12.sp
@@ -328,7 +330,7 @@ fun PaymentScreen(
                         fontSize = 14.sp // Giảm từ mặc định xuống 14.sp
                     )
                     Text(
-                        text = formatCurrency(22900),
+                        text = formatCurrency(total),
                         fontWeight = FontWeight.Bold,
                         color = Color.Red,
                         fontSize = 14.sp // Giảm từ mặc định xuống 14.sp
@@ -355,7 +357,7 @@ fun PaymentScreen(
                     color = Color.Gray
                 )
                 Text(
-                    text = formatCurrency(22900),
+                    text = formatCurrency(total),
                     fontSize = 16.sp, // Giảm từ 18.sp xuống 16.sp
                     fontWeight = FontWeight.Bold,
                     color = Color.Red
@@ -363,20 +365,25 @@ fun PaymentScreen(
             }
             Button(
                 onClick = {
-                    Toast.makeText(context, "Bạn đã đặt hàng thành công!", Toast.LENGTH_SHORT)
-                        .show()
-
+                    invoiceViewModel.newCustomerInvoices(
+                        MyOder(
+                            customerID = UserSesion.currentUser!!.id,
+                            addressID = selectedAddress!!.id,
+                            paidStatus = false,
+                            invoiceItemDTOs = UserSesion.userOrderItems,
+                            paymentMethod = selectedMethod,
+                            total = total
+                        )
+                    )
+                    Toast.makeText(context, "Bạn đã đặt hàng thành công!", Toast.LENGTH_SHORT).show()
                     navController.navigate("successScreen")
                     NotificationUtils.showOrderSuccessNotification(context)
-
                 },
+                enabled = selectedAddress?.id != null,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),
                 modifier = Modifier
                     .padding(4.dp)
                     .height(36.dp)
-                    .clickable {
-                        navController.navigate("successScreen")
-                    }
             ) {
                 Text(
                     text = "Đặt hàng",
@@ -391,7 +398,7 @@ fun PaymentScreen(
 @Composable
 fun PaymentItem(
     name: String,
-    imageRes: Int,
+    imageLink: String,
     size: String,
     quantity: Int,
     price: Int
@@ -400,8 +407,8 @@ fun PaymentItem(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(imageRes),
+        AsyncImage(
+            model = imageLink,
             contentDescription = null,
             modifier = Modifier.size(50.dp)
         )
@@ -451,11 +458,6 @@ fun formatCurrency(price: Any?): String {
 @Composable
 fun PreviewPaymentScreen() {
     val navController = rememberNavController()
-    PaymentScreen(
-        navController = navController,
-        viewModel = AddressViewModel(),
-        fullAddress = "",
-        customerId = ""
-    )
+    PaymentScreen(navController = navController, orderItems = listOf<OrderItem>())
 }
 

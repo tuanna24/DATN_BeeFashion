@@ -37,8 +37,7 @@ import java.util.*
 
 @Composable
 fun CartScreen(
-    navController: NavController,
-    addressViewModel: AddressViewModel
+    navController: NavController
 ) {
     val vatPercent = 10  // VAT 10%
     val shippingFee = 30000
@@ -50,15 +49,6 @@ fun CartScreen(
     val cartItem by cartViewModel.cartItem.observeAsState()
 
     val selectedItems = remember { mutableStateListOf<CartItem>() }
-
-    val addresses by addressViewModel.addresses.collectAsState()
-    val addressPreferenceManager = remember { AddressPreferenceManager(context) }
-    // đọc giá trị từ pre
-    var selectedAddress by remember { mutableStateOf(addressPreferenceManager.getSelectedAddress()) }
-    val selectedAddressModel = addresses.find { it.id == selectedAddress }
-    //selectedAddressModel?.let {
-//    val encodedAddress =
-//        Uri.encode("${it.name}, ${it.phoneNumber}\n${it.detail}, ${it.ward}, ${it.district}, ${it.province}")
 
     LaunchedEffect(cartItems) {
         println(cartItems)
@@ -79,7 +69,7 @@ fun CartScreen(
 
     val subTotal = selectedItems.sumOf { it.product.price * it.quantity }
     val vatAmount = subTotal * vatPercent / 100
-    val total = subTotal + vatAmount
+    val total = subTotal
 
     LaunchedEffect(Unit) {
         cartViewModel.getCartItems()
@@ -202,25 +192,26 @@ fun CartScreen(
                 SummaryRow("Tổng cộng", total, isBold = true)
                 Button(
                     onClick = {
-                        if (selectedAddressModel != null) {
-                            val encodedAddress = Uri.encode(
-                                "${selectedAddressModel.name}, ${selectedAddressModel.phoneNumber}\n" +
-                                        "${selectedAddressModel.detail}, ${selectedAddressModel.ward}, " +
-                                        "${selectedAddressModel.district}, ${selectedAddressModel.province}"
-                            )
-                            navController.navigate("paymentScreen/$encodedAddress"){
-                                popUpTo("addressScreen") {
-                                    inclusive = true
-                                }
-                            }
-
-                        } else {
-                            Toast.makeText(
-                                context,
-                                "Vui lòng chọn địa chỉ giao hàng!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+//                        if (selectedAddressModel != null) {
+//                            val encodedAddress = Uri.encode(
+//                                "${selectedAddressModel.name}, ${selectedAddressModel.phoneNumber}\n" +
+//                                        "${selectedAddressModel.detail}, ${selectedAddressModel.ward}, " +
+//                                        "${selectedAddressModel.district}, ${selectedAddressModel.province}"
+//                            )
+//                            navController.navigate("paymentScreen/$encodedAddress"){
+//                                popUpTo("addressScreen") {
+//                                    inclusive = true
+//                                }
+//                            }
+//
+//                        } else {
+//                            Toast.makeText(
+//                                context,
+//                                "Vui lòng chọn địa chỉ giao hàng!",
+//                                Toast.LENGTH_SHORT
+//                            ).show()
+//                        }
+                        navController.navigate("paymentScreen")
                     },
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -377,8 +368,7 @@ fun PreviewCartScreen() {
     )
     val selectedAddress = mockAddresses.first().id
     CartScreen(
-        navController = navController,
-        addressViewModel = AddressViewModel()
+        navController = navController
     )
 }
 

@@ -1,23 +1,16 @@
 package fpl.md19.beefashion.screens.cart
 
-import android.net.Uri
-import android.widget.Toast
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -39,22 +32,23 @@ import fpl.md19.beefashion.models.MyOder
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
-import fpl.md19.beefashion.screens.adress.AddressPreferenceManager
-import fpl.md19.beefashion.viewModels.AddressViewModel
+import androidx.compose.ui.layout.ContentScale
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+
+import fpl.md19.beefashion.models.OrderItem
+import fpl.md19.beefashion.viewModels.InvoiceViewModel
 
 enum class OrderStatus(val label: String) {
     WAITING_CONFIRM("Đang chờ xác nhận"),
-
-    //    CONFIRMED("Đã xác nhận đơn hàng"),
-//    PICKED_UP("Đã lấy hàng"),
+    CONFIRMED("Đã xác nhận đơn hàng"),
+    PICKED_UP("Đã lấy hàng"),
     SHIPPING("Đang vận chuyển"),
     DELIVERED("Đã giao hàng");
 
@@ -65,33 +59,17 @@ enum class OrderStatus(val label: String) {
     }
 }
 
-fun getButtonColorByStatus(status: OrderStatus): Color {
-    return when (status) {
-        OrderStatus.WAITING_CONFIRM -> Color.Red
-//        OrderStatus.CONFIRMED,
-//        OrderStatus.PICKED_UP -> Color.Red
-
-        OrderStatus.SHIPPING -> Color(0xFF4CAF50) // Xanh lá
-
-        OrderStatus.DELIVERED -> Color.Gray
-    }
-}
-
 @Composable
 fun MyOderScreen(
     navController: NavController,
-    addressViewModel: AddressViewModel
+    invoiceViewModel : InvoiceViewModel = viewModel()
 ) {
 
-    val myOderList: List<MyOder> = listOf(
-        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.SHIPPING),
-        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.DELIVERED),
-        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.WAITING_CONFIRM),
-        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.WAITING_CONFIRM),
-        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.SHIPPING),
-        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.DELIVERED),
-        MyOder("Áo ngắn", "Size M", "189000", R.drawable.ao_phong, OrderStatus.SHIPPING),
-    )
+    val myOders by invoiceViewModel.invoices.observeAsState(emptyList())
+
+    LaunchedEffect(Unit) {
+        invoiceViewModel.getCustomerInvoices()
+    }
 
     Column(
         modifier = Modifier
@@ -128,64 +106,51 @@ fun MyOderScreen(
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(myOderList) { myOder ->
-                MyOderCart(myOder, navController, addressViewModel)
+            items(myOders) { myOder ->
+                MyOderCart(myOder, navController)
             }
         }
     }
 }
 
 @Composable
-fun MyOderCart(
-    myOder: MyOder,
-    navController: NavController,
-    addressViewModel: AddressViewModel
-) {
-    val context = LocalContext.current
-    val addresses by addressViewModel.addresses.collectAsState()
-    val addressPreferenceManager = remember { AddressPreferenceManager(context) }
-    // đọc giá trị từ pre
-    var selectedAddress by remember { mutableStateOf(addressPreferenceManager.getSelectedAddress()) }
-    val selectedAddressModel = addresses.find { it.id == selectedAddress }
+fun MyOderCart(myOder: MyOder, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(5.dp)
             .clickable {
-//                val route = "trackOrderScreen/${myOder.status.name}"
-//                // navController.navigate("trackOrderScreen")
-//
-//                navController.navigate(route)
+                val route = "trackOrderScreen/${myOder.status}"
+                // navController.navigate("trackOrderScreen")
+                navController.navigate(route)
             },
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(modifier = Modifier.padding(16.dp)) {
-            Image(
-                painter = painterResource(id = myOder.imageRes),
-                contentDescription = myOder.title,
-                modifier = Modifier
-                    .size(80.dp)
-                    .border(1.dp, Color.Gray, RoundedCornerShape(10.dp))
+            AsyncImage(
+                model = R.drawable.ao_phong,
+                contentDescription = null,
+                modifier = Modifier.size(50.dp)
             )
 
             Spacer(modifier = Modifier.width(16.dp))
 
             Column {
                 Text(
-                    text = myOder.title,
+                    text = myOder.id ?: "",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(5.dp))
                 Text(
-                    text = myOder.size,
+                    text = myOder.paymentMethod,
                     fontSize = 14.sp,
                     color = Color.Gray
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "${myOder.price} VND",
+                    text = "${myOder.total} VND",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Red
@@ -196,37 +161,36 @@ fun MyOderCart(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val buttonColor = getButtonColorByStatus(myOder.status)
+//                Button(
+//                    onClick = { /* Xử lý trạng thái đơn hàng */ },
+//                    shape = RoundedCornerShape(8.dp),
+//                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(40.dp)
+//                ) {
+//                    Text(
+//                        text = "In Transit",
+//                        color = Color.Black,
+//                        fontSize = 14.sp
+//                    )
+//                }
+
                 Button(
                     onClick = {
-                        if (selectedAddressModel != null) {
-                            val encodedAddress = Uri.encode(
-                                "${selectedAddressModel.name}, ${selectedAddressModel.phoneNumber}\n" +
-                                        "${selectedAddressModel.detail}, ${selectedAddressModel.ward}, " +
-                                        "${selectedAddressModel.district}, ${selectedAddressModel.province}"
-                            )
-                            navController.navigate("trackOrderScreen/${myOder.status.name}?address=$encodedAddress")
-                        } else {
-                            Toast.makeText(
-                                context,
-                                "Không có địa chỉ được chọn",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        // navController.navigate("trackOrderScreen/Đã lấy hàng")
+                        navController.navigate("trackOrderScreen/${myOder.status}")
                     },
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(40.dp),
-                    contentPadding = PaddingValues(horizontal = 8.dp)
+                        .height(40.dp)
                 ) {
                     Text(
-                        text = myOder.status.label,
+                        text = myOder.status!!,
                         color = Color.White,
-                        fontSize = 12.sp,
-                        maxLines = 1,  // Chỉ hiển thị 1 dòng
-                        modifier = Modifier.padding(horizontal = 12.dp) // tránh văn bản bị quá sát biên
+                        fontSize = 12.sp
                     )
                 }
             }
@@ -238,5 +202,5 @@ fun MyOderCart(
 @Composable
 fun PreviewMyOderScreen() {
     val navController = rememberNavController()
-    MyOderScreen(navController, addressViewModel = AddressViewModel())
+    MyOderScreen(navController)
 }
