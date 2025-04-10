@@ -54,6 +54,11 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.firebase.auth)
     implementation(libs.androidx.runtime.livedata)
+    implementation(fileTree(mapOf(
+        "dir" to "D:\\DuAnToiNghiep\\ZaloPay",
+        "include" to listOf("*.aar", "*.jar"),
+        "exclude" to listOf(" ")
+    )))
     //implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

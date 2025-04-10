@@ -10,7 +10,8 @@ data class MyOder(
     val invoiceItemDTOs: List<OrderItem>,
     val paymentMethod: String,
     val total: Int? = null,
-    val status: String? = null
+    val status: String? = null,
+    val createdAt: String? = null
 )
 
 data class OrderItem(

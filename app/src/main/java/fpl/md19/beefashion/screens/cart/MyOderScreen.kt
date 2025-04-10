@@ -1,5 +1,7 @@
 package fpl.md19.beefashion.screens.cart
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -41,9 +43,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import fpl.md19.beefashion.components.formatCurrency
 
 import fpl.md19.beefashion.models.OrderItem
 import fpl.md19.beefashion.viewModels.InvoiceViewModel
+import java.text.NumberFormat
+import java.time.OffsetDateTime
+import java.util.Locale
 
 enum class OrderStatus(val label: String) {
     WAITING_CONFIRM("Đang chờ xác nhận"),
@@ -59,6 +65,7 @@ enum class OrderStatus(val label: String) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MyOderScreen(
     navController: NavController,
@@ -66,6 +73,14 @@ fun MyOderScreen(
 ) {
 
     val myOders by invoiceViewModel.invoices.observeAsState(emptyList())
+
+    val sortedOrders = myOders.sortedByDescending { order ->
+        try {
+            OffsetDateTime.parse(order.createdAt)
+        } catch (e: Exception) {
+            OffsetDateTime.MIN
+        }
+    }
 
     LaunchedEffect(Unit) {
         invoiceViewModel.getCustomerInvoices()
@@ -106,7 +121,7 @@ fun MyOderScreen(
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(myOders) { myOder ->
+            items(sortedOrders) { myOder ->
                 MyOderCart(myOder, navController)
             }
         }
@@ -150,7 +165,7 @@ fun MyOderCart(myOder: MyOder, navController: NavController) {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "${myOder.total} VND",
+                    text = formatCurrency(myOder.total),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Red
@@ -198,6 +213,16 @@ fun MyOderCart(myOder: MyOder, navController: NavController) {
     }
 }
 
+fun formatCurrency(price: Any?): String {
+    val formatter = NumberFormat.getInstance(Locale("vi", "VN"))
+    return when (price) {
+        is Number -> formatter.format(price.toLong()) + " ₫"
+        is String -> price.toLongOrNull()?.let { formatter.format(it) + " ₫" } ?: "0 ₫"
+        else -> "0 ₫"
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewMyOderScreen() {

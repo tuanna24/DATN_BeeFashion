@@ -2,6 +2,7 @@ package fpl.md19.beefashion
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,16 +16,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import fpl.md19.beefashion.api.Zalopay.AppInfo.APP_ID
 import fpl.md19.beefashion.navigation.BottomNavBar
 import fpl.md19.beefashion.ui.theme.BeefashionTheme
 import fpl.md19.beefashion.viewModels.AuthViewModel
+import vn.zalopay.sdk.Environment
+import vn.zalopay.sdk.ZaloPaySDK
+
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
+        ZaloPaySDK.init(2553.toInt(), Environment.SANDBOX)
         // Khởi tạo ViewModel
         val authViewModel: AuthViewModel by viewModels()
 
@@ -37,6 +42,12 @@ class MainActivity : ComponentActivity() {
                     MainScreen(navController = navController)
                 }
             }
+        }
+        try {
+            ZaloPaySDK.init(APP_ID, Environment.SANDBOX)
+            Log.d("ZaloPayInit", "ZaloPay SDK initialized successfully")
+        } catch (e: Exception) {
+            Log.e("ZaloPayInitError", "Error initializing ZaloPay SDK: ${e.message}")
         }
     }
 }

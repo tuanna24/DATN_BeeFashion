@@ -1,8 +1,21 @@
 package fpl.md19.beefashion.screens.payment
 
+import android.Manifest
+import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,18 +43,45 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import fpl.md19.beefashion.GlobalVarible.UserSesion
 import fpl.md19.beefashion.R
+import fpl.md19.beefashion.api.Zalopay.AppInfo.APP_ID
+import fpl.md19.beefashion.api.Zalopay.CreateOrder
 import fpl.md19.beefashion.models.MyOder
 import fpl.md19.beefashion.models.OrderItem
 import fpl.md19.beefashion.viewModels.AddressViewModel
 import fpl.md19.beefashion.viewModels.InvoiceViewModel
+import kotlinx.coroutines.launch
+import vn.zalopay.sdk.Environment
+import vn.zalopay.sdk.ZaloPayError
+import vn.zalopay.sdk.ZaloPaySDK
+import vn.zalopay.sdk.listeners.PayOrderListener
 import java.text.NumberFormat
 import java.util.Locale
+
+class SuccessScreen : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val policy = ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
+        setContent(){
+            val navController = rememberNavController()
+            SuccessScreen(navController)
+        }
+    }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        ZaloPaySDK.getInstance().onResult(intent)
+    }
+}
 
 @Composable
 fun PaymentScreen(
@@ -53,6 +93,8 @@ fun PaymentScreen(
     val selectedAddress = UserSesion.userSelectedAddress
     var selectedMethod by remember { mutableStateOf("cod") }
     val context = LocalContext.current
+
+    val activity = context as? ComponentActivity ?: return
 //    val selectedAddress by viewModel.selectedAddress1
 
 //    LaunchedEffect(Unit) {
@@ -365,19 +407,158 @@ fun PaymentScreen(
             }
             Button(
                 onClick = {
-                    invoiceViewModel.newCustomerInvoices(
-                        MyOder(
-                            customerID = UserSesion.currentUser!!.id,
-                            addressID = selectedAddress!!.id,
-                            paidStatus = false,
-                            invoiceItemDTOs = UserSesion.userOrderItems,
-                            paymentMethod = selectedMethod,
-                            total = total
+                    if (selectedMethod == "cod") {
+                        invoiceViewModel.newCustomerInvoices(
+                            MyOder(
+                                customerID = UserSesion.currentUser!!.id,
+                                addressID = selectedAddress!!.id,
+                                paidStatus = false,
+                                invoiceItemDTOs = UserSesion.userOrderItems,
+                                paymentMethod = selectedMethod,
+                                total = total,
+
+                            )
                         )
-                    )
-                    Toast.makeText(context, "Bạn đã đặt hàng thành công!", Toast.LENGTH_SHORT).show()
-                    navController.navigate("successScreen")
-                    NotificationUtils.showOrderSuccessNotification(context)
+                        Toast.makeText(context, "Bạn đã đặt hàng thành công!", Toast.LENGTH_SHORT).show()
+                        navController.navigate("successScreen")
+                        NotificationUtils.showOrderSuccessNotification(context)
+                    } else {
+                        Log.d("ZaloPay", "Button clicked")
+
+                        try {
+                            ZaloPaySDK.init(APP_ID, Environment.SANDBOX)
+                            Log.d("ZaloPayInit", "ZaloPay SDK initialized successfully")
+                        } catch (e: Exception) {
+                            Log.e("ZaloPayInitError", "Error initializing ZaloPay SDK: ${e.message}")
+                            e.printStackTrace()
+                            return@Button
+                        }
+
+                        fun createNotificationChannel(context: Context) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                val channel = NotificationChannel(
+                                    "beeslearn_notifications",
+                                    "BeesLearn Notifications",
+                                    NotificationManager.IMPORTANCE_HIGH
+                                ).apply {
+                                    description = "Thông báo từ ứng dụng BeeFashion!"
+                                }
+                                val manager =
+                                    context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                                manager.createNotificationChannel(channel)
+                            }
+                        }
+
+                        // Gửi thông báo
+                        fun sendNotification(context: Context, title: String, message: String) {
+                            val channelId = "beeslearn_notifications"
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                val permission = Manifest.permission.POST_NOTIFICATIONS
+                                if (context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                                    ActivityCompat.requestPermissions(
+                                        (context as Activity),
+                                        arrayOf(permission),
+                                        1
+                                    )
+                                    return
+                                }
+                            }
+                            val notification = NotificationCompat.Builder(context, channelId)
+                                .setSmallIcon(R.drawable.logo)
+                                .setContentTitle(title)
+                                .setContentText(message)
+                                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                .build()
+                            NotificationManagerCompat.from(context).notify(0, notification)
+                        }
+
+                        val orderApi = CreateOrder()
+                        activity.lifecycleScope.launch {
+                            try {
+                                val data = orderApi.createOrder(subTotal.toString())
+                                println("Amount ${subTotal}")
+                                println("Zalopay $data")
+                                val code: String = data.getString("return_code")
+                                println("ZaloPay Order created successfully: $code")
+
+                                if (code == "1") {
+                                    println("test")
+                                    val token = data.getString("zp_trans_token")
+                                    ZaloPaySDK
+                                        .getInstance()
+                                        .payOrder(
+                                            activity, token, "demozpdk://app",
+                                            object : PayOrderListener {
+                                                override fun onPaymentSucceeded(
+                                                    payUrl: String?,
+                                                    transToken: String?,
+                                                    appTransID: String?
+                                                ) {
+                                                    Toast.makeText(context, "Thanh toán thành công", Toast.LENGTH_SHORT).show()
+                                                    println("ZaloPay Payment succeeded: payUrl=$payUrl, transToken=$transToken, appTransID=$appTransID")
+//                                            navController.navigate("homeScreen") {
+//                                                popUpTo("currentScreen") { inclusive = true } // Xóa màn hình hiện tại khỏi stack
+//                                            }
+                                                    sendNotification(
+                                                        context,
+                                                        "BeesFashion",
+                                                        "Bạn đã thanh toán thành công đơn hàng ${" "} bằng ZaloPay!"
+                                                    )
+                                                    invoiceViewModel.newCustomerInvoices(
+                                                        MyOder(
+                                                            customerID = UserSesion.currentUser!!.id,
+                                                            addressID = selectedAddress!!.id,
+                                                            paidStatus = true,
+                                                            invoiceItemDTOs = UserSesion.userOrderItems,
+                                                            paymentMethod = selectedMethod,
+                                                            total = total
+                                                        )
+                                                    )
+                                                }
+
+                                                override fun onPaymentCanceled(
+                                                    payUrl: String?,
+                                                    transToken: String?
+                                                ) {
+                                                    Toast.makeText(context, "Hủy thanh toán", Toast.LENGTH_SHORT).show()
+                                                    Log.d("ZaloPay", "Payment canceled: payUrl=$payUrl, transToken=$transToken")
+                                                    sendNotification(
+                                                        context,
+                                                        "BeesLearn",
+                                                        "Bạn Đã Hủy Thanh Toán"
+                                                    )
+                                                }
+
+                                                override fun onPaymentError(
+                                                    error: ZaloPayError?,
+                                                    payUrl: String?,
+                                                    transToken: String?
+                                                ) {
+                                                    Toast.makeText(context, "Lỗi thanh toán!", Toast.LENGTH_SHORT).show()
+                                                    Log.e("ZaloPayError", "Payment error: payUrl=$payUrl, transToken=$transToken")
+                                                    sendNotification(
+                                                        context,
+                                                        "BeesLearn",
+                                                        "Lôĩ Thanh Toán!"
+                                                    )
+                                                }
+                                            }
+                                        )
+                                } else {
+                                    Toast
+                                        .makeText(context, "Không thể tạo đơn hàng", Toast.LENGTH_SHORT).show()
+                                }
+
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                Toast
+                                    .makeText(context, "Đã xảy ra lỗi", Toast.LENGTH_SHORT)
+                                    .show()
+                                Log.e("ZaloPayError", "Exception: ${e.message}")
+                            }
+                        }
+                        Toast.makeText(context, "Thanh toan bang zalopay", Toast.LENGTH_SHORT).show()
+                    }
                 },
                 enabled = selectedAddress?.id != null,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),
