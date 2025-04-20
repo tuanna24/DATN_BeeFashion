@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,16 +19,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.BottomSheetOrderStatus
 import fpl.md19.beefashion.components.Header
 import fpl.md19.beefashion.components.formatCurrency
+import fpl.md19.beefashion.models.MyOder
 
 @Composable
 fun TrackOrderDefaultScreen(
     navController: NavController,
-    fullAddress: String?
+    order: MyOder
 ) {
     Column(
         modifier = Modifier
@@ -45,8 +49,7 @@ fun TrackOrderDefaultScreen(
         ) {
             ItemTrackOrder(
                 navController = navController,
-                fullAddress = fullAddress,
-                modifier = Modifier.fillMaxSize()
+                order = order
             )
         }
 
@@ -60,7 +63,7 @@ fun TrackOrderDefaultScreen(
                 fontSize = 16.sp // Giảm từ mặc định xuống 14.sp
             )
             Text(
-                text = formatCurrency(22900 * 3),
+                text = formatCurrency(order.total!!),
                 fontWeight = FontWeight.Bold,
                 color = Color.Red,
                 fontSize = 16.sp // Giảm từ mặc định xuống 14.sp
@@ -78,17 +81,18 @@ fun TrackOrderDefaultScreen(
 //        )
 
         BottomSheetOrderStatus(
+            navController,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 12.dp),
-            currentStatus = "Đang chờ xác nhận"
+            currentStatus = order.status ?: ""
         )
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PreviewTrackOder () {
-    val navController = rememberNavController()
-    TrackOrderDefaultScreen(navController, fullAddress = "")
-}
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun PreviewTrackOder () {
+//    val navController = rememberNavController()
+//    TrackOrderDefaultScreen(navController, MyOder())
+//}

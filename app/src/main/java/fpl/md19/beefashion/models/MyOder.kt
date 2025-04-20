@@ -11,9 +11,9 @@ data class MyOder(
     val paymentMethod: String,
     val total: Int? = null,
     val status: String? = null,
-    val createdAt: String? = null
+    val createdAt: String? = null,
+    val fullAddress: String? = null
 )
-
 data class OrderItem(
     val productID: String,
     val sizeID: String,

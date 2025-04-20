@@ -30,17 +30,18 @@ fun TrackOrderShippingScreen(
             // Header
             Header(navController)
 
-            ItemTrackOrder(
-                navController = navController,
-                fullAddress = fullAddress,
-                modifier = Modifier.weight(1f)
-            )
+//            ItemTrackOrder(
+//                navController = navController,
+//                fullAddress = fullAddress,
+//                modifier = Modifier.weight(1f)
+//            )
 
             Box(modifier = Modifier
                 .fillMaxSize()
                 .weight(2f)
             ) {
                 BottomSheetOrderStatus(
+                    navController = navController,
                     modifier = Modifier.align(Alignment.BottomCenter),
                     currentStatus = "Đang vận chuyển"
                 )

@@ -313,17 +313,12 @@ fun NestedBottomTab(
 //        composable("trackOrderScreen") {
 //            TrackOrderScreen(navController)
 //        }
-        composable("trackOrderScreen/{status}?address={address}") { backStackEntry ->
-            val statusName = backStackEntry.arguments?.getString("status") ?: "WAITING_CONFIRM"
-            val addressEncoded = backStackEntry.arguments?.getString("address")
-            val fullAddress = addressEncoded?.let { Uri.decode(it) }
-
-            val status = OrderStatus.fromName(statusName)
-            when (status) {
-                OrderStatus.DELIVERED -> TrackOrderTakenScreen(navController, fullAddress)
-                OrderStatus.SHIPPING -> TrackOrderShippingScreen(navController, fullAddress)
-                else -> TrackOrderDefaultScreen(navController, fullAddress)
-            }
+        composable("trackOrderScreen") { backStackEntry ->
+            val myOder: MyOder = UserSesion.selectedOrder!!
+            TrackOrderDefaultScreen(
+                navController = navController,
+                order = myOder
+            )
         }
         composable("HomeScreen") {
             HomeScreen(navController)

@@ -17,12 +17,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import fpl.md19.beefashion.GlobalVarible.UserSesion
 import fpl.md19.beefashion.screens.adress.CancelOrderBottomSheet
 import fpl.md19.beefashion.screens.adress.NotificationUtils
 import fpl.md19.beefashion.screens.adress.OrderStatusStep
 import fpl.md19.beefashion.screens.data.orderStatusList
+import fpl.md19.beefashion.viewModels.InvoiceViewModel
 
 //@Composable
 //fun TrackOrderScreen(navController: NavController) {
@@ -87,13 +90,15 @@ import fpl.md19.beefashion.screens.data.orderStatusList
 
 @Composable
 fun BottomSheetOrderStatus(
+    navController: NavController,
     modifier: Modifier = Modifier,
     currentStatus: String
 ) {
-    val cancellableStatuses = listOf("Đang chờ xác nhận", "Đã xác nhận đơn hàng", "Đã lấy hàng")
-    val receivableStatuses = listOf("Đang vận chuyển", "Đã giao hàng")
+    val cancellableStatuses = listOf("pending", "packing")
+    val receivableStatuses = listOf("intransit")
     var showCancelDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val invoiceViewModel: InvoiceViewModel = viewModel()
 
     Surface(
         modifier = modifier
@@ -110,7 +115,9 @@ fun BottomSheetOrderStatus(
                 .padding(20.dp),
         ) {
             Text("Trạng thái", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            OrderStatusStep(steps = orderStatusList)
+
+            OrderStatusStep(currentStatus)
+
             Divider(
                 modifier = Modifier.padding(vertical = 16.dp),
                 thickness = 1.dp,
@@ -125,6 +132,8 @@ fun BottomSheetOrderStatus(
                                 context = context,
                                 message = "Bạn đã nhận hàng thành công!"
                             )
+                            invoiceViewModel.completeCustomerInvoice(UserSesion.selectedOrder!!.id!!)
+                            navController.popBackStack()
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -167,7 +176,11 @@ fun BottomSheetOrderStatus(
     }
 
     if (showCancelDialog) {
-        CancelOrderBottomSheet(onDismiss = { showCancelDialog = false })
+        CancelOrderBottomSheet(
+            onDismiss = { showCancelDialog = false },
+            onCancel = { navController.popBackStack() },
+            invoiceViewModel = invoiceViewModel
+        )
     }
 }
 

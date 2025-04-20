@@ -29,10 +29,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import fpl.md19.beefashion.GlobalVarible.UserSesion
+import fpl.md19.beefashion.viewModels.InvoiceViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CancelOrderBottomSheet(onDismiss: () -> Unit) {
+fun CancelOrderBottomSheet(invoiceViewModel: InvoiceViewModel, onCancel: () -> Unit, onDismiss: () -> Unit) {
     var showBottomSheet by remember { mutableStateOf(true) }
     val context = LocalContext.current
 
@@ -94,7 +97,8 @@ fun CancelOrderBottomSheet(onDismiss: () -> Unit) {
                 Button(
                     onClick = {
                         showBottomSheet = false
-                        onDismiss()
+                        onCancel()
+                        invoiceViewModel.cancelCustomerInvoice(UserSesion.selectedOrder!!.id!!)
                         NotificationUtils.showOrderSuccessNotification(
                             context = context,
                             message = "Bạn đã hủy đơn hàng này!"

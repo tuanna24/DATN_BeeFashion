@@ -43,6 +43,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import fpl.md19.beefashion.GlobalVarible.UserSesion
 import fpl.md19.beefashion.components.formatCurrency
 
 import fpl.md19.beefashion.models.OrderItem
@@ -69,7 +73,7 @@ enum class OrderStatus(val label: String) {
 @Composable
 fun MyOderScreen(
     navController: NavController,
-    invoiceViewModel : InvoiceViewModel = viewModel()
+    invoiceViewModel: InvoiceViewModel = viewModel(),
 ) {
 
     val myOders by invoiceViewModel.invoices.observeAsState(emptyList())
@@ -89,7 +93,7 @@ fun MyOderScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(15.dp),
+            .padding(5.dp),
         verticalArrangement = Arrangement.Top
     ) {
         Row(
@@ -135,77 +139,65 @@ fun MyOderCart(myOder: MyOder, navController: NavController) {
             .fillMaxWidth()
             .padding(5.dp)
             .clickable {
-                val route = "trackOrderScreen/${myOder.status}"
-                // navController.navigate("trackOrderScreen")
-                navController.navigate(route)
+                UserSesion.selectedOrder = myOder
+                navController.navigate("trackOrderScreen")
             },
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Row(modifier = Modifier.padding(16.dp)) {
+        Row(
+            modifier = Modifier
+                .padding(5.dp)
+        ) {
             AsyncImage(
-                model = R.drawable.ao_phong,
+                model = myOder.invoiceItemDTOs[0].product!!.image,
                 contentDescription = null,
-                modifier = Modifier.size(50.dp)
+                modifier = Modifier.size(120.dp)
             )
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(10.dp))
 
             Column {
                 Text(
-                    text = myOder.id ?: "",
+                    text = myOder.invoiceItemDTOs[0].product?.name ?: "",
                     fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(
+                    text = "Đơn hàng: #OD_${myOder.id?.take(8) ?: ""}...",
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(5.dp))
                 Text(
-                    text = myOder.paymentMethod,
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = formatCurrency(myOder.total),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Red
-                )
-            }
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-//                Button(
-//                    onClick = { /* Xử lý trạng thái đơn hàng */ },
-//                    shape = RoundedCornerShape(8.dp),
-//                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .height(40.dp)
-//                ) {
-//                    Text(
-//                        text = "In Transit",
-//                        color = Color.Black,
-//                        fontSize = 14.sp
-//                    )
-//                }
-
-                Button(
-                    onClick = {
-                        // navController.navigate("trackOrderScreen/Đã lấy hàng")
-                        navController.navigate("trackOrderScreen/${myOder.status}")
+                    buildAnnotatedString {
+                        withStyle(style = SpanStyle(color = Color.Gray)) {
+                            append("Phương thức thanh toán: ")
+                        }
+                        withStyle(style = SpanStyle(color = Color.Red)) { // Đổi màu ở đây
+                            append(myOder.paymentMethod.toUpperCase())
+                        }
                     },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                    fontSize = 14.sp
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Row (
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
+                        .padding(5.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
+                        text = formatCurrency(myOder.total),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Red
+                    )
+                    Text(
                         text = myOder.status!!,
-                        color = Color.White,
-                        fontSize = 12.sp
+                        color = Color.Black,
+                        fontSize = 16.sp
                     )
                 }
             }

@@ -28,7 +28,6 @@ fun SuccessScreen(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF5F5F5)), // Màu nền nhẹ
-
     ) {
         Card(
             shape = RoundedCornerShape(12.dp),
@@ -110,7 +109,7 @@ fun SuccessScreen(navController: NavController) {
 
                     Button(
                         onClick = {
-                            navController.navigate("trackOrderScreen/")
+                            navController.navigate("myOderScreen")
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),
                         modifier = Modifier

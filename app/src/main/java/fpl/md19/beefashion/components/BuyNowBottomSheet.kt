@@ -132,25 +132,25 @@ fun BuyNowBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             // ✅ Chọn màu sắc
-            Text(
-                text = "Màu Sắc",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                product?.color?.forEach { color ->
-                    Button(
-                        onClick = { /* Xử lý chọn màu */ },
-                        colors = ButtonDefaults.buttonColors(Color.LightGray),
-                        modifier = Modifier.weight(1f)
-                    ) {
-//                        Text(text = color)
-                    }
-                }
-            }
+//            Text(
+//                text = "Màu Sắc",
+//                fontSize = 16.sp,
+//                fontWeight = FontWeight.Bold
+//            )
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.spacedBy(8.dp)
+//            ) {
+//                product?.color?.forEach { color ->
+//                    Button(
+//                        onClick = { /* Xử lý chọn màu */ },
+//                        colors = ButtonDefaults.buttonColors(Color.LightGray),
+//                        modifier = Modifier.weight(1f)
+//                    ) {
+////                        Text(text = color)
+//                    }
+//                }
+//            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -282,15 +282,15 @@ fun BuyNowBottomSheet(
                     UserSesion.userOrderItems = listOf(orderItem)
                     navController.navigate("paymentScreen")
                 },
-                enabled = selectedSize != null,
+                enabled = (selectedSize != null) && (stock > 0),
                 colors = ButtonDefaults.buttonColors(Color.Red),
                 modifier = Modifier.fillMaxWidth().height(50.dp)
             ) {
                 Text(
-                    text = "Mua ngay",
+                    text = if(stock > 0) "Mua hàng" else "Hết hàng",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = if(stock > 0) Color.White else Color.Black
                 )
             }
 

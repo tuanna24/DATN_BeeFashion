@@ -23,6 +23,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -126,4 +127,7 @@ interface ApiService {
 
     @DELETE("/invoices/{customerID}/{invoiceID}")
     suspend fun cancelInvoice(@Path("customerID") customerID: String, @Path("invoiceID") invoiceID: String): Response<Unit>
+
+    @PATCH("/invoices/{customerID}/{invoiceID}")
+    suspend fun completeInvoice(@Path("customerID") customerID: String, @Path("invoiceID") invoiceID: String): Response<Unit>
 }

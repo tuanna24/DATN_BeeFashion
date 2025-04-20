@@ -9,6 +9,8 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -18,9 +20,41 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fpl.md19.beefashion.models.OrderStatusStepModel
+import fpl.md19.beefashion.screens.data.orderStatusList
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 @Composable
-fun OrderStatusStep(steps: List<OrderStatusStepModel>) {
+fun OrderStatusStep(status: String) {
+    val steps = orderStatusList
+    val completedSteps by remember { mutableStateOf(mutableStateListOf<OrderStatusStepModel>()) }
+
+    LaunchedEffect(Unit) {
+        when(status){
+            "pending" -> {
+                completedSteps.add(steps[0])
+            }
+            "packing" -> {
+                completedSteps.add(steps[0])
+                completedSteps.add(steps[1])
+            }
+            "intransit" -> {
+                completedSteps.add(steps[0])
+                completedSteps.add(steps[1])
+                completedSteps.add(steps[2])
+            }
+            "completed" -> {
+                completedSteps.add(steps[0])
+                completedSteps.add(steps[1])
+                completedSteps.add(steps[2])
+                completedSteps.add(steps[3])
+            }
+        }
+    }
+
     Column(
         modifier = Modifier.padding(5.dp)
     ) {
@@ -38,7 +72,7 @@ fun OrderStatusStep(steps: List<OrderStatusStepModel>) {
                         modifier = Modifier
                             .size(32.dp)
                             .background(
-                                if (step.completed) Color(0xFFE8F5E9) else Color(0xFFF5F5F5),
+                                if (completedSteps.contains(step)) Color(0xFFE8F5E9) else Color(0xFFF5F5F5),
                                 CircleShape
                             ),
                         contentAlignment = Alignment.Center
@@ -46,7 +80,7 @@ fun OrderStatusStep(steps: List<OrderStatusStepModel>) {
                         Icon(
                             imageVector = Icons.Filled.CheckCircle,
                             contentDescription = "Status",
-                            tint = if (step.completed) Color(0xFF4CAF50) else Color(0xFFBDBDBD),
+                            tint = if (completedSteps.contains(step)) Color(0xFF4CAF50) else Color(0xFFBDBDBD),
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -105,16 +139,16 @@ fun DottedLineVertical(modifier: Modifier = Modifier) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun OrderStatusStepPreview() {
-    val steps = listOf(
-        OrderStatusStepModel("Chờ xác nhận", "Kho HCM", true),
-        OrderStatusStepModel("Đang giao hàng", "Trung chuyển Đà Nẵng", true),
-        OrderStatusStepModel("Đã đến kho", "Kho Hà Nội", true),
-        OrderStatusStepModel("Đang giao", "Giao cho shipper", false),
-        OrderStatusStepModel("Đã giao", "Khách đã nhận", false)
-    )
-
-    OrderStatusStep(steps)
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun OrderStatusStepPreview() {
+//    val steps = listOf(
+//        OrderStatusStepModel("Chờ xác nhận", "Kho HCM", true),
+//        OrderStatusStepModel("Đang giao hàng", "Trung chuyển Đà Nẵng", true),
+//        OrderStatusStepModel("Đã đến kho", "Kho Hà Nội", true),
+//        OrderStatusStepModel("Đang giao", "Giao cho shipper", false),
+//        OrderStatusStepModel("Đã giao", "Khách đã nhận", false)
+//    )
+//
+//    OrderStatusStep(steps)
+//}

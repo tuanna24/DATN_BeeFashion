@@ -64,4 +64,20 @@ class InvoiceViewModel: ViewModel() {
             }
         }
     }
+
+    fun completeCustomerInvoice(invoiceID: String){
+        viewModelScope.launch {
+            try{
+                val customerID = UserSesion.currentUser?.id
+                if(!customerID.isNullOrBlank()){
+                    val invoiceRes = apiService.completeInvoice(customerID, invoiceID)
+                    if(invoiceRes.isSuccessful && invoiceRes.code() == 200){
+//                        _invoices.postValue(invoiceRes.body())
+                    }
+                }
+            }catch (e: Exception){
+                println(e)
+            }
+        }
+    }
 }

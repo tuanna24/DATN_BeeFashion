@@ -1,13 +1,9 @@
 package fpl.md19.beefashion.screens.adress
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,22 +17,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import fpl.md19.beefashion.R
-import fpl.md19.beefashion.screens.payment.PaymentItem
+import coil.compose.AsyncImage
+import fpl.md19.beefashion.models.MyOder
+import fpl.md19.beefashion.models.OrderItem
 import fpl.md19.beefashion.screens.payment.formatCurrency
 
 @Composable
 fun ItemTrackOrder(
     navController: NavController,
-    fullAddress: String? ,
-    modifier: Modifier = Modifier
+    order: MyOder
 ) {
     LazyColumn (
         modifier = Modifier
@@ -46,9 +39,9 @@ fun ItemTrackOrder(
     ) {
         item {
             Text(
-                text = if (fullAddress != null) "Địa chỉ: $fullAddress" else "Chưa có địa chỉ",
+                text = "Địa chỉ: ${order.fullAddress}",
                 fontSize = 14.sp,
-                color = if (fullAddress != null) Color.Black else Color.Gray
+                color = Color.Gray
             )
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -61,14 +54,9 @@ fun ItemTrackOrder(
             Spacer(modifier = Modifier.height(6.dp))
         }
 
-        val paymentProductList = listOf("Sản phẩm 3", "Sản phẩm 4", "Sản phẩm 5")
-        items(paymentProductList.size) { index ->
+        items(order.invoiceItemDTOs) { orderItem ->
             PaymentItem(
-                name = paymentProductList[index],
-                imageRes = R.drawable.ao_phong,
-                size = "M", // size mẫu, có thể truyền từ data
-                quantity = 1,
-                price = 22900
+                orderItem = orderItem
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
@@ -77,18 +65,14 @@ fun ItemTrackOrder(
 
 @Composable
 fun PaymentItem(
-    name: String,
-    imageRes: Int,
-    size: String,
-    quantity: Int,
-    price: Int
+    orderItem: OrderItem
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(imageRes),
+        AsyncImage(
+            model = orderItem.product!!.image,
             contentDescription = null,
             modifier = Modifier.size(50.dp)
         )
@@ -97,13 +81,13 @@ fun PaymentItem(
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = name,
+                text = orderItem.product.name,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "Size: $size",
+                text = "Size: ${orderItem.size!!.name}",
                 fontSize = 12.sp,
                 color = Color.Gray
             )
@@ -112,12 +96,12 @@ fun PaymentItem(
 
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                text = "SL: x$quantity",
+                text = "SL: x${orderItem.quantity}",
                 fontSize = 12.sp,
                 color = Color.Gray
             )
             Text(
-                text = formatCurrency(price),
+                text = formatCurrency(orderItem.product.price * orderItem.quantity),
                 fontWeight = FontWeight.Bold,
                 color = Color.Red,
                 fontSize = 14.sp
@@ -126,9 +110,9 @@ fun PaymentItem(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ItemTrackOrderPreview () {
-    val navController = rememberNavController()
-    ItemTrackOrder(navController = navController, fullAddress = "")
-}
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun ItemTrackOrderPreview () {
+//    val navController = rememberNavController()
+//    ItemTrackOrder(navController = navController)
+//}

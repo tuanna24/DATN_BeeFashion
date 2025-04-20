@@ -496,36 +496,65 @@ fun ProductCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(140.dp)
-                    .clip(RoundedCornerShape(6.dp))
+                    .clip(RoundedCornerShape(12.dp))
             )
         }
         Spacer(modifier = Modifier.height(6.dp))
 
-        Text(
-            text = product.name,
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
-            modifier = Modifier.padding(horizontal = 6.dp)
-        )
-
-        Spacer(modifier = Modifier.height(2.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
+        if (totalQuantity == 0) {
             Text(
-                text = formatCurrency(product.price),
-                color = Color.Gray,
-                fontSize = 12.sp,
+                text = product.name,
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
                 modifier = Modifier.padding(horizontal = 6.dp)
             )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = formatCurrency(product.price),
+                    color = Color.Gray,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(horizontal = 6.dp)
+                )
+                Text(
+                    text = "Hết hàng",
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(horizontal = 6.dp)
+                )
+            }
+        } else {
             Text(
-                text = "SL: $totalQuantity",
-                color = Color.Red,
-                fontSize = 12.sp,
+                text = product.name,
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
                 modifier = Modifier.padding(horizontal = 6.dp)
             )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = formatCurrency(product.price),
+                    color = Color.Gray,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(horizontal = 6.dp)
+                )
+                Text(
+                    text = "SL: $totalQuantity",
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(horizontal = 6.dp)
+                )
+            }
         }
     }
 }
