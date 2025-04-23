@@ -25,10 +25,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import fpl.md19.beefashion.GlobalVarible.UserSesion
 import fpl.md19.beefashion.R
 import fpl.md19.beefashion.models.AddressModel
 import fpl.md19.beefashion.models.CartItem
 import fpl.md19.beefashion.models.CartItemSentData
+import fpl.md19.beefashion.models.OrderItem
 import fpl.md19.beefashion.screens.adress.AddressPreferenceManager
 import fpl.md19.beefashion.viewModels.AddressViewModel
 import fpl.md19.beefashion.viewModels.CartViewModel
@@ -110,7 +112,7 @@ fun CartScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.search),
+                        painter = painterResource(id = R.drawable.cart_icon),
                         contentDescription = "No results",
                         tint = Color.Gray,
                         modifier = Modifier.size(64.dp)
@@ -192,25 +194,23 @@ fun CartScreen(
                 SummaryRow("Tổng cộng", total, isBold = true)
                 Button(
                     onClick = {
-//                        if (selectedAddressModel != null) {
-//                            val encodedAddress = Uri.encode(
-//                                "${selectedAddressModel.name}, ${selectedAddressModel.phoneNumber}\n" +
-//                                        "${selectedAddressModel.detail}, ${selectedAddressModel.ward}, " +
-//                                        "${selectedAddressModel.district}, ${selectedAddressModel.province}"
-//                            )
-//                            navController.navigate("paymentScreen/$encodedAddress"){
-//                                popUpTo("addressScreen") {
-//                                    inclusive = true
-//                                }
-//                            }
-//
-//                        } else {
-//                            Toast.makeText(
-//                                context,
-//                                "Vui lòng chọn địa chỉ giao hàng!",
-//                                Toast.LENGTH_SHORT
-//                            ).show()
-//                        }
+                        // Lưu sản phẩm đã chọn
+                        UserSesion.userOrderItems = selectedItems.map { cartItem ->
+                            OrderItem(
+                                productID = cartItem.productId,
+                                sizeID = cartItem.sizeID,
+                                quantity = cartItem.quantity,
+                                sizeName = cartItem.size.name,
+                                productName = cartItem.product.name,
+                                productImage = cartItem.product.image,
+                                productPrice = cartItem.product.price
+                            )
+                        }
+
+                        // Xóa sản phẩm đã chọn khỏi giỏ hàng
+                        cartViewModel.removeSelectedItems(selectedItems)
+
+                        // Điều hướng sang màn thanh toán
                         navController.navigate("paymentScreen")
                     },
                     shape = RoundedCornerShape(8.dp),

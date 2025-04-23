@@ -98,4 +98,20 @@ class CartViewModel: ViewModel() {
             }
         }
     }
+
+    fun removeSelectedItems(selectedItems: List<CartItem>) {
+        viewModelScope.launch {
+            try {
+                val customerID = UserSesion.currentUser?.id
+                if (!customerID.isNullOrBlank()) {
+                    selectedItems.forEach { item ->
+                        apiService.removeProductFromCart(customerID, item.productId, item.sizeID)
+                    }
+                    getCartItems() // Cập nhật giỏ hàng sau khi xóa sản phẩm
+                }
+            } catch (e: Exception) {
+                println(e)
+            }
+        }
+    }
 }

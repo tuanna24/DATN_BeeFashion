@@ -206,22 +206,11 @@ fun ProductScreen(
                         modifier = Modifier.padding(top = 10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.star),
-                            contentDescription = "Rating",
-                            tint = Color(0xFFFFC107),
-                            modifier = Modifier.size(18.dp)
-                        )
                         Text(
-                            text = " 4.0/5 ",
+                            text = "Mô tả sản phẩm: ",
                             fontSize = 16.sp,
                             color = Color.Black,
                             fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "(45 đánh giá)",
-                            fontSize = 14.sp,
-                            color = Color.Gray
                         )
                     }
                 }
@@ -296,29 +285,12 @@ fun ProductScreen(
 
                     Button(
                         onClick = {
-//                            if (selectedAddressModel == null) {
-//                                Toast.makeText(context, "Vui lòng thêm địa chỉ trước khi mua!", Toast.LENGTH_SHORT).show()
-//                            }
-                            // Kiểm tra lại trạng thái đăng nhập trước khi thực hiện hành động mua hàng
-//                            loginViewModel.loadRememberedCredentials(context) {
-//                                // Callback khi đăng nhập tự động thành công (nếu có thông tin đăng nhập đã lưu)
-//                                if (UserSesion.currentUser != null) {
-//                                    showBottomSheet = true // Hiển thị bottom sheet nếu đăng nhập thành công
-//                                } else {
-//                                    showLoginDialog = true
-//                                }
-//                            }
-
-                            // Kiểm tra trạng thái đăng nhập sau khi tải thông tin
-                            // Người dùng đã đăng nhập, hiển thị bottom sheet mua hàng
-//                            loginViewModel.loadRememberedCredentials(context) {
                             if (isLoggedIn != null) {
                                 showBottomSheet = true
                             } else {
                                 println("not logged in")
                                 showLoginDialog = true
                             }
-//                            }
                         },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(Color.Red),

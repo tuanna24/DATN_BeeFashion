@@ -58,6 +58,7 @@ import fpl.md19.beefashion.api.Zalopay.CreateOrder
 import fpl.md19.beefashion.models.MyOder
 import fpl.md19.beefashion.models.OrderItem
 import fpl.md19.beefashion.viewModels.AddressViewModel
+import fpl.md19.beefashion.viewModels.CartViewModel
 import fpl.md19.beefashion.viewModels.InvoiceViewModel
 import kotlinx.coroutines.launch
 import vn.zalopay.sdk.Environment
@@ -95,18 +96,17 @@ fun PaymentScreen(
     val context = LocalContext.current
 
     val activity = context as? ComponentActivity ?: return
-//    val selectedAddress by viewModel.selectedAddress1
-
-//    LaunchedEffect(Unit) {
-//        // Trigger khi màn hình xuất hiện lại
-//        Log.d("PaymentScreen", "Selected address: ${viewModel.selectedAddress1.value}")
-//    }
 
     val vatPercent = 0
     val shippingFee = 3000
     val subTotal = orderItems.sumOf { it.productPrice * it.quantity }
 
     val total = subTotal
+
+    val orderItems = UserSesion.userOrderItems
+
+    val cartViewModel: CartViewModel = viewModel()
+
 
     Column(
         modifier = Modifier
@@ -147,8 +147,8 @@ fun PaymentScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(8.dp)) // Giảm từ 10.dp xuống 8.dp
-                .padding(10.dp) // Giảm từ 15.dp xuống 10.dp
+                .background(Color.White, RoundedCornerShape(8.dp))
+                .padding(10.dp)
                 .clickable {
                     navController.navigate("AddressScreen/${UserSesion.currentUser!!.id}/true")
                 }
@@ -162,18 +162,32 @@ fun PaymentScreen(
                     Icons.Default.LocationOn,
                     contentDescription = "Location",
                     tint = Color.Gray,
-                    modifier = Modifier.size(20.dp) // Giảm kích thước icon
+                    modifier = Modifier.size(20.dp)
                 )
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(text = selectedAddress?.detail ?: "Chưa có địa chỉ", fontSize = 14.sp, color = Color.Gray)
+                    Text(
+                        text = selectedAddress?.name ?: "Tên người nhận",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = selectedAddress?.phoneNumber ?: "Số điện thoại",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+                    Text(
+                        text = selectedAddress?.detail ?: "Chưa có địa chỉ",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
                 }
                 Icon(
                     painter = painterResource(R.drawable.ic_arrow_right),
                     contentDescription = "Edit Address",
                     tint = Color.Gray,
-                    modifier = Modifier.size(20.dp) // Giảm từ 24.dp xuống 20.dp
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }
@@ -416,7 +430,6 @@ fun PaymentScreen(
                                 invoiceItemDTOs = UserSesion.userOrderItems,
                                 paymentMethod = selectedMethod,
                                 total = total,
-
                             )
                         )
                         Toast.makeText(context, "Bạn đã đặt hàng thành công!", Toast.LENGTH_SHORT).show()
