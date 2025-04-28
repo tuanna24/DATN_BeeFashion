@@ -225,7 +225,7 @@ fun AddressForm(
                         return@Button
                     }
                     val newAddress =
-                        "${selectedProvince?.first.orEmpty()} - ${selectedDistrict?.first.orEmpty()} - ${selectedWard.orEmpty()} - $detail -$name -$phoneNumber"
+                        "${selectedProvince?.first.orEmpty()} - ${selectedDistrict?.first.orEmpty()} - ${selectedWard.orEmpty()} - ${detail.orEmpty()}"
                     val isDuplicate = addresses.any {
                         "${it.province} - ${it.district} - ${it.ward} - ${it.detail}" == newAddress
                     }

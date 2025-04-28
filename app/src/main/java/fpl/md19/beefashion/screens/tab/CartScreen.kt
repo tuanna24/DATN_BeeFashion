@@ -1,7 +1,9 @@
 package fpl.md19.beefashion.screens.tab
 
 import android.net.Uri
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -32,14 +34,23 @@ import fpl.md19.beefashion.models.CartItem
 import fpl.md19.beefashion.models.CartItemSentData
 import fpl.md19.beefashion.models.OrderItem
 import fpl.md19.beefashion.screens.adress.AddressPreferenceManager
+import fpl.md19.beefashion.screens.adress.NotifiSharePre
+import fpl.md19.beefashion.screens.adress.NotificationStatus.createNotificationChannel
+import fpl.md19.beefashion.screens.adress.NotificationStatus.sendOrderStatusNotification
+import fpl.md19.beefashion.screens.adress.NotificationStatus.sendOrderStatusNotification1
 import fpl.md19.beefashion.viewModels.AddressViewModel
 import fpl.md19.beefashion.viewModels.CartViewModel
+import fpl.md19.beefashion.viewModels.InvoiceViewModel
 import java.text.NumberFormat
+import java.time.OffsetDateTime
 import java.util.*
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CartScreen(
-    navController: NavController
+    navController: NavController,
+    invoiceViewModel: InvoiceViewModel = viewModel(),
+    viewModel: NotifiSharePre = viewModel()
 ) {
     val vatPercent = 10  // VAT 10%
     val shippingFee = 30000
@@ -75,6 +86,42 @@ fun CartScreen(
 
     LaunchedEffect(Unit) {
         cartViewModel.getCartItems()
+    }
+
+    val myOrders by invoiceViewModel.invoices.observeAsState(emptyList())
+    val sortedOrders = myOrders.sortedByDescending { order ->
+        try {
+            OffsetDateTime.parse(order.createdAt)
+        } catch (e: Exception) {
+            OffsetDateTime.MIN
+        }
+    }
+    LaunchedEffect(Unit) {
+        invoiceViewModel.getCustomerInvoices()
+    }
+
+    // Lưu trạng thái của đơn hàng trước đó để kiểm tra thay đổi
+    var lastNotifiedOrderId by remember { mutableStateOf<String?>(null) }
+    var lastNotifiedOrderStatus by remember { mutableStateOf<String?>(null) }
+
+    // Kiểm tra và gửi thông báo khi đơn hàng mới nhất thay đổi
+    LaunchedEffect(sortedOrders) {
+        val latestOrder = sortedOrders.firstOrNull() ?: return@LaunchedEffect
+        val orderId = latestOrder.id?.take(8) ?: return@LaunchedEffect
+
+        // Kiểm tra nếu trạng thái đơn hàng đã thay đổi và cần thông báo không
+        if (lastNotifiedOrderId != orderId || lastNotifiedOrderStatus != latestOrder.status) {
+            if (viewModel.shouldNotify(orderId, latestOrder.status, context)) {
+                createNotificationChannel(context)
+                sendOrderStatusNotification1(context, orderId, latestOrder.status ?: "")
+
+                // Lưu lại trạng thái của đơn hàng đã thông báo
+                lastNotifiedOrderId = orderId
+                lastNotifiedOrderStatus = latestOrder.status
+
+                Toast.makeText(context, "Cập nhật trạng thái đơn hàng: ${latestOrder.status}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     Column(
@@ -351,6 +398,7 @@ fun formatCurrency(amount: Int): String {
     return format.format(amount)
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewCartScreen() {

@@ -27,7 +27,7 @@ object NotificationUtils {
         }
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.logo)
+            .setSmallIcon(R.drawable.bell)
             .setContentTitle("BeeFashion")
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

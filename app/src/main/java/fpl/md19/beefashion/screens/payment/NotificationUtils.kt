@@ -30,7 +30,7 @@ object NotificationUtils {
 
         // Tạo thông báo
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.logo)
+            .setSmallIcon(R.drawable.bell)
             .setContentTitle("BeeFashion")
             .setContentText("Bạn đã đặt hàng thành công!")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

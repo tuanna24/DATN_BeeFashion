@@ -59,6 +59,12 @@ dependencies {
         "include" to listOf("*.aar", "*.jar"),
         "exclude" to listOf(" ")
     )))
+    implementation(fileTree(mapOf(
+        "dir" to "C:\\Users\\minhn\\Downloads\\ZaloPayBeeFashion",
+        "include" to listOf("*.aar", "*.jar"),
+        "exclude" to listOf("")
+    )))
+    implementation(libs.firebase.messaging.ktx)
     //implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -98,4 +104,11 @@ dependencies {
     implementation ("org.json:json:20210307")
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")
     implementation ("com.squareup.okhttp3:logging-interceptor:4.9.3")
+
+    implementation (libs.androidx.activity.compose.v131)
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+
+    // firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
+    implementation("com.google.firebase:firebase-analytics")
 }

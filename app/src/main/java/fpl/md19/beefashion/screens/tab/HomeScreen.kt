@@ -1,5 +1,9 @@
 package fpl.md19.beefashion.screens.tab
 
+import android.os.Build
+import android.util.Log
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,11 +22,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -36,20 +42,29 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import fpl.md19.beefashion.R
 import fpl.md19.beefashion.models.Products
+import fpl.md19.beefashion.screens.adress.NotifiSharePre
+import fpl.md19.beefashion.screens.adress.NotificationStatus.createNotificationChannel
+import fpl.md19.beefashion.screens.adress.NotificationStatus.sendOrderStatusNotification
+import fpl.md19.beefashion.screens.adress.NotificationStatus.sendOrderStatusNotification1
 import fpl.md19.beefashion.viewModels.CategoriesViewModels
 import fpl.md19.beefashion.viewModels.FavoriteViewModel
+import fpl.md19.beefashion.viewModels.InvoiceViewModel
 import fpl.md19.beefashion.viewModels.ProductsViewModels
 import java.text.Normalizer
 import java.text.NumberFormat
+import java.time.OffsetDateTime
 import java.util.Locale
 import java.util.regex.Pattern
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
     productsViewModels: ProductsViewModels = viewModel(),
-    categoriesViewModels: CategoriesViewModels = viewModel()
+    categoriesViewModels: CategoriesViewModels = viewModel(),
+    invoiceViewModel: InvoiceViewModel = viewModel(),
+    viewModel: NotifiSharePre = viewModel()
 ) {
     val favoriteViewModel: FavoriteViewModel = viewModel()
 
@@ -110,6 +125,54 @@ fun HomeScreen(
     } else {
         emptyList()
     }
+
+    val myOrders by invoiceViewModel.invoices.observeAsState(emptyList())
+    val sortedOrders = myOrders.sortedByDescending { order ->
+        try {
+            OffsetDateTime.parse(order.createdAt)
+        } catch (e: Exception) {
+            OffsetDateTime.MIN
+        }
+    }
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        invoiceViewModel.getCustomerInvoices()
+    }
+
+    // Lưu trạng thái của đơn hàng trước đó để kiểm tra thay đổi
+    var lastNotifiedOrderId by remember { mutableStateOf<String?>(null) }
+    var lastNotifiedOrderStatus by remember { mutableStateOf<String?>(null) }
+
+    // Kiểm tra và gửi thông báo khi đơn hàng mới nhất thay đổi
+    LaunchedEffect(sortedOrders) {
+        val latestOrder = sortedOrders.firstOrNull() ?: return@LaunchedEffect
+        val orderId = latestOrder.id?.take(8) ?: return@LaunchedEffect
+
+        // Kiểm tra nếu trạng thái đơn hàng đã thay đổi và cần thông báo không
+        if (lastNotifiedOrderId != orderId || lastNotifiedOrderStatus != latestOrder.status) {
+            if (viewModel.shouldNotify(orderId, latestOrder.status, context)) {
+                createNotificationChannel(context)
+                sendOrderStatusNotification1(context, orderId, latestOrder.status ?: "")
+
+                // Lưu lại trạng thái của đơn hàng đã thông báo
+                lastNotifiedOrderId = orderId
+                lastNotifiedOrderStatus = latestOrder.status
+
+                Toast.makeText(context, "Cập nhật trạng thái đơn hàng: ${latestOrder.status}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+//    LaunchedEffect(myOrders) {
+//        Log.d("HomeScreen", "Invoices updated: ${myOrders.size}")
+//        val latestOrder = myOrders.firstOrNull() ?: return@LaunchedEffect
+//        val orderId = latestOrder.id?.take(8) ?: return@LaunchedEffect
+//        if (viewModel.shouldNotify(orderId, latestOrder.status, context)) {
+//            createNotificationChannel(context)
+//            sendOrderStatusNotification(context, orderId, latestOrder.status ?: "")
+//
+//            Toast.makeText(context, "Thông báo mới: ${latestOrder.status}", Toast.LENGTH_SHORT).show()
+//        }
+//    }
 
     Column(
         modifier = Modifier
@@ -568,6 +631,7 @@ fun formatCurrency(price: Any?): String {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun HomeScreenPreview() {
