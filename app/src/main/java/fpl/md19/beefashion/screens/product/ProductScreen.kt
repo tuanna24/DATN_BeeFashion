@@ -49,6 +49,7 @@ fun ProductScreen(
     brandsViewModel: BrandViewModel = viewModel(),
     productsViewModels: ProductsViewModels = viewModel(),
     loginViewModel: LoginViewModel = viewModel(),
+    isFav: Boolean,
 ) {
     var selectedSize by remember { mutableStateOf("") }
     var selectedQuantity by remember { mutableIntStateOf(0) }
@@ -88,7 +89,9 @@ fun ProductScreen(
     if (showLoginDialog) {
         LoginDialog(
             onDismiss = { showLoginDialog = false },
-            onLogin = { navController.navigate("loginScreen") }
+            onLogin = {
+                navController.navigate("LoginScreen?redirect=productScreen&productId=$productId&isFav=$isFav")
+            }
         )
     }
 
