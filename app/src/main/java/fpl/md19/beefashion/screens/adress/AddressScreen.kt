@@ -32,6 +32,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -418,7 +419,12 @@ fun AddressItem(
                 Icon(Icons.Default.LocationOn, contentDescription = "Location", tint = Color.Gray)
                 Spacer(modifier = Modifier.width(8.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = address, fontSize = 12.sp, color = Color.Gray)
+                    Text(text = address,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis, // Nếu dài quá thì hiện dấu ...
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
                 }
                 RadioButton(
                     selected = selected,
