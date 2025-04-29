@@ -1,6 +1,7 @@
 package fpl.md19.beefashion.screens.cart
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,24 +33,22 @@ import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.R
 import fpl.md19.beefashion.models.MyOder
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import fpl.md19.beefashion.GlobalVarible.UserSesion
-import fpl.md19.beefashion.components.formatCurrency
 
-import fpl.md19.beefashion.models.OrderItem
+import fpl.md19.beefashion.screens.adress.NotificationStatus.createNotificationChannel
+import fpl.md19.beefashion.screens.adress.NotificationStatus.sendOrderStatusNotification
+import fpl.md19.beefashion.screens.adress.NotifiSharePre
+import fpl.md19.beefashion.screens.adress.NotificationStatus.sendOrderStatusNotification1
 import fpl.md19.beefashion.viewModels.InvoiceViewModel
 import java.text.NumberFormat
 import java.time.OffsetDateTime
@@ -74,6 +73,7 @@ enum class OrderStatus(val label: String) {
 fun MyOderScreen(
     navController: NavController,
     invoiceViewModel: InvoiceViewModel = viewModel(),
+    viewModel: NotifiSharePre = viewModel()
 ) {
 
     val myOders by invoiceViewModel.invoices.observeAsState(emptyList())
@@ -85,7 +85,7 @@ fun MyOderScreen(
             OffsetDateTime.MIN
         }
     }
-
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         invoiceViewModel.getCustomerInvoices()
     }
@@ -125,15 +125,41 @@ fun MyOderScreen(
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(sortedOrders) { myOder ->
-                MyOderCart(myOder, navController)
+            items(sortedOrders) { order ->
+                LaunchedEffect(order.id, order.status) {// order thay vi myOrder
+                    val orderId = order.id?.take(8) ?: return@LaunchedEffect
+                    if (viewModel.shouldNotify(orderId, order.status, context)) {
+                        createNotificationChannel(context)
+                        sendOrderStatusNotification1(context, orderId, order.status ?: "")
+
+                        Toast.makeText(context, "Thông báo mới: ${order.status}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                MyOderCart(order, navController)
+
             }
         }
     }
 }
 
 @Composable
-fun MyOderCart(myOder: MyOder, navController: NavController) {
+fun MyOderCart(
+    myOder: MyOder,
+    navController: NavController,
+    viewModel: NotifiSharePre = viewModel()
+) {
+
+    val context = LocalContext.current
+
+    // cachs 1
+//    LaunchedEffect(myOder.id, myOder.status) {
+//        val orderId = myOder.id?.take(8) ?: return@LaunchedEffect
+//        if (viewModel.shouldNotify(orderId, myOder.status, context)) {
+//            createNotificationChannel(context)
+//            sendOrderStatusNotification(context, orderId, myOder.status ?: "")
+//        }
+//    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -182,7 +208,7 @@ fun MyOderCart(myOder: MyOder, navController: NavController) {
                     fontSize = 14.sp
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                Row (
+                Row(
                     modifier = Modifier
                         .padding(5.dp)
                         .fillMaxWidth(),
@@ -219,5 +245,5 @@ fun formatCurrency(price: Any?): String {
 @Composable
 fun PreviewMyOderScreen() {
     val navController = rememberNavController()
-    MyOderScreen(navController)
+    //MyOderScreen(navController)
 }

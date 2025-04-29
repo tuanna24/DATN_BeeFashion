@@ -8,20 +8,28 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import fpl.md19.beefashion.api.Zalopay.AppInfo.APP_ID
 import fpl.md19.beefashion.navigation.BottomNavBar
+import fpl.md19.beefashion.screens.adress.NotificationStatus
+import fpl.md19.beefashion.screens.adress.NotificationStatus.createNotificationChannel
+import fpl.md19.beefashion.screens.adress.NotificationStatus.sendOrderStatusNotification
 import fpl.md19.beefashion.ui.theme.BeefashionTheme
 import fpl.md19.beefashion.viewModels.AuthViewModel
+
 import vn.zalopay.sdk.Environment
 import vn.zalopay.sdk.ZaloPaySDK
+
 
 
 class MainActivity : ComponentActivity() {
@@ -31,7 +39,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         ZaloPaySDK.init(2553.toInt(), Environment.SANDBOX)
         // Khởi tạo ViewModel
+
         val authViewModel: AuthViewModel by viewModels()
+
+        // Tạo các notification channel khi mở app
+        NotificationStatus.createNotificationChannel(this)
+
+        MyFirebaseMessagingService().createNotificationChannel(this)
+
 
         // Thiết lập giao diện composable
         setContent {
@@ -58,5 +73,8 @@ fun MainScreen(navController: NavHostController) {
     Column(modifier = Modifier.fillMaxSize()) {
         // Truyền navController và authViewModel vào BottomNavBar
         BottomNavBar(navController = navController)
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(text = "Ứng dụng nhận thông báo từ Firebase!")
+        }
     }
 }

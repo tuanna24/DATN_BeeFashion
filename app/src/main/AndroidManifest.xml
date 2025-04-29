@@ -66,6 +66,16 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCw3Xw6g-f7HxP5rBfigJfBKJT_c1nvgDI" />
 
+        <service android:name=".MyFirebaseMessagingService" android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <!-- Set the name of the channel for Android 8.0 and higher -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id" />
+
     </application>
 
 </manifest>
