@@ -49,7 +49,10 @@ import fpl.md19.beefashion.viewModels.LoginViewModel
 @Composable
 fun LoginScreen(
     navController: NavController,
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel = viewModel(),
+    redirect: String,
+    productId: String,
+    isFav: Boolean,
 ) {
     // State để lưu giá trị đầu vào
     var email by remember { mutableStateOf("") }
@@ -247,8 +250,14 @@ fun LoginScreen(
             loginMessage?.let { message ->
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 if (message == "Đăng nhập thành công!") {
-                    navController.navigate("HomeScreen") {
-                        popUpTo("LoginScreen") { inclusive = true }
+                    if (redirect == "productScreen" && productId.isNotEmpty()) {
+                        navController.navigate("productScreen/$productId/$isFav") {
+                            popUpTo("LoginScreen") { inclusive = true }
+                        }
+                    } else {
+                        navController.navigate("HomeScreen") {
+                            popUpTo("LoginScreen") { inclusive = true }
+                        }
                     }
                 }
             }
@@ -283,5 +292,5 @@ fun LoginScreen(
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen(rememberNavController())
+    LoginScreen(rememberNavController(), redirect = "HomeScreen", productId = "", isFav = false)
 }

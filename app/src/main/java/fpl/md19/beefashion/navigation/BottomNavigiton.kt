@@ -149,9 +149,23 @@ fun NestedBottomTab(
         composable("WelcomeScreen1") {
             WelcomeScreen1(navController)
         }
-        composable("LoginScreen") {
-            LoginScreen(navController)
+        composable(
+            "LoginScreen?redirect={redirect}&productId={productId}",
+            arguments = listOf(
+                navArgument("redirect") { defaultValue = "HomeScreen" },
+                navArgument("productId") { defaultValue = "" },
+                navArgument("isFav") { defaultValue = "false" }
+            )
+        ) { backStackEntry ->
+            val redirect = backStackEntry.arguments?.getString("redirect") ?: "HomeScreen"
+            val productId = backStackEntry.arguments?.getString("productId") ?: ""
+            val isFav = backStackEntry.arguments?.getString("isFav")?.toBoolean() ?: false
+
+
+            LoginScreen(navController = navController, redirect = redirect, productId = productId, isFav = isFav)
         }
+
+
         composable("SignUpScreen") {
             SignUpScreen(navController)
         }
@@ -357,7 +371,10 @@ fun NestedBottomTab(
                 ProductScreen(
                     navController = navController,
                     productId = productId,
-                    isFavoriteByCurrentUser = isFavoriteByCurrentUser
+                    isFavoriteByCurrentUser = isFavoriteByCurrentUser,
+                    favoriteViewModel = viewModel(),
+                    productDetailViewModel = viewModel(),
+                    isFav = isFavoriteByCurrentUser
                 )
             }
         }
@@ -375,7 +392,10 @@ fun NestedBottomTab(
                 ProductScreen(
                     navController = navController,
                     productId = productId,
-                    isFavoriteByCurrentUser = isFavoriteByCurrentUser
+                    isFavoriteByCurrentUser = isFavoriteByCurrentUser,
+                    favoriteViewModel = viewModel(),
+                    productDetailViewModel = viewModel(),
+                    isFav = isFavoriteByCurrentUser
                 )
             }
         }
