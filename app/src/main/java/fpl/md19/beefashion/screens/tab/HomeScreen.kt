@@ -139,41 +139,34 @@ fun HomeScreen(
         invoiceViewModel.getCustomerInvoices()
     }
 
-    // Lưu trạng thái của đơn hàng trước đó để kiểm tra thay đổi
-    var lastNotifiedOrderId by remember { mutableStateOf<String?>(null) }
-    var lastNotifiedOrderStatus by remember { mutableStateOf<String?>(null) }
+    var lastOrderStatusMap by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
 
-    // Kiểm tra và gửi thông báo khi đơn hàng mới nhất thay đổi
     LaunchedEffect(sortedOrders) {
-        val latestOrder = sortedOrders.firstOrNull() ?: return@LaunchedEffect
-        val orderId = latestOrder.id?.take(8) ?: return@LaunchedEffect
+        sortedOrders.forEach { order ->
+            val orderId = order.id?.take(8) ?: return@forEach
+            val currentStatus = order.status ?: return@forEach
 
-        // Kiểm tra nếu trạng thái đơn hàng đã thay đổi và cần thông báo không
-        if (lastNotifiedOrderId != orderId || lastNotifiedOrderStatus != latestOrder.status) {
-            if (viewModel.shouldNotify(orderId, latestOrder.status, context)) {
-                createNotificationChannel(context)
-                sendOrderStatusNotification1(context, orderId, latestOrder.status ?: "")
+            val previousStatus = lastOrderStatusMap[orderId]
 
-                // Lưu lại trạng thái của đơn hàng đã thông báo
-                lastNotifiedOrderId = orderId
-                lastNotifiedOrderStatus = latestOrder.status
+            if (previousStatus != currentStatus) {
+                if (viewModel.shouldNotify(orderId, currentStatus, context)) {
+                    createNotificationChannel(context)
+                    sendOrderStatusNotification1(context, orderId, currentStatus)
 
-                Toast.makeText(context, "Cập nhật trạng thái đơn hàng: ${latestOrder.status}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Đơn $orderId cập nhật trạng thái: $currentStatus", Toast.LENGTH_SHORT).show()
+                }
             }
         }
-    }
-//    LaunchedEffect(myOrders) {
-//        Log.d("HomeScreen", "Invoices updated: ${myOrders.size}")
-//        val latestOrder = myOrders.firstOrNull() ?: return@LaunchedEffect
-//        val orderId = latestOrder.id?.take(8) ?: return@LaunchedEffect
-//        if (viewModel.shouldNotify(orderId, latestOrder.status, context)) {
-//            createNotificationChannel(context)
-//            sendOrderStatusNotification(context, orderId, latestOrder.status ?: "")
-//
-//            Toast.makeText(context, "Thông báo mới: ${latestOrder.status}", Toast.LENGTH_SHORT).show()
-//        }
-//    }
 
+        // Cập nhật map lưu trạng thái sau khi xử lý
+        lastOrderStatusMap = sortedOrders.mapNotNull { order ->
+            val orderId = order.id?.take(8)
+            val status = order.status
+            if (orderId != null && status != null) {
+                orderId to status
+            } else null
+        }.toMap()
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()

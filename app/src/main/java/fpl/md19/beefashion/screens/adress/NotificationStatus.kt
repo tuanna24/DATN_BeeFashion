@@ -16,7 +16,7 @@ object NotificationStatus {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "OrderStatusChannel"
             val descriptionText = "Thông báo trạng thái đơn hàng"
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val importance = NotificationManager.IMPORTANCE_HIGH
             val channel = NotificationChannel("order_status", name, importance).apply {
                 description = descriptionText
             }
@@ -58,7 +58,9 @@ object NotificationStatus {
             .setSmallIcon(R.drawable.bell)
             .setContentTitle("Cập nhật đơn hàng")
             .setContentText("Đơn hàng #OD_$orderId hiện đang ở trạng thái: $statusMessage")
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setAutoCancel(true)
 
         with(NotificationManagerCompat.from(context)) {
             if (ActivityCompat.checkSelfPermission(
@@ -70,8 +72,6 @@ object NotificationStatus {
             }
             notify(orderId.hashCode(), builder.build())
         }
+
     }
-
-
-
 }
