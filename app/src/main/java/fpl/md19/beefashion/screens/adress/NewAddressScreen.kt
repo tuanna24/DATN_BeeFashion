@@ -215,7 +215,7 @@ fun AddressForm(
             selectedProvince != null && selectedDistrict != null && selectedWard != null && detail.isNotEmpty() && name.isNotEmpty() && phoneNumber.isNotEmpty()
         val phoneRegex = Regex("^(03|05|07|08|09)\\d{8}\$")
 
-        Spacer(modifier = Modifier.height(150.dp))
+        Spacer(modifier = Modifier.height(80.dp))
         Button(
             onClick = {
                 if (isFormValid) {

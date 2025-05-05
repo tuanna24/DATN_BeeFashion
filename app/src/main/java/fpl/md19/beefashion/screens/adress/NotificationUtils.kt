@@ -3,8 +3,12 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import androidx.core.app.NotificationCompat
 import fpl.md19.beefashion.R
+import fpl.md19.beefashion.screens.payment.NotificationUtils
+
 object NotificationUtils {
 
     private const val CHANNEL_ID = "order_channel_id"
@@ -19,7 +23,7 @@ object NotificationUtils {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 description = "Kênh thông báo đơn hàng"
             }
@@ -30,8 +34,13 @@ object NotificationUtils {
             .setSmallIcon(R.drawable.bell)
             .setContentTitle("BeeFashion")
             .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setAutoCancel(true)
         notificationManager.notify(NOTIFICATION_ID, builder.build())
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            notificationManager.cancel(NOTIFICATION_ID)
+        }, 5000)
     }
 }
