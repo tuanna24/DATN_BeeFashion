@@ -226,7 +226,8 @@ fun SearchScreen(
             }
         } else {
             LazyColumn {
-                items(filteredList) { product ->
+                val sortedProducts = products.sortedByDescending { it.createdAt }
+                items(sortedProducts) { product ->
                     ProductItem(product = product, navController = navController)
                 }
             }

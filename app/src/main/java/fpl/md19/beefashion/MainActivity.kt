@@ -1,5 +1,6 @@
 package fpl.md19.beefashion
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -64,6 +65,11 @@ class MainActivity : ComponentActivity() {
         } catch (e: Exception) {
             Log.e("ZaloPayInitError", "Error initializing ZaloPay SDK: ${e.message}")
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        ZaloPaySDK.getInstance().onResult(intent)
     }
 }
 

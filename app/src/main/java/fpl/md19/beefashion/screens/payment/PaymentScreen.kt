@@ -435,7 +435,7 @@ fun PaymentScreen(
                         Toast.makeText(context, "Bạn đã đặt hàng thành công!", Toast.LENGTH_SHORT).show()
                         navController.navigate("successScreen")
                         NotificationUtils.showOrderSuccessNotification(context)
-                    } else {
+                    } else if (selectedMethod == "zalopay") {
                         Log.d("ZaloPay", "Button clicked")
 
                         try {
@@ -507,11 +507,10 @@ fun PaymentScreen(
                                                     transToken: String?,
                                                     appTransID: String?
                                                 ) {
+                                                    navController.navigate("successScreen")
                                                     Toast.makeText(context, "Thanh toán thành công", Toast.LENGTH_SHORT).show()
                                                     println("ZaloPay Payment succeeded: payUrl=$payUrl, transToken=$transToken, appTransID=$appTransID")
-//                                            navController.navigate("homeScreen") {
-//                                                popUpTo("currentScreen") { inclusive = true } // Xóa màn hình hiện tại khỏi stack
-//                                            }
+
                                                     sendNotification(
                                                         context,
                                                         "BeesFashion",
@@ -570,6 +569,17 @@ fun PaymentScreen(
                                 Log.e("ZaloPayError", "Exception: ${e.message}")
                             }
                         }
+//                        invoiceViewModel.newCustomerInvoices(
+//                            MyOder(
+//                                customerID = UserSesion.currentUser!!.id,
+//                                addressID = selectedAddress!!.id,
+//                                paidStatus = true,
+//                                invoiceItemDTOs = UserSesion.userOrderItems,
+//                                paymentMethod = selectedMethod,
+//                                total = total,
+//                            )
+//                        )
+
                         Toast.makeText(context, "Thanh toan bang zalopay", Toast.LENGTH_SHORT).show()
                     }
                 },

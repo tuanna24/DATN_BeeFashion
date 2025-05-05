@@ -35,30 +35,35 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
-        <activity
-            android:name=".screens.payment.SuccessScreenActivity"
-            android:exported="true"
-            android:label="ZaloPay"
-            android:launchMode="singleTask">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="demozpdk"
-                    android:host="app" />
-            </intent-filter>
-        </activity>
+<!--        <activity-->
+<!--            android:name=".screens.payment.SuccessScreenActivity"-->
+<!--            android:exported="true"-->
+<!--            android:label="ZaloPay"-->
+<!--            android:launchMode="singleTask">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.VIEW" />-->
+<!--                <category android:name="android.intent.category.DEFAULT" />-->
+<!--                <category android:name="android.intent.category.BROWSABLE" />-->
+<!--                <data android:scheme="demozpdk"-->
+<!--                    android:host="app" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
 
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Beefashion">
+            android:theme="@style/Theme.Beefashion"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="demozpdk"
+                    android:host="app" />
             </intent-filter>
         </activity>
 

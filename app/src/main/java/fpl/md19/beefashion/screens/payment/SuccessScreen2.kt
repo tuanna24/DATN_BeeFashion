@@ -46,8 +46,8 @@ class SuccessScreenActivity : ComponentActivity() {
         val policy = ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
         setContent(){
-            val navController = rememberNavController()
-            SuccessScreen2(navController)
+//            val navController = rememberNavController()
+//            SuccessScreen2(navController)
         }
     }
     override fun onNewIntent(intent: Intent) {
@@ -126,7 +126,7 @@ fun SuccessScreen2(navController: NavController) {
                 ) {
                     Button(
                         onClick = {
-                            navController.navigate("")
+                            navController.navigate("HomeScreen")
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),
                         modifier = Modifier
@@ -142,7 +142,7 @@ fun SuccessScreen2(navController: NavController) {
 
                     Button(
                         onClick = {
-                            navController.navigate("/")
+                            navController.navigate("myOderScreen")
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),
                         modifier = Modifier

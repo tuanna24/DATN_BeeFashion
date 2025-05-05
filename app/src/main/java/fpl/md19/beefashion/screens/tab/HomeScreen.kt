@@ -510,18 +510,29 @@ fun HomeScreen(
 
 // Các hàm khác giữ nguyên
 @Composable
-fun ProductList(products: List<Products>, favoriteViewModel: FavoriteViewModel, navController: NavController) {
+fun ProductList(
+    products: List<Products>,
+    favoriteViewModel: FavoriteViewModel,
+    navController: NavController
+) {
+    val sortedProducts = products.sortedByDescending { it.createdAt }
+
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
         modifier = Modifier.padding(6.dp),
         verticalItemSpacing = 6.dp,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        items(products) { product ->
-            ProductCard(product = product, favoriteViewModel = favoriteViewModel, navController = navController)
+        items(sortedProducts) { product ->
+            ProductCard(
+                product = product,
+                favoriteViewModel = favoriteViewModel,
+                navController = navController
+            )
         }
     }
 }
+
 
 @Composable
 fun ProductCard(
