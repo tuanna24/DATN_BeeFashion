@@ -430,6 +430,7 @@ fun PaymentScreen(
                                 invoiceItemDTOs = UserSesion.userOrderItems,
                                 paymentMethod = selectedMethod,
                                 total = total,
+                                targetDeviceToken = UserSesion.deviceNotificationToken
                             )
                         )
                         Toast.makeText(context, "Bạn đã đặt hàng thành công!", Toast.LENGTH_SHORT).show()
@@ -523,7 +524,8 @@ fun PaymentScreen(
                                                             paidStatus = true,
                                                             invoiceItemDTOs = UserSesion.userOrderItems,
                                                             paymentMethod = selectedMethod,
-                                                            total = total
+                                                            total = total,
+                                                            targetDeviceToken = UserSesion.deviceNotificationToken
                                                         )
                                                     )
                                                 }

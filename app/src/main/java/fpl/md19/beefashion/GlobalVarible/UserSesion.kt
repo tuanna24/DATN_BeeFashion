@@ -10,4 +10,5 @@ object UserSesion {
     var userOrderItems: List<OrderItem> = emptyList()
     var userSelectedAddress: AddressModel? = null
     var selectedOrder: MyOder? = null
+    var deviceNotificationToken: String = ""
 }

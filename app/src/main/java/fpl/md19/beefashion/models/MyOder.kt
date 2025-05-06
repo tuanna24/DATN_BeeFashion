@@ -9,6 +9,7 @@ data class MyOder(
     val paidStatus: Boolean,
     val invoiceItemDTOs: List<OrderItem>,
     val paymentMethod: String,
+    val targetDeviceToken: String,
     val total: Int? = null,
     val status: String? = null,
     val createdAt: String? = null,
