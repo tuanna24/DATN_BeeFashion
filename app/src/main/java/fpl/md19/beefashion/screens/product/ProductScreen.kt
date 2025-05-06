@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -145,13 +146,16 @@ fun ProductScreen(
                     .aspectRatio(1f)
                     .border(1.dp, Color.Gray, RoundedCornerShape(10.dp))
             ) {
-                AsyncImage(
-                    model = selectedProduct?.image,
-                    contentDescription = "Product Image",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxSize()
-                )
+                val imageList = buildList {
+                    selectedProduct?.image?.let { firstImage ->
+                        if (firstImage.isNotBlank()) add(firstImage)
+                    }
+                    addAll(product!!.images.filterNot { it == selectedProduct?.image })
+                }
 
+                ProductImagePager(
+                    images = imageList,
+                )
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -265,13 +269,11 @@ fun ProductScreen(
 
                     IconButton(
                         onClick = {
-//                            loginViewModel.loadRememberedCredentials(context) {
                             if (isLoggedIn != null) {
                                 showAddBottomSheet = true
                             } else {
                                 showLoginDialog = true
                             }
-//                            }
                         },
                         modifier = Modifier
                             .size(48.dp)

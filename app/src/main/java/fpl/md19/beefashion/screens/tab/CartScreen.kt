@@ -281,7 +281,6 @@ fun CartScreen(
             }
         }
     }
-    //}
 }
 
 @Composable

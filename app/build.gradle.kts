@@ -94,6 +94,7 @@ dependencies {
     //Image
     implementation ("com.google.accompanist:accompanist-pager:0.31.1-alpha")
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.36.0")
 
     implementation("com.google.maps.android:maps-compose:6.4.4")
     implementation("com.google.android.gms:play-services-maps:19.1.0")

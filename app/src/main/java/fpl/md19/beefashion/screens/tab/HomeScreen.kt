@@ -250,7 +250,7 @@ fun HomeScreen(
                 onClick = { showBottomSheet = true },
                 modifier = Modifier.size(48.dp),
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(Color.Black),
+                colors = ButtonDefaults.buttonColors(Color(0xFFFF5722)),
                 contentPadding = PaddingValues(0.dp)
             ) {
                 Image(

@@ -427,7 +427,7 @@ fun MyDetailsScreen(
                 )
             },
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (isFormValid) Color.Black else Color.LightGray
+                containerColor = if (isFormValid) Color(0xFFFF5722) else Color.LightGray
             ),
             shape = RoundedCornerShape(12.dp),
             enabled = isFormValid,
@@ -436,7 +436,7 @@ fun MyDetailsScreen(
                 .align(Alignment.BottomCenter)
                 .padding(16.dp)
                 .height(50.dp)
-                .background(if (isFormValid) Color(0xFFFF5722) else Color.LightGray)
+                .background(if (isFormValid) Color.White else Color.LightGray)
         ) {
             Text(
                 text = "Lưu",
