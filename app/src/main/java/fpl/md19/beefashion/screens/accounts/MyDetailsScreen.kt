@@ -1,13 +1,10 @@
 package fpl.md19.beefashion.screens.accounts
 
 import android.Manifest
-import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.provider.MediaStore
-import android.provider.OpenableColumns
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -48,12 +45,6 @@ import fpl.md19.beefashion.R
 import fpl.md19.beefashion.requests.UpdateUserRequest
 import fpl.md19.beefashion.requests.createMultipartBody
 import fpl.md19.beefashion.viewModels.MyDetailViewModel
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,17 +64,20 @@ fun MyDetailsScreen(
     var gender by remember { mutableStateOf(user?.gender ?: "") }
     var phone by remember { mutableStateOf(user?.phone ?: "") }
 
+    // Thêm trạng thái cho lỗi số điện thoại
+    var phoneError by remember { mutableStateOf<String?>(null) }
+
     var isGenderDropdownExpanded by remember { mutableStateOf(false) }
 
     // Danh sách các lựa chọn giới tính
     val genderOptions = listOf("Nam", "Nữ", "Khác")
 
     var avatarUri by remember {mutableStateOf<Uri?>(
-            if (user?.image.isNullOrEmpty())
-                null
-            else
-                Uri.parse(user?.image)
-        )
+        if (user?.image.isNullOrEmpty())
+            null
+        else
+            Uri.parse(user?.image)
+    )
     }
 
     val context = LocalContext.current
@@ -106,7 +100,15 @@ fun MyDetailsScreen(
 
     val avatarModel = avatarUri ?: R.drawable.ao_phong
 
-    val isFormValid = fullName.isNotEmpty() && email.isNotEmpty() && dateOfBirth.isNotEmpty() && gender.isNotEmpty() && phone.isNotEmpty()
+    // Hàm validate số điện thoại Việt Nam
+    fun validateVietnamesePhoneNumber(phone: String): Boolean {
+        // Kiểm tra số điện thoại Việt Nam (bắt đầu bằng 0, sau đó là mã mạng và có tổng 10 ký tự)
+        val phoneRegex = "^(0)[35789][0-9]{8}$".toRegex()
+        return phoneRegex.matches(phone)
+    }
+
+    val isFormValid = fullName.isNotEmpty() && email.isNotEmpty() && dateOfBirth.isNotEmpty() &&
+            gender.isNotEmpty() && phone.isNotEmpty() && phoneError == null
 
     Box(
         modifier = Modifier
@@ -341,13 +343,32 @@ fun MyDetailsScreen(
             )
             OutlinedTextField(
                 value = phone,
-                onValueChange = { phone = it },
+                onValueChange = {
+                    phone = it
+                    // Kiểm tra số điện thoại mỗi khi người dùng nhập
+                    phoneError = when {
+                        it.isEmpty() -> null
+                        !it.all { char -> char.isDigit() } -> "Số điện thoại chỉ được chứa số"
+                        it.length != 10 -> "Số điện thoại phải có 10 chữ số"
+                        !validateVietnamesePhoneNumber(it) -> "Số điện thoại không đúng định dạng Việt Nam"
+                        else -> null
+                    }
+                },
                 placeholder = { Text("Nhập SDT của bạn") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
+                isError = phoneError != null,
+                supportingText = {
+                    phoneError?.let {
+                        Text(
+                            text = it,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.LightGray,
-                    focusedBorderColor = Color.Black
+                    unfocusedBorderColor = if (phoneError != null) MaterialTheme.colorScheme.error else Color.LightGray,
+                    focusedBorderColor = if (phoneError != null) MaterialTheme.colorScheme.error else Color.Black
                 ),
                 leadingIcon = {
                     Row(
@@ -370,6 +391,13 @@ fun MyDetailsScreen(
             onClick = {
                 if (fullName.isEmpty() || email.isEmpty() || dateOfBirth.isEmpty() || gender.isEmpty() || phone.isEmpty()) {
                     Toast.makeText(context, "Vui lòng nhập đầy đủ thông tin.", Toast.LENGTH_SHORT)
+                        .show()
+                    return@Button
+                }
+
+                // Kiểm tra số điện thoại trước khi submit
+                if (!validateVietnamesePhoneNumber(phone)) {
+                    Toast.makeText(context, "Số điện thoại không đúng định dạng Việt Nam.", Toast.LENGTH_SHORT)
                         .show()
                     return@Button
                 }
@@ -402,12 +430,13 @@ fun MyDetailsScreen(
                 containerColor = if (isFormValid) Color.Black else Color.LightGray
             ),
             shape = RoundedCornerShape(12.dp),
+            enabled = isFormValid,
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
                 .padding(16.dp)
                 .height(50.dp)
-                .background(Color(0xFFFF5722))
+                .background(if (isFormValid) Color(0xFFFF5722) else Color.LightGray)
         ) {
             Text(
                 text = "Lưu",
@@ -417,7 +446,6 @@ fun MyDetailsScreen(
         }
     }
 }
-
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
