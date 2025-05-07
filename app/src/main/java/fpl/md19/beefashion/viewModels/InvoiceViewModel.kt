@@ -16,6 +16,8 @@ class InvoiceViewModel: ViewModel() {
     private val _invoices = MutableLiveData<List<MyOder>>()
     val invoices: LiveData<List<MyOder>> = _invoices
 
+    var errorCode = MutableLiveData<Int>()
+
     fun getCustomerInvoices(){
         viewModelScope.launch {
             try{
@@ -38,10 +40,7 @@ class InvoiceViewModel: ViewModel() {
                 val customerID = UserSesion.currentUser?.id
                 if(!customerID.isNullOrBlank()){
                     val invoiceRes = apiService.makeAnInvoice(newInvoice)
-                    println(invoiceRes)
-//                    if(invoiceRes.isSuccessful && invoiceRes.code() == 200){
-//                        _invoices.postValue(invoiceRes.body())
-//                    }
+                    errorCode.postValue(invoiceRes.code())
                 }
             }catch (e: Exception){
                 println(e)

@@ -1,6 +1,7 @@
 package fpl.md19.beefashion.screens.payment
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -24,7 +25,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,6 +44,9 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -79,6 +85,7 @@ class SuccessScreen : ComponentActivity() {
     }
 }
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun PaymentScreen(
     navController: NavController,
@@ -88,6 +95,7 @@ fun PaymentScreen(
     orderItems: List<OrderItem>
 ) {
     val selectedAddress = UserSesion.userSelectedAddress
+    var statusCode = invoiceViewModel.errorCode.observeAsState().value
     var selectedMethod by remember { mutableStateOf("cod") }
     val context = LocalContext.current
 
@@ -103,6 +111,20 @@ fun PaymentScreen(
 
     val cartViewModel: CartViewModel = viewModel()
 
+    var disableOrderButton by remember { mutableStateOf(true) }
+
+    LaunchedEffect(statusCode) {
+        if (statusCode == 200) {
+            if(UserSesion.toBeRemovedCartItem.isNotEmpty()){
+                cartViewModel.removeSelectedItems(UserSesion.toBeRemovedCartItem)
+            }
+            Toast.makeText(context, "Bạn đã đặt hàng thành công!", Toast.LENGTH_SHORT).show()
+            navController.navigate("successScreen")
+            NotificationUtils.showOrderSuccessNotification(context)
+        } else if (statusCode == 400) {
+            Toast.makeText(context, "Sản phẩm này đã hết hàng!", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -418,6 +440,7 @@ fun PaymentScreen(
             }
             Button(
                 onClick = {
+                    disableOrderButton = false
                     if (selectedMethod == "cod") {
                         invoiceViewModel.newCustomerInvoices(
                             MyOder(
@@ -430,12 +453,7 @@ fun PaymentScreen(
                                 targetDeviceToken = UserSesion.deviceNotificationToken
                             )
                         )
-                        if(UserSesion.toBeRemovedCartItem.isNotEmpty()){
-                            cartViewModel.removeSelectedItems(UserSesion.toBeRemovedCartItem)
-                        }
-                        Toast.makeText(context, "Bạn đã đặt hàng thành công!", Toast.LENGTH_SHORT).show()
-                        navController.navigate("successScreen")
-                        NotificationUtils.showOrderSuccessNotification(context)
+
                     } else if (selectedMethod == "zalopay") {
                         Log.d("ZaloPay", "Button clicked")
 
@@ -590,7 +608,7 @@ fun PaymentScreen(
                         Toast.makeText(context, "Thanh toan bang zalopay", Toast.LENGTH_SHORT).show()
                     }
                 },
-                enabled = selectedAddress?.id != null,
+                enabled = selectedAddress?.id != null && disableOrderButton,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),
                 modifier = Modifier
                     .padding(4.dp)
