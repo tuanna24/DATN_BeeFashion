@@ -41,7 +41,7 @@ fun ProductImagePager(images: List<String>) {
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 15.dp),
-            activeColor = androidx.compose.ui.graphics.Color.Black,
+            activeColor = androidx.compose.ui.graphics.Color(0xFFFF5722),
             inactiveColor = androidx.compose.ui.graphics.Color.LightGray
         )
     }

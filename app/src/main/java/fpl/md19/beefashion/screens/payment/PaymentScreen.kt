@@ -7,7 +7,6 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
@@ -16,7 +15,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -26,9 +24,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -89,6 +84,7 @@ fun PaymentScreen(
     navController: NavController,
     addressViewModel: AddressViewModel = viewModel(),
     invoiceViewModel: InvoiceViewModel = viewModel(),
+    cartViewModel: CartViewModel = viewModel(),
     orderItems: List<OrderItem>
 ) {
     val selectedAddress = UserSesion.userSelectedAddress
@@ -131,6 +127,7 @@ fun PaymentScreen(
                 modifier = Modifier
                     .size(20.dp)
                     .clickable {
+                        UserSesion.toBeRemovedCartItem = emptyList()
                         navController.popBackStack()
                     }
             )
@@ -433,6 +430,9 @@ fun PaymentScreen(
                                 targetDeviceToken = UserSesion.deviceNotificationToken
                             )
                         )
+                        if(UserSesion.toBeRemovedCartItem.isNotEmpty()){
+                            cartViewModel.removeSelectedItems(UserSesion.toBeRemovedCartItem)
+                        }
                         Toast.makeText(context, "Bạn đã đặt hàng thành công!", Toast.LENGTH_SHORT).show()
                         navController.navigate("successScreen")
                         NotificationUtils.showOrderSuccessNotification(context)
@@ -528,12 +528,16 @@ fun PaymentScreen(
                                                             targetDeviceToken = UserSesion.deviceNotificationToken
                                                         )
                                                     )
+                                                    if(UserSesion.toBeRemovedCartItem.isNotEmpty()){
+                                                        cartViewModel.removeSelectedItems(UserSesion.toBeRemovedCartItem)
+                                                    }
                                                 }
 
                                                 override fun onPaymentCanceled(
                                                     payUrl: String?,
                                                     transToken: String?
                                                 ) {
+                                                    UserSesion.toBeRemovedCartItem = emptyList()
                                                     Toast.makeText(context, "Hủy thanh toán", Toast.LENGTH_SHORT).show()
                                                     Log.d("ZaloPay", "Payment canceled: payUrl=$payUrl, transToken=$transToken")
                                                     sendNotification(
@@ -548,6 +552,7 @@ fun PaymentScreen(
                                                     payUrl: String?,
                                                     transToken: String?
                                                 ) {
+                                                    UserSesion.toBeRemovedCartItem = emptyList()
                                                     Toast.makeText(context, "Lỗi thanh toán!", Toast.LENGTH_SHORT).show()
                                                     Log.e("ZaloPayError", "Payment error: payUrl=$payUrl, transToken=$transToken")
                                                     sendNotification(

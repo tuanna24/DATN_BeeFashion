@@ -1,11 +1,9 @@
 package fpl.md19.beefashion.screens.tab
 
-import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -33,12 +31,9 @@ import fpl.md19.beefashion.models.AddressModel
 import fpl.md19.beefashion.models.CartItem
 import fpl.md19.beefashion.models.CartItemSentData
 import fpl.md19.beefashion.models.OrderItem
-import fpl.md19.beefashion.screens.adress.AddressPreferenceManager
 import fpl.md19.beefashion.screens.adress.NotifiSharePre
 import fpl.md19.beefashion.screens.adress.NotificationStatus.createNotificationChannel
-import fpl.md19.beefashion.screens.adress.NotificationStatus.sendOrderStatusNotification
 import fpl.md19.beefashion.screens.adress.NotificationStatus.sendOrderStatusNotification1
-import fpl.md19.beefashion.viewModels.AddressViewModel
 import fpl.md19.beefashion.viewModels.CartViewModel
 import fpl.md19.beefashion.viewModels.InvoiceViewModel
 import java.text.NumberFormat
@@ -260,7 +255,7 @@ fun CartScreen(
                         }
 
                         // Xóa sản phẩm đã chọn khỏi giỏ hàng
-                        cartViewModel.removeSelectedItems(selectedItems)
+                        UserSesion.toBeRemovedCartItem = selectedItems
 
                         // Điều hướng sang màn thanh toán
                         navController.navigate("paymentScreen")
