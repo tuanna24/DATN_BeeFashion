@@ -45,8 +45,7 @@ Image Loading: Coil
 * JDK 17+
 * Gradle 8+
 
-### 2️⃣ Clone dự án
-
+### 2️⃣ Clone project
 ```bash
 git clone https://github.com/tuanna24/DATN_BeeFashion.git
 ```
@@ -58,7 +57,7 @@ git clone https://github.com/tuanna24/DATN_BeeFashion.git
 
 ---
 
-## 📂 Cấu trúc thư mục (ví dụ)
+## 📂 Directory structure
 
 ```
 app/
