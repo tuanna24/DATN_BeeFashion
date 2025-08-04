@@ -26,18 +26,18 @@ Android apps developed with Kotlin and Jetpack Compose follow a modern architect
 ---
 
 ## 🛠️ Technologies & Libraries Used
-Language: Kotlin
-UI Toolkit: Jetpack Compose
-Navigation: Navigation Compose
-DI: Hilt or Koin
-Networking: Retrofit or Ktor
-Database: MongoDB
-Asynchronous: Kotlin Coroutines
-Image Loading: Coil
+* Language: Kotlin
+* UI Toolkit: Jetpack Compose
+* Navigation: Navigation Compose
+* DI: Hilt or Koin
+* Networking: Retrofit or Ktor
+* Database: MongoDB
+* Asynchronous: Kotlin Coroutines
+* Image Loading: Coil
 
 ---
 
-## 🚀 Cài đặt và chạy dự án
+## 🚀 Install and run the project
 
 ### 1️⃣ Environment Requirements
 
